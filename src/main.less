@@ -20,4 +20,40 @@
 body {
   font-family: "Helvetica Neue Condensed Bold";
   text-transform: uppercase;
+
+  div.seo {
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 2vw;
+    line-height: 150%;
+
+    h1 {
+      @aspect: 0.14;
+      background: url(images/wordmark.svg) center center;
+      background-size: cover;
+      width: 70vw;
+      height: 70vw * @aspect;
+      overflow: hidden;
+      text-indent: -100vw;
+      margin-bottom: 1.5vw;
+    }
+
+    span.globe {
+      @aspect: 1.25;
+      display: inline-block;
+      background: url(images/globe.svg) center center;
+      background-size: cover;
+      overflow: hidden;
+      text-indent: -100vw;
+      width: 2.25vw * @aspect;
+      height: 2.25vw;
+      margin-left: 0.25vw;
+      margin-right: -0.5vw;
+    }
+  }
+
 }

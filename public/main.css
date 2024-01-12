@@ -15,4 +15,33 @@ body {
   font-family: "Helvetica Neue Condensed Bold";
   text-transform: uppercase;
 }
+body div.seo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 2vw;
+  line-height: 150%;
+}
+body div.seo h1 {
+  background: url(images/wordmark.svg) center center;
+  background-size: cover;
+  width: 70vw;
+  height: 9.8vw;
+  overflow: hidden;
+  text-indent: -100vw;
+  margin-bottom: 1.5vw;
+}
+body div.seo span.globe {
+  display: inline-block;
+  background: url(images/globe.svg) center center;
+  background-size: cover;
+  overflow: hidden;
+  text-indent: -100vw;
+  width: 2.8125vw;
+  height: 2.25vw;
+  margin-left: 0.25vw;
+  margin-right: -0.5vw;
+}
 /*# sourceMappingURL=main.css.map */
