@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "less": "less-watch-compiler src public main.less --source-map",
-    "serve": "esbuild --bundle src/index.js --sourcemap --loader:.js=jsx --external:./images/* --outfile=public/index.js --servedir=public --serve=8080",
+    "serve": "node ./utils/serve",
     "dev": "concurrently --kill-others \"npm run less\" \"npm run serve\"",
     "build": "node ./utils/build"
   },
@@ -21,13 +21,14 @@
   "homepage": "https://github.com/jonobr1/one-burger#readme",
   "devDependencies": {
     "concurrently": "^6.4.0",
-    "esbuild": "^0.14.3",
+    "esbuild": "^0.19.11",
     "eslint": "^8.18.0",
     "less": "^4.1.2",
     "less-watch-compiler": "^1.16.3"
   },
   "dependencies": {
     "@tweenjs/tween.js": "^21.0.0",
+    "lil-gui": "^0.19.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "three": "^0.160.0"
