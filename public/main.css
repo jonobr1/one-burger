@@ -44,4 +44,11 @@ body div.seo span.globe {
   margin-left: 0.25vw;
   margin-right: -0.5vw;
 }
+body canvas {
+  position: absolute;
+  display: block;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
 /*# sourceMappingURL=main.css.map */
