@@ -4,28 +4,40 @@ const STICKER_WIDTH = 340;
 const STICKER_HEIGHT = 155;
 const aspect = STICKER_HEIGHT / STICKER_WIDTH;
 
+const texture = new THREE.TextureLoader().load('images/texture.jpg')
 const geometry = new THREE.PlaneGeometry(1, aspect, 1, 1);
-const white = new THREE.MeshBasicMaterial();
-const material = new THREE.MeshBasicMaterial({
-  map: new THREE.TextureLoader().load('images/texture.jpg'),
-  // color: '#ff1400',
-  // transparent: true
+const material = new THREE.ShaderMaterial({
+  uniforms: {
+    map: { value: texture }
+  },
+  vertexShader: `
+    varying vec2 vUv;
+
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D map;
+
+    varying vec2 vUv;
+
+    void main() {
+      vec4 texel = texture2D( map, vUv );
+      gl_FragColor = texel;
+    }
+  `
 });
 
-material.map.magFilter = material.map.minFilter = THREE.LinearFilter;
-// THREE.LinearMipMapNearestFilter
+texture.magFilter = texture.minFilter = THREE.LinearFilter;
 geometry.rotateZ(Math.PI);
 
-export class Sticker extends THREE.Group {
+export class Sticker extends THREE.Mesh {
 
   constructor() {
 
-    super();
-
-    this.add(
-      new THREE.Mesh(geometry, white),
-      new THREE.Mesh(geometry, material)
-    );
+    super(geometry, material.clone());
 
   }
 
