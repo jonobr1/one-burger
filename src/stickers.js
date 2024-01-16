@@ -61,7 +61,7 @@ export default function App(props) {
 
       camera.updateProjectionMatrix();
 
-      const scale = 155 / height;
+      const scale = Sticker.height / height;
       scene.scale.set(scale, scale, scale);
 
       for (let i = 0; i < scene.children.length; i++) {

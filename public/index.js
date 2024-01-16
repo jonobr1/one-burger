@@ -42699,17 +42699,33 @@
   var STICKER_HEIGHT = 155;
   var aspect2 = STICKER_HEIGHT / STICKER_WIDTH;
   var texture = new TextureLoader().load("images/texture.jpg");
-  var geometry = new PlaneGeometry(1, aspect2, 1, 1);
+  var geometry = new PlaneGeometry(1, aspect2, 64, 64);
   var material = new ShaderMaterial({
     uniforms: {
-      map: { value: texture }
+      map: { value: texture },
+      fold: { value: 0 }
     },
     vertexShader: `
+    const float PI = ${Math.PI};
+    uniform float fold;
+
     varying vec2 vUv;
 
     void main() {
       vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+      float isRight = step( 1.0, uv.x );
+      float isTop = step( 1.0, uv.y );
+      float applies = isTop * isRight;
+
+      float theta = atan( position.y / position.x );
+      float dist = length( position );
+
+      vec3 pos = vec3( position );
+      // pos.x += cos( smoothstep( 0.5, 1.0, uv.x ) * PI ) * fold;
+      pos.z += sin( smoothstep( 0.5, 1.0, uv.x ) * PI * 0.5 ) * fold;
+
+      gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
     }
   `,
     fragmentShader: `
@@ -42773,7 +42789,7 @@
         camera.right = 1 / 2;
         camera.bottom = aspect3 / 2;
         camera.updateProjectionMatrix();
-        const scale = 155 / height;
+        const scale = Sticker.height / height;
         scene.scale.set(scale, scale, scale);
         for (let i = 0; i < scene.children.length; i++) {
           const sticker = scene.children[i];

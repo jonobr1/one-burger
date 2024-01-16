@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import * as THREE from "three";
 import { Sticker } from "./sticker.js";
+import GUI from "lil-gui";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const domElement = document.createElement('div');
 const root = createRoot(domElement);
@@ -17,9 +19,15 @@ function Prototype(props) {
 
   function mount() {
 
+    const gui = new GUI();
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera();
+    const controls = new OrbitControls(camera, renderer.domElement);
+
+    renderer.domElement.style.position = 'absolute';
+    renderer.domElement.style.top = 0;
+    renderer.domElement.style.left = 0;
 
     camera.position.z = -1;
     camera.rotation.y = Math.PI;
@@ -27,7 +35,7 @@ function Prototype(props) {
     const sticker = new Sticker();
     scene.add(sticker);
 
-    renderer.setClearAlpha(0);
+    gui.add(sticker.material.uniforms.fold, 'value', 0, 1).name('fold');
 
     domElement.current.appendChild(renderer.domElement);
     renderer.setAnimationLoop(update);
@@ -67,6 +75,7 @@ function Prototype(props) {
     }
 
     function update() {
+      controls.update();
       renderer.render(scene, camera);
     }
 

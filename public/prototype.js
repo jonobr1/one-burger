@@ -2558,7 +2558,7 @@
             }
           }
           var RESERVED = 0;
-          var STRING = 1;
+          var STRING2 = 1;
           var BOOLEANISH_STRING = 2;
           var BOOLEAN = 3;
           var OVERLOADED_BOOLEAN = 4;
@@ -2691,7 +2691,7 @@
             var name = _ref[0], attributeName = _ref[1];
             properties[name] = new PropertyInfoRecord(
               name,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName,
@@ -2944,7 +2944,7 @@
             var name = attributeName.replace(CAMELIZE, capitalize);
             properties[name] = new PropertyInfoRecord(
               name,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName,
@@ -2969,7 +2969,7 @@
             var name = attributeName.replace(CAMELIZE, capitalize);
             properties[name] = new PropertyInfoRecord(
               name,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName,
@@ -2990,7 +2990,7 @@
             var name = attributeName.replace(CAMELIZE, capitalize);
             properties[name] = new PropertyInfoRecord(
               name,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName,
@@ -3003,7 +3003,7 @@
           ["tabIndex", "crossOrigin"].forEach(function(attributeName) {
             properties[attributeName] = new PropertyInfoRecord(
               attributeName,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName.toLowerCase(),
@@ -3018,7 +3018,7 @@
           var xlinkHref = "xlinkHref";
           properties[xlinkHref] = new PropertyInfoRecord(
             "xlinkHref",
-            STRING,
+            STRING2,
             false,
             // mustUseProperty
             "xlink:href",
@@ -3030,7 +3030,7 @@
           ["src", "href", "action", "formAction"].forEach(function(attributeName) {
             properties[attributeName] = new PropertyInfoRecord(
               attributeName,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName.toLowerCase(),
@@ -23513,6 +23513,8 @@
 
   // node_modules/three/build/three.module.js
   var REVISION = "160";
+  var MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2, ROTATE: 0, DOLLY: 1, PAN: 2 };
+  var TOUCH = { ROTATE: 0, PAN: 1, DOLLY_PAN: 2, DOLLY_ROTATE: 3 };
   var CullFaceNone = 0;
   var CullFaceBack = 1;
   var CullFaceFront = 2;
@@ -23717,6 +23719,7 @@
     }
   };
   var _lut = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b", "0c", "0d", "0e", "0f", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1a", "1b", "1c", "1d", "1e", "1f", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "2a", "2b", "2c", "2d", "2e", "2f", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "3a", "3b", "3c", "3d", "3e", "3f", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "4a", "4b", "4c", "4d", "4e", "4f", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "5a", "5b", "5c", "5d", "5e", "5f", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "6a", "6b", "6c", "6d", "6e", "6f", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "7a", "7b", "7c", "7d", "7e", "7f", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "8a", "8b", "8c", "8d", "8e", "8f", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "9a", "9b", "9c", "9d", "9e", "9f", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "aa", "ab", "ac", "ad", "ae", "af", "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9", "ba", "bb", "bc", "bd", "be", "bf", "c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "ca", "cb", "cc", "cd", "ce", "cf", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "da", "db", "dc", "dd", "de", "df", "e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef", "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff"];
+  var _seed = 1234567;
   var DEG2RAD = Math.PI / 180;
   var RAD2DEG = 180 / Math.PI;
   function generateUUID() {
@@ -23733,14 +23736,106 @@
   function euclideanModulo(n, m) {
     return (n % m + m) % m;
   }
+  function mapLinear(x, a1, a2, b1, b2) {
+    return b1 + (x - a1) * (b2 - b1) / (a2 - a1);
+  }
+  function inverseLerp(x, y, value) {
+    if (x !== y) {
+      return (value - x) / (y - x);
+    } else {
+      return 0;
+    }
+  }
   function lerp(x, y, t) {
     return (1 - t) * x + t * y;
+  }
+  function damp(x, y, lambda, dt) {
+    return lerp(x, y, 1 - Math.exp(-lambda * dt));
+  }
+  function pingpong(x, length = 1) {
+    return length - Math.abs(euclideanModulo(x, length * 2) - length);
+  }
+  function smoothstep(x, min, max) {
+    if (x <= min)
+      return 0;
+    if (x >= max)
+      return 1;
+    x = (x - min) / (max - min);
+    return x * x * (3 - 2 * x);
+  }
+  function smootherstep(x, min, max) {
+    if (x <= min)
+      return 0;
+    if (x >= max)
+      return 1;
+    x = (x - min) / (max - min);
+    return x * x * x * (x * (x * 6 - 15) + 10);
+  }
+  function randInt(low, high) {
+    return low + Math.floor(Math.random() * (high - low + 1));
+  }
+  function randFloat(low, high) {
+    return low + Math.random() * (high - low);
+  }
+  function randFloatSpread(range) {
+    return range * (0.5 - Math.random());
+  }
+  function seededRandom(s) {
+    if (s !== void 0)
+      _seed = s;
+    let t = _seed += 1831565813;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+  function degToRad(degrees) {
+    return degrees * DEG2RAD;
+  }
+  function radToDeg(radians) {
+    return radians * RAD2DEG;
   }
   function isPowerOfTwo(value) {
     return (value & value - 1) === 0 && value !== 0;
   }
+  function ceilPowerOfTwo(value) {
+    return Math.pow(2, Math.ceil(Math.log(value) / Math.LN2));
+  }
   function floorPowerOfTwo(value) {
     return Math.pow(2, Math.floor(Math.log(value) / Math.LN2));
+  }
+  function setQuaternionFromProperEuler(q, a, b, c, order) {
+    const cos = Math.cos;
+    const sin = Math.sin;
+    const c2 = cos(b / 2);
+    const s2 = sin(b / 2);
+    const c13 = cos((a + c) / 2);
+    const s13 = sin((a + c) / 2);
+    const c1_3 = cos((a - c) / 2);
+    const s1_3 = sin((a - c) / 2);
+    const c3_1 = cos((c - a) / 2);
+    const s3_1 = sin((c - a) / 2);
+    switch (order) {
+      case "XYX":
+        q.set(c2 * s13, s2 * c1_3, s2 * s1_3, c2 * c13);
+        break;
+      case "YZY":
+        q.set(s2 * s1_3, c2 * s13, s2 * c1_3, c2 * c13);
+        break;
+      case "ZXZ":
+        q.set(s2 * c1_3, s2 * s1_3, c2 * s13, c2 * c13);
+        break;
+      case "XZX":
+        q.set(c2 * s13, s2 * s3_1, s2 * c3_1, c2 * c13);
+        break;
+      case "YXY":
+        q.set(s2 * c3_1, c2 * s13, s2 * s3_1, c2 * c13);
+        break;
+      case "ZYZ":
+        q.set(s2 * s3_1, s2 * c3_1, c2 * s13, c2 * c13);
+        break;
+      default:
+        console.warn("THREE.MathUtils: .setQuaternionFromProperEuler() encountered an unknown order: " + order);
+    }
   }
   function denormalize(value, array) {
     switch (array.constructor) {
@@ -23782,6 +23877,32 @@
         throw new Error("Invalid component type.");
     }
   }
+  var MathUtils = {
+    DEG2RAD,
+    RAD2DEG,
+    generateUUID,
+    clamp,
+    euclideanModulo,
+    mapLinear,
+    inverseLerp,
+    lerp,
+    damp,
+    pingpong,
+    smoothstep,
+    smootherstep,
+    randInt,
+    randFloat,
+    randFloatSpread,
+    seededRandom,
+    degToRad,
+    radToDeg,
+    isPowerOfTwo,
+    ceilPowerOfTwo,
+    floorPowerOfTwo,
+    setQuaternionFromProperEuler,
+    normalize,
+    denormalize
+  };
   var Vector2 = class _Vector2 {
     constructor(x = 0, y = 0) {
       _Vector2.prototype.isVector2 = true;
@@ -42678,6 +42799,49 @@
     ]
   ];
   var _controlInterpolantsResultBuffer = new Float32Array(1);
+  var Spherical = class {
+    constructor(radius = 1, phi = 0, theta = 0) {
+      this.radius = radius;
+      this.phi = phi;
+      this.theta = theta;
+      return this;
+    }
+    set(radius, phi, theta) {
+      this.radius = radius;
+      this.phi = phi;
+      this.theta = theta;
+      return this;
+    }
+    copy(other) {
+      this.radius = other.radius;
+      this.phi = other.phi;
+      this.theta = other.theta;
+      return this;
+    }
+    // restrict phi to be between EPS and PI-EPS
+    makeSafe() {
+      const EPS = 1e-6;
+      this.phi = Math.max(EPS, Math.min(Math.PI - EPS, this.phi));
+      return this;
+    }
+    setFromVector3(v) {
+      return this.setFromCartesianCoords(v.x, v.y, v.z);
+    }
+    setFromCartesianCoords(x, y, z) {
+      this.radius = Math.sqrt(x * x + y * y + z * z);
+      if (this.radius === 0) {
+        this.theta = 0;
+        this.phi = 0;
+      } else {
+        this.theta = Math.atan2(x, z);
+        this.phi = Math.acos(clamp(y / this.radius, -1, 1));
+      }
+      return this;
+    }
+    clone() {
+      return new this.constructor().copy(this);
+    }
+  };
   if (typeof __THREE_DEVTOOLS__ !== "undefined") {
     __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent("register", { detail: {
       revision: REVISION
@@ -42696,17 +42860,33 @@
   var STICKER_HEIGHT = 155;
   var aspect2 = STICKER_HEIGHT / STICKER_WIDTH;
   var texture = new TextureLoader().load("images/texture.jpg");
-  var geometry = new PlaneGeometry(1, aspect2, 1, 1);
+  var geometry = new PlaneGeometry(1, aspect2, 64, 64);
   var material = new ShaderMaterial({
     uniforms: {
-      map: { value: texture }
+      map: { value: texture },
+      fold: { value: 0 }
     },
     vertexShader: `
+    const float PI = ${Math.PI};
+    uniform float fold;
+
     varying vec2 vUv;
 
     void main() {
       vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+      float isRight = step( 1.0, uv.x );
+      float isTop = step( 1.0, uv.y );
+      float applies = isTop * isRight;
+
+      float theta = atan( position.y / position.x );
+      float dist = length( position );
+
+      vec3 pos = vec3( position );
+      // pos.x += cos( smoothstep( 0.5, 1.0, uv.x ) * PI ) * fold;
+      pos.z += sin( smoothstep( 0.5, 1.0, uv.x ) * PI * 0.5 ) * fold;
+
+      gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
     }
   `,
     fragmentShader: `
@@ -42730,6 +42910,2473 @@
     static height = STICKER_HEIGHT;
   };
 
+  // node_modules/lil-gui/dist/lil-gui.esm.js
+  var Controller = class _Controller {
+    constructor(parent, object, property, className, elementType = "div") {
+      this.parent = parent;
+      this.object = object;
+      this.property = property;
+      this._disabled = false;
+      this._hidden = false;
+      this.initialValue = this.getValue();
+      this.domElement = document.createElement(elementType);
+      this.domElement.classList.add("controller");
+      this.domElement.classList.add(className);
+      this.$name = document.createElement("div");
+      this.$name.classList.add("name");
+      _Controller.nextNameID = _Controller.nextNameID || 0;
+      this.$name.id = `lil-gui-name-${++_Controller.nextNameID}`;
+      this.$widget = document.createElement("div");
+      this.$widget.classList.add("widget");
+      this.$disable = this.$widget;
+      this.domElement.appendChild(this.$name);
+      this.domElement.appendChild(this.$widget);
+      this.domElement.addEventListener("keydown", (e) => e.stopPropagation());
+      this.domElement.addEventListener("keyup", (e) => e.stopPropagation());
+      this.parent.children.push(this);
+      this.parent.controllers.push(this);
+      this.parent.$children.appendChild(this.domElement);
+      this._listenCallback = this._listenCallback.bind(this);
+      this.name(property);
+    }
+    /**
+     * Sets the name of the controller and its label in the GUI.
+     * @param {string} name
+     * @returns {this}
+     */
+    name(name) {
+      this._name = name;
+      this.$name.innerHTML = name;
+      return this;
+    }
+    /**
+     * Pass a function to be called whenever the value is modified by this controller.
+     * The function receives the new value as its first parameter. The value of `this` will be the
+     * controller.
+     *
+     * For function controllers, the `onChange` callback will be fired on click, after the function
+     * executes.
+     * @param {Function} callback
+     * @returns {this}
+     * @example
+     * const controller = gui.add( object, 'property' );
+     *
+     * controller.onChange( function( v ) {
+     * 	console.log( 'The value is now ' + v );
+     * 	console.assert( this === controller );
+     * } );
+     */
+    onChange(callback) {
+      this._onChange = callback;
+      return this;
+    }
+    /**
+     * Calls the onChange methods of this controller and its parent GUI.
+     * @protected
+     */
+    _callOnChange() {
+      this.parent._callOnChange(this);
+      if (this._onChange !== void 0) {
+        this._onChange.call(this, this.getValue());
+      }
+      this._changed = true;
+    }
+    /**
+     * Pass a function to be called after this controller has been modified and loses focus.
+     * @param {Function} callback
+     * @returns {this}
+     * @example
+     * const controller = gui.add( object, 'property' );
+     *
+     * controller.onFinishChange( function( v ) {
+     * 	console.log( 'Changes complete: ' + v );
+     * 	console.assert( this === controller );
+     * } );
+     */
+    onFinishChange(callback) {
+      this._onFinishChange = callback;
+      return this;
+    }
+    /**
+     * Should be called by Controller when its widgets lose focus.
+     * @protected
+     */
+    _callOnFinishChange() {
+      if (this._changed) {
+        this.parent._callOnFinishChange(this);
+        if (this._onFinishChange !== void 0) {
+          this._onFinishChange.call(this, this.getValue());
+        }
+      }
+      this._changed = false;
+    }
+    /**
+     * Sets the controller back to its initial value.
+     * @returns {this}
+     */
+    reset() {
+      this.setValue(this.initialValue);
+      this._callOnFinishChange();
+      return this;
+    }
+    /**
+     * Enables this controller.
+     * @param {boolean} enabled
+     * @returns {this}
+     * @example
+     * controller.enable();
+     * controller.enable( false ); // disable
+     * controller.enable( controller._disabled ); // toggle
+     */
+    enable(enabled = true) {
+      return this.disable(!enabled);
+    }
+    /**
+     * Disables this controller.
+     * @param {boolean} disabled
+     * @returns {this}
+     * @example
+     * controller.disable();
+     * controller.disable( false ); // enable
+     * controller.disable( !controller._disabled ); // toggle
+     */
+    disable(disabled = true) {
+      if (disabled === this._disabled)
+        return this;
+      this._disabled = disabled;
+      this.domElement.classList.toggle("disabled", disabled);
+      this.$disable.toggleAttribute("disabled", disabled);
+      return this;
+    }
+    /**
+     * Shows the Controller after it's been hidden.
+     * @param {boolean} show
+     * @returns {this}
+     * @example
+     * controller.show();
+     * controller.show( false ); // hide
+     * controller.show( controller._hidden ); // toggle
+     */
+    show(show = true) {
+      this._hidden = !show;
+      this.domElement.style.display = this._hidden ? "none" : "";
+      return this;
+    }
+    /**
+     * Hides the Controller.
+     * @returns {this}
+     */
+    hide() {
+      return this.show(false);
+    }
+    /**
+     * Changes this controller into a dropdown of options.
+     *
+     * Calling this method on an option controller will simply update the options. However, if this
+     * controller was not already an option controller, old references to this controller are
+     * destroyed, and a new controller is added to the end of the GUI.
+     * @example
+     * // safe usage
+     *
+     * gui.add( obj, 'prop1' ).options( [ 'a', 'b', 'c' ] );
+     * gui.add( obj, 'prop2' ).options( { Big: 10, Small: 1 } );
+     * gui.add( obj, 'prop3' );
+     *
+     * // danger
+     *
+     * const ctrl1 = gui.add( obj, 'prop1' );
+     * gui.add( obj, 'prop2' );
+     *
+     * // calling options out of order adds a new controller to the end...
+     * const ctrl2 = ctrl1.options( [ 'a', 'b', 'c' ] );
+     *
+     * // ...and ctrl1 now references a controller that doesn't exist
+     * assert( ctrl2 !== ctrl1 )
+     * @param {object|Array} options
+     * @returns {Controller}
+     */
+    options(options) {
+      const controller = this.parent.add(this.object, this.property, options);
+      controller.name(this._name);
+      this.destroy();
+      return controller;
+    }
+    /**
+     * Sets the minimum value. Only works on number controllers.
+     * @param {number} min
+     * @returns {this}
+     */
+    min(min) {
+      return this;
+    }
+    /**
+     * Sets the maximum value. Only works on number controllers.
+     * @param {number} max
+     * @returns {this}
+     */
+    max(max) {
+      return this;
+    }
+    /**
+     * Values set by this controller will be rounded to multiples of `step`. Only works on number
+     * controllers.
+     * @param {number} step
+     * @returns {this}
+     */
+    step(step) {
+      return this;
+    }
+    /**
+     * Rounds the displayed value to a fixed number of decimals, without affecting the actual value
+     * like `step()`. Only works on number controllers.
+     * @example
+     * gui.add( object, 'property' ).listen().decimals( 4 );
+     * @param {number} decimals
+     * @returns {this}
+     */
+    decimals(decimals) {
+      return this;
+    }
+    /**
+     * Calls `updateDisplay()` every animation frame. Pass `false` to stop listening.
+     * @param {boolean} listen
+     * @returns {this}
+     */
+    listen(listen = true) {
+      this._listening = listen;
+      if (this._listenCallbackID !== void 0) {
+        cancelAnimationFrame(this._listenCallbackID);
+        this._listenCallbackID = void 0;
+      }
+      if (this._listening) {
+        this._listenCallback();
+      }
+      return this;
+    }
+    _listenCallback() {
+      this._listenCallbackID = requestAnimationFrame(this._listenCallback);
+      const curValue = this.save();
+      if (curValue !== this._listenPrevValue) {
+        this.updateDisplay();
+      }
+      this._listenPrevValue = curValue;
+    }
+    /**
+     * Returns `object[ property ]`.
+     * @returns {any}
+     */
+    getValue() {
+      return this.object[this.property];
+    }
+    /**
+     * Sets the value of `object[ property ]`, invokes any `onChange` handlers and updates the display.
+     * @param {any} value
+     * @returns {this}
+     */
+    setValue(value) {
+      this.object[this.property] = value;
+      this._callOnChange();
+      this.updateDisplay();
+      return this;
+    }
+    /**
+     * Updates the display to keep it in sync with the current value. Useful for updating your
+     * controllers when their values have been modified outside of the GUI.
+     * @returns {this}
+     */
+    updateDisplay() {
+      return this;
+    }
+    load(value) {
+      this.setValue(value);
+      this._callOnFinishChange();
+      return this;
+    }
+    save() {
+      return this.getValue();
+    }
+    /**
+     * Destroys this controller and removes it from the parent GUI.
+     */
+    destroy() {
+      this.listen(false);
+      this.parent.children.splice(this.parent.children.indexOf(this), 1);
+      this.parent.controllers.splice(this.parent.controllers.indexOf(this), 1);
+      this.parent.$children.removeChild(this.domElement);
+    }
+  };
+  var BooleanController = class extends Controller {
+    constructor(parent, object, property) {
+      super(parent, object, property, "boolean", "label");
+      this.$input = document.createElement("input");
+      this.$input.setAttribute("type", "checkbox");
+      this.$input.setAttribute("aria-labelledby", this.$name.id);
+      this.$widget.appendChild(this.$input);
+      this.$input.addEventListener("change", () => {
+        this.setValue(this.$input.checked);
+        this._callOnFinishChange();
+      });
+      this.$disable = this.$input;
+      this.updateDisplay();
+    }
+    updateDisplay() {
+      this.$input.checked = this.getValue();
+      return this;
+    }
+  };
+  function normalizeColorString(string) {
+    let match, result;
+    if (match = string.match(/(#|0x)?([a-f0-9]{6})/i)) {
+      result = match[2];
+    } else if (match = string.match(/rgb\(\s*(\d*)\s*,\s*(\d*)\s*,\s*(\d*)\s*\)/)) {
+      result = parseInt(match[1]).toString(16).padStart(2, 0) + parseInt(match[2]).toString(16).padStart(2, 0) + parseInt(match[3]).toString(16).padStart(2, 0);
+    } else if (match = string.match(/^#?([a-f0-9])([a-f0-9])([a-f0-9])$/i)) {
+      result = match[1] + match[1] + match[2] + match[2] + match[3] + match[3];
+    }
+    if (result) {
+      return "#" + result;
+    }
+    return false;
+  }
+  var STRING = {
+    isPrimitive: true,
+    match: (v) => typeof v === "string",
+    fromHexString: normalizeColorString,
+    toHexString: normalizeColorString
+  };
+  var INT = {
+    isPrimitive: true,
+    match: (v) => typeof v === "number",
+    fromHexString: (string) => parseInt(string.substring(1), 16),
+    toHexString: (value) => "#" + value.toString(16).padStart(6, 0)
+  };
+  var ARRAY = {
+    isPrimitive: false,
+    // The arrow function is here to appease tree shakers like esbuild or webpack.
+    // See https://esbuild.github.io/api/#tree-shaking
+    match: (v) => Array.isArray(v),
+    fromHexString(string, target, rgbScale = 1) {
+      const int = INT.fromHexString(string);
+      target[0] = (int >> 16 & 255) / 255 * rgbScale;
+      target[1] = (int >> 8 & 255) / 255 * rgbScale;
+      target[2] = (int & 255) / 255 * rgbScale;
+    },
+    toHexString([r, g, b], rgbScale = 1) {
+      rgbScale = 255 / rgbScale;
+      const int = r * rgbScale << 16 ^ g * rgbScale << 8 ^ b * rgbScale << 0;
+      return INT.toHexString(int);
+    }
+  };
+  var OBJECT = {
+    isPrimitive: false,
+    match: (v) => Object(v) === v,
+    fromHexString(string, target, rgbScale = 1) {
+      const int = INT.fromHexString(string);
+      target.r = (int >> 16 & 255) / 255 * rgbScale;
+      target.g = (int >> 8 & 255) / 255 * rgbScale;
+      target.b = (int & 255) / 255 * rgbScale;
+    },
+    toHexString({ r, g, b }, rgbScale = 1) {
+      rgbScale = 255 / rgbScale;
+      const int = r * rgbScale << 16 ^ g * rgbScale << 8 ^ b * rgbScale << 0;
+      return INT.toHexString(int);
+    }
+  };
+  var FORMATS = [STRING, INT, ARRAY, OBJECT];
+  function getColorFormat(value) {
+    return FORMATS.find((format) => format.match(value));
+  }
+  var ColorController = class extends Controller {
+    constructor(parent, object, property, rgbScale) {
+      super(parent, object, property, "color");
+      this.$input = document.createElement("input");
+      this.$input.setAttribute("type", "color");
+      this.$input.setAttribute("tabindex", -1);
+      this.$input.setAttribute("aria-labelledby", this.$name.id);
+      this.$text = document.createElement("input");
+      this.$text.setAttribute("type", "text");
+      this.$text.setAttribute("spellcheck", "false");
+      this.$text.setAttribute("aria-labelledby", this.$name.id);
+      this.$display = document.createElement("div");
+      this.$display.classList.add("display");
+      this.$display.appendChild(this.$input);
+      this.$widget.appendChild(this.$display);
+      this.$widget.appendChild(this.$text);
+      this._format = getColorFormat(this.initialValue);
+      this._rgbScale = rgbScale;
+      this._initialValueHexString = this.save();
+      this._textFocused = false;
+      this.$input.addEventListener("input", () => {
+        this._setValueFromHexString(this.$input.value);
+      });
+      this.$input.addEventListener("blur", () => {
+        this._callOnFinishChange();
+      });
+      this.$text.addEventListener("input", () => {
+        const tryParse = normalizeColorString(this.$text.value);
+        if (tryParse) {
+          this._setValueFromHexString(tryParse);
+        }
+      });
+      this.$text.addEventListener("focus", () => {
+        this._textFocused = true;
+        this.$text.select();
+      });
+      this.$text.addEventListener("blur", () => {
+        this._textFocused = false;
+        this.updateDisplay();
+        this._callOnFinishChange();
+      });
+      this.$disable = this.$text;
+      this.updateDisplay();
+    }
+    reset() {
+      this._setValueFromHexString(this._initialValueHexString);
+      return this;
+    }
+    _setValueFromHexString(value) {
+      if (this._format.isPrimitive) {
+        const newValue = this._format.fromHexString(value);
+        this.setValue(newValue);
+      } else {
+        this._format.fromHexString(value, this.getValue(), this._rgbScale);
+        this._callOnChange();
+        this.updateDisplay();
+      }
+    }
+    save() {
+      return this._format.toHexString(this.getValue(), this._rgbScale);
+    }
+    load(value) {
+      this._setValueFromHexString(value);
+      this._callOnFinishChange();
+      return this;
+    }
+    updateDisplay() {
+      this.$input.value = this._format.toHexString(this.getValue(), this._rgbScale);
+      if (!this._textFocused) {
+        this.$text.value = this.$input.value.substring(1);
+      }
+      this.$display.style.backgroundColor = this.$input.value;
+      return this;
+    }
+  };
+  var FunctionController = class extends Controller {
+    constructor(parent, object, property) {
+      super(parent, object, property, "function");
+      this.$button = document.createElement("button");
+      this.$button.appendChild(this.$name);
+      this.$widget.appendChild(this.$button);
+      this.$button.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.getValue().call(this.object);
+        this._callOnChange();
+      });
+      this.$button.addEventListener("touchstart", () => {
+      }, { passive: true });
+      this.$disable = this.$button;
+    }
+  };
+  var NumberController = class extends Controller {
+    constructor(parent, object, property, min, max, step) {
+      super(parent, object, property, "number");
+      this._initInput();
+      this.min(min);
+      this.max(max);
+      const stepExplicit = step !== void 0;
+      this.step(stepExplicit ? step : this._getImplicitStep(), stepExplicit);
+      this.updateDisplay();
+    }
+    decimals(decimals) {
+      this._decimals = decimals;
+      this.updateDisplay();
+      return this;
+    }
+    min(min) {
+      this._min = min;
+      this._onUpdateMinMax();
+      return this;
+    }
+    max(max) {
+      this._max = max;
+      this._onUpdateMinMax();
+      return this;
+    }
+    step(step, explicit = true) {
+      this._step = step;
+      this._stepExplicit = explicit;
+      return this;
+    }
+    updateDisplay() {
+      const value = this.getValue();
+      if (this._hasSlider) {
+        let percent = (value - this._min) / (this._max - this._min);
+        percent = Math.max(0, Math.min(percent, 1));
+        this.$fill.style.width = percent * 100 + "%";
+      }
+      if (!this._inputFocused) {
+        this.$input.value = this._decimals === void 0 ? value : value.toFixed(this._decimals);
+      }
+      return this;
+    }
+    _initInput() {
+      this.$input = document.createElement("input");
+      this.$input.setAttribute("type", "text");
+      this.$input.setAttribute("aria-labelledby", this.$name.id);
+      const isTouch = window.matchMedia("(pointer: coarse)").matches;
+      if (isTouch) {
+        this.$input.setAttribute("type", "number");
+        this.$input.setAttribute("step", "any");
+      }
+      this.$widget.appendChild(this.$input);
+      this.$disable = this.$input;
+      const onInput = () => {
+        let value = parseFloat(this.$input.value);
+        if (isNaN(value))
+          return;
+        if (this._stepExplicit) {
+          value = this._snap(value);
+        }
+        this.setValue(this._clamp(value));
+      };
+      const increment = (delta) => {
+        const value = parseFloat(this.$input.value);
+        if (isNaN(value))
+          return;
+        this._snapClampSetValue(value + delta);
+        this.$input.value = this.getValue();
+      };
+      const onKeyDown = (e) => {
+        if (e.key === "Enter") {
+          this.$input.blur();
+        }
+        if (e.code === "ArrowUp") {
+          e.preventDefault();
+          increment(this._step * this._arrowKeyMultiplier(e));
+        }
+        if (e.code === "ArrowDown") {
+          e.preventDefault();
+          increment(this._step * this._arrowKeyMultiplier(e) * -1);
+        }
+      };
+      const onWheel = (e) => {
+        if (this._inputFocused) {
+          e.preventDefault();
+          increment(this._step * this._normalizeMouseWheel(e));
+        }
+      };
+      let testingForVerticalDrag = false, initClientX, initClientY, prevClientY, initValue, dragDelta;
+      const DRAG_THRESH = 5;
+      const onMouseDown = (e) => {
+        initClientX = e.clientX;
+        initClientY = prevClientY = e.clientY;
+        testingForVerticalDrag = true;
+        initValue = this.getValue();
+        dragDelta = 0;
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+      };
+      const onMouseMove = (e) => {
+        if (testingForVerticalDrag) {
+          const dx = e.clientX - initClientX;
+          const dy = e.clientY - initClientY;
+          if (Math.abs(dy) > DRAG_THRESH) {
+            e.preventDefault();
+            this.$input.blur();
+            testingForVerticalDrag = false;
+            this._setDraggingStyle(true, "vertical");
+          } else if (Math.abs(dx) > DRAG_THRESH) {
+            onMouseUp();
+          }
+        }
+        if (!testingForVerticalDrag) {
+          const dy = e.clientY - prevClientY;
+          dragDelta -= dy * this._step * this._arrowKeyMultiplier(e);
+          if (initValue + dragDelta > this._max) {
+            dragDelta = this._max - initValue;
+          } else if (initValue + dragDelta < this._min) {
+            dragDelta = this._min - initValue;
+          }
+          this._snapClampSetValue(initValue + dragDelta);
+        }
+        prevClientY = e.clientY;
+      };
+      const onMouseUp = () => {
+        this._setDraggingStyle(false, "vertical");
+        this._callOnFinishChange();
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+      };
+      const onFocus = () => {
+        this._inputFocused = true;
+      };
+      const onBlur = () => {
+        this._inputFocused = false;
+        this.updateDisplay();
+        this._callOnFinishChange();
+      };
+      this.$input.addEventListener("input", onInput);
+      this.$input.addEventListener("keydown", onKeyDown);
+      this.$input.addEventListener("wheel", onWheel, { passive: false });
+      this.$input.addEventListener("mousedown", onMouseDown);
+      this.$input.addEventListener("focus", onFocus);
+      this.$input.addEventListener("blur", onBlur);
+    }
+    _initSlider() {
+      this._hasSlider = true;
+      this.$slider = document.createElement("div");
+      this.$slider.classList.add("slider");
+      this.$fill = document.createElement("div");
+      this.$fill.classList.add("fill");
+      this.$slider.appendChild(this.$fill);
+      this.$widget.insertBefore(this.$slider, this.$input);
+      this.domElement.classList.add("hasSlider");
+      const map = (v, a, b, c, d) => {
+        return (v - a) / (b - a) * (d - c) + c;
+      };
+      const setValueFromX = (clientX) => {
+        const rect = this.$slider.getBoundingClientRect();
+        let value = map(clientX, rect.left, rect.right, this._min, this._max);
+        this._snapClampSetValue(value);
+      };
+      const mouseDown = (e) => {
+        this._setDraggingStyle(true);
+        setValueFromX(e.clientX);
+        window.addEventListener("mousemove", mouseMove);
+        window.addEventListener("mouseup", mouseUp);
+      };
+      const mouseMove = (e) => {
+        setValueFromX(e.clientX);
+      };
+      const mouseUp = () => {
+        this._callOnFinishChange();
+        this._setDraggingStyle(false);
+        window.removeEventListener("mousemove", mouseMove);
+        window.removeEventListener("mouseup", mouseUp);
+      };
+      let testingForScroll = false, prevClientX, prevClientY;
+      const beginTouchDrag = (e) => {
+        e.preventDefault();
+        this._setDraggingStyle(true);
+        setValueFromX(e.touches[0].clientX);
+        testingForScroll = false;
+      };
+      const onTouchStart = (e) => {
+        if (e.touches.length > 1)
+          return;
+        if (this._hasScrollBar) {
+          prevClientX = e.touches[0].clientX;
+          prevClientY = e.touches[0].clientY;
+          testingForScroll = true;
+        } else {
+          beginTouchDrag(e);
+        }
+        window.addEventListener("touchmove", onTouchMove, { passive: false });
+        window.addEventListener("touchend", onTouchEnd);
+      };
+      const onTouchMove = (e) => {
+        if (testingForScroll) {
+          const dx = e.touches[0].clientX - prevClientX;
+          const dy = e.touches[0].clientY - prevClientY;
+          if (Math.abs(dx) > Math.abs(dy)) {
+            beginTouchDrag(e);
+          } else {
+            window.removeEventListener("touchmove", onTouchMove);
+            window.removeEventListener("touchend", onTouchEnd);
+          }
+        } else {
+          e.preventDefault();
+          setValueFromX(e.touches[0].clientX);
+        }
+      };
+      const onTouchEnd = () => {
+        this._callOnFinishChange();
+        this._setDraggingStyle(false);
+        window.removeEventListener("touchmove", onTouchMove);
+        window.removeEventListener("touchend", onTouchEnd);
+      };
+      const callOnFinishChange = this._callOnFinishChange.bind(this);
+      const WHEEL_DEBOUNCE_TIME = 400;
+      let wheelFinishChangeTimeout;
+      const onWheel = (e) => {
+        const isVertical = Math.abs(e.deltaX) < Math.abs(e.deltaY);
+        if (isVertical && this._hasScrollBar)
+          return;
+        e.preventDefault();
+        const delta = this._normalizeMouseWheel(e) * this._step;
+        this._snapClampSetValue(this.getValue() + delta);
+        this.$input.value = this.getValue();
+        clearTimeout(wheelFinishChangeTimeout);
+        wheelFinishChangeTimeout = setTimeout(callOnFinishChange, WHEEL_DEBOUNCE_TIME);
+      };
+      this.$slider.addEventListener("mousedown", mouseDown);
+      this.$slider.addEventListener("touchstart", onTouchStart, { passive: false });
+      this.$slider.addEventListener("wheel", onWheel, { passive: false });
+    }
+    _setDraggingStyle(active, axis = "horizontal") {
+      if (this.$slider) {
+        this.$slider.classList.toggle("active", active);
+      }
+      document.body.classList.toggle("lil-gui-dragging", active);
+      document.body.classList.toggle(`lil-gui-${axis}`, active);
+    }
+    _getImplicitStep() {
+      if (this._hasMin && this._hasMax) {
+        return (this._max - this._min) / 1e3;
+      }
+      return 0.1;
+    }
+    _onUpdateMinMax() {
+      if (!this._hasSlider && this._hasMin && this._hasMax) {
+        if (!this._stepExplicit) {
+          this.step(this._getImplicitStep(), false);
+        }
+        this._initSlider();
+        this.updateDisplay();
+      }
+    }
+    _normalizeMouseWheel(e) {
+      let { deltaX, deltaY } = e;
+      if (Math.floor(e.deltaY) !== e.deltaY && e.wheelDelta) {
+        deltaX = 0;
+        deltaY = -e.wheelDelta / 120;
+        deltaY *= this._stepExplicit ? 1 : 10;
+      }
+      const wheel = deltaX + -deltaY;
+      return wheel;
+    }
+    _arrowKeyMultiplier(e) {
+      let mult = this._stepExplicit ? 1 : 10;
+      if (e.shiftKey) {
+        mult *= 10;
+      } else if (e.altKey) {
+        mult /= 10;
+      }
+      return mult;
+    }
+    _snap(value) {
+      const r = Math.round(value / this._step) * this._step;
+      return parseFloat(r.toPrecision(15));
+    }
+    _clamp(value) {
+      if (value < this._min)
+        value = this._min;
+      if (value > this._max)
+        value = this._max;
+      return value;
+    }
+    _snapClampSetValue(value) {
+      this.setValue(this._clamp(this._snap(value)));
+    }
+    get _hasScrollBar() {
+      const root2 = this.parent.root.$children;
+      return root2.scrollHeight > root2.clientHeight;
+    }
+    get _hasMin() {
+      return this._min !== void 0;
+    }
+    get _hasMax() {
+      return this._max !== void 0;
+    }
+  };
+  var OptionController = class extends Controller {
+    constructor(parent, object, property, options) {
+      super(parent, object, property, "option");
+      this.$select = document.createElement("select");
+      this.$select.setAttribute("aria-labelledby", this.$name.id);
+      this.$display = document.createElement("div");
+      this.$display.classList.add("display");
+      this.$select.addEventListener("change", () => {
+        this.setValue(this._values[this.$select.selectedIndex]);
+        this._callOnFinishChange();
+      });
+      this.$select.addEventListener("focus", () => {
+        this.$display.classList.add("focus");
+      });
+      this.$select.addEventListener("blur", () => {
+        this.$display.classList.remove("focus");
+      });
+      this.$widget.appendChild(this.$select);
+      this.$widget.appendChild(this.$display);
+      this.$disable = this.$select;
+      this.options(options);
+    }
+    options(options) {
+      this._values = Array.isArray(options) ? options : Object.values(options);
+      this._names = Array.isArray(options) ? options : Object.keys(options);
+      this.$select.replaceChildren();
+      this._names.forEach((name) => {
+        const $option = document.createElement("option");
+        $option.innerHTML = name;
+        this.$select.appendChild($option);
+      });
+      this.updateDisplay();
+      return this;
+    }
+    updateDisplay() {
+      const value = this.getValue();
+      const index = this._values.indexOf(value);
+      this.$select.selectedIndex = index;
+      this.$display.innerHTML = index === -1 ? value : this._names[index];
+      return this;
+    }
+  };
+  var StringController = class extends Controller {
+    constructor(parent, object, property) {
+      super(parent, object, property, "string");
+      this.$input = document.createElement("input");
+      this.$input.setAttribute("type", "text");
+      this.$input.setAttribute("aria-labelledby", this.$name.id);
+      this.$input.addEventListener("input", () => {
+        this.setValue(this.$input.value);
+      });
+      this.$input.addEventListener("keydown", (e) => {
+        if (e.code === "Enter") {
+          this.$input.blur();
+        }
+      });
+      this.$input.addEventListener("blur", () => {
+        this._callOnFinishChange();
+      });
+      this.$widget.appendChild(this.$input);
+      this.$disable = this.$input;
+      this.updateDisplay();
+    }
+    updateDisplay() {
+      this.$input.value = this.getValue();
+      return this;
+    }
+  };
+  var stylesheet = `.lil-gui {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: 1;
+  font-weight: normal;
+  font-style: normal;
+  text-align: left;
+  color: var(--text-color);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  --background-color: #1f1f1f;
+  --text-color: #ebebeb;
+  --title-background-color: #111111;
+  --title-text-color: #ebebeb;
+  --widget-color: #424242;
+  --hover-color: #4f4f4f;
+  --focus-color: #595959;
+  --number-color: #2cc9ff;
+  --string-color: #a2db3c;
+  --font-size: 11px;
+  --input-font-size: 11px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-family-mono: Menlo, Monaco, Consolas, "Droid Sans Mono", monospace;
+  --padding: 4px;
+  --spacing: 4px;
+  --widget-height: 20px;
+  --title-height: calc(var(--widget-height) + var(--spacing) * 1.25);
+  --name-width: 45%;
+  --slider-knob-width: 2px;
+  --slider-input-width: 27%;
+  --color-input-width: 27%;
+  --slider-input-min-width: 45px;
+  --color-input-min-width: 45px;
+  --folder-indent: 7px;
+  --widget-padding: 0 0 0 3px;
+  --widget-border-radius: 2px;
+  --checkbox-size: calc(0.75 * var(--widget-height));
+  --scrollbar-width: 5px;
+}
+.lil-gui, .lil-gui * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+.lil-gui.root {
+  width: var(--width, 245px);
+  display: flex;
+  flex-direction: column;
+  background: var(--background-color);
+}
+.lil-gui.root > .title {
+  background: var(--title-background-color);
+  color: var(--title-text-color);
+}
+.lil-gui.root > .children {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.lil-gui.root > .children::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-width);
+  background: var(--background-color);
+}
+.lil-gui.root > .children::-webkit-scrollbar-thumb {
+  border-radius: var(--scrollbar-width);
+  background: var(--focus-color);
+}
+@media (pointer: coarse) {
+  .lil-gui.allow-touch-styles, .lil-gui.allow-touch-styles .lil-gui {
+    --widget-height: 28px;
+    --padding: 6px;
+    --spacing: 6px;
+    --font-size: 13px;
+    --input-font-size: 16px;
+    --folder-indent: 10px;
+    --scrollbar-width: 7px;
+    --slider-input-min-width: 50px;
+    --color-input-min-width: 65px;
+  }
+}
+.lil-gui.force-touch-styles, .lil-gui.force-touch-styles .lil-gui {
+  --widget-height: 28px;
+  --padding: 6px;
+  --spacing: 6px;
+  --font-size: 13px;
+  --input-font-size: 16px;
+  --folder-indent: 10px;
+  --scrollbar-width: 7px;
+  --slider-input-min-width: 50px;
+  --color-input-min-width: 65px;
+}
+.lil-gui.autoPlace {
+  max-height: 100%;
+  position: fixed;
+  top: 0;
+  right: 15px;
+  z-index: 1001;
+}
+
+.lil-gui .controller {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--padding);
+  margin: var(--spacing) 0;
+}
+.lil-gui .controller.disabled {
+  opacity: 0.5;
+}
+.lil-gui .controller.disabled, .lil-gui .controller.disabled * {
+  pointer-events: none !important;
+}
+.lil-gui .controller > .name {
+  min-width: var(--name-width);
+  flex-shrink: 0;
+  white-space: pre;
+  padding-right: var(--spacing);
+  line-height: var(--widget-height);
+}
+.lil-gui .controller .widget {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--widget-height);
+}
+.lil-gui .controller.string input {
+  color: var(--string-color);
+}
+.lil-gui .controller.boolean {
+  cursor: pointer;
+}
+.lil-gui .controller.color .display {
+  width: 100%;
+  height: var(--widget-height);
+  border-radius: var(--widget-border-radius);
+  position: relative;
+}
+@media (hover: hover) {
+  .lil-gui .controller.color .display:hover:before {
+    content: " ";
+    display: block;
+    position: absolute;
+    border-radius: var(--widget-border-radius);
+    border: 1px solid #fff9;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+}
+.lil-gui .controller.color input[type=color] {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.lil-gui .controller.color input[type=text] {
+  margin-left: var(--spacing);
+  font-family: var(--font-family-mono);
+  min-width: var(--color-input-min-width);
+  width: var(--color-input-width);
+  flex-shrink: 0;
+}
+.lil-gui .controller.option select {
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  max-width: 100%;
+}
+.lil-gui .controller.option .display {
+  position: relative;
+  pointer-events: none;
+  border-radius: var(--widget-border-radius);
+  height: var(--widget-height);
+  line-height: var(--widget-height);
+  max-width: 100%;
+  overflow: hidden;
+  word-break: break-all;
+  padding-left: 0.55em;
+  padding-right: 1.75em;
+  background: var(--widget-color);
+}
+@media (hover: hover) {
+  .lil-gui .controller.option .display.focus {
+    background: var(--focus-color);
+  }
+}
+.lil-gui .controller.option .display.active {
+  background: var(--focus-color);
+}
+.lil-gui .controller.option .display:after {
+  font-family: "lil-gui";
+  content: "\u2195";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  padding-right: 0.375em;
+}
+.lil-gui .controller.option .widget,
+.lil-gui .controller.option select {
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .lil-gui .controller.option .widget:hover .display {
+    background: var(--hover-color);
+  }
+}
+.lil-gui .controller.number input {
+  color: var(--number-color);
+}
+.lil-gui .controller.number.hasSlider input {
+  margin-left: var(--spacing);
+  width: var(--slider-input-width);
+  min-width: var(--slider-input-min-width);
+  flex-shrink: 0;
+}
+.lil-gui .controller.number .slider {
+  width: 100%;
+  height: var(--widget-height);
+  background: var(--widget-color);
+  border-radius: var(--widget-border-radius);
+  padding-right: var(--slider-knob-width);
+  overflow: hidden;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+@media (hover: hover) {
+  .lil-gui .controller.number .slider:hover {
+    background: var(--hover-color);
+  }
+}
+.lil-gui .controller.number .slider.active {
+  background: var(--focus-color);
+}
+.lil-gui .controller.number .slider.active .fill {
+  opacity: 0.95;
+}
+.lil-gui .controller.number .fill {
+  height: 100%;
+  border-right: var(--slider-knob-width) solid var(--number-color);
+  box-sizing: content-box;
+}
+
+.lil-gui-dragging .lil-gui {
+  --hover-color: var(--widget-color);
+}
+.lil-gui-dragging * {
+  cursor: ew-resize !important;
+}
+
+.lil-gui-dragging.lil-gui-vertical * {
+  cursor: ns-resize !important;
+}
+
+.lil-gui .title {
+  height: var(--title-height);
+  line-height: calc(var(--title-height) - 4px);
+  font-weight: 600;
+  padding: 0 var(--padding);
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  outline: none;
+  text-decoration-skip: objects;
+}
+.lil-gui .title:before {
+  font-family: "lil-gui";
+  content: "\u25BE";
+  padding-right: 2px;
+  display: inline-block;
+}
+.lil-gui .title:active {
+  background: var(--title-background-color);
+  opacity: 0.75;
+}
+@media (hover: hover) {
+  body:not(.lil-gui-dragging) .lil-gui .title:hover {
+    background: var(--title-background-color);
+    opacity: 0.85;
+  }
+  .lil-gui .title:focus {
+    text-decoration: underline var(--focus-color);
+  }
+}
+.lil-gui.root > .title:focus {
+  text-decoration: none !important;
+}
+.lil-gui.closed > .title:before {
+  content: "\u25B8";
+}
+.lil-gui.closed > .children {
+  transform: translateY(-7px);
+  opacity: 0;
+}
+.lil-gui.closed:not(.transition) > .children {
+  display: none;
+}
+.lil-gui.transition > .children {
+  transition-duration: 300ms;
+  transition-property: height, opacity, transform;
+  transition-timing-function: cubic-bezier(0.2, 0.6, 0.35, 1);
+  overflow: hidden;
+  pointer-events: none;
+}
+.lil-gui .children:empty:before {
+  content: "Empty";
+  padding: 0 var(--padding);
+  margin: var(--spacing) 0;
+  display: block;
+  height: var(--widget-height);
+  font-style: italic;
+  line-height: var(--widget-height);
+  opacity: 0.5;
+}
+.lil-gui.root > .children > .lil-gui > .title {
+  border: 0 solid var(--widget-color);
+  border-width: 1px 0;
+  transition: border-color 300ms;
+}
+.lil-gui.root > .children > .lil-gui.closed > .title {
+  border-bottom-color: transparent;
+}
+.lil-gui + .controller {
+  border-top: 1px solid var(--widget-color);
+  margin-top: 0;
+  padding-top: var(--spacing);
+}
+.lil-gui .lil-gui .lil-gui > .title {
+  border: none;
+}
+.lil-gui .lil-gui .lil-gui > .children {
+  border: none;
+  margin-left: var(--folder-indent);
+  border-left: 2px solid var(--widget-color);
+}
+.lil-gui .lil-gui .controller {
+  border: none;
+}
+
+.lil-gui label, .lil-gui input, .lil-gui button {
+  -webkit-tap-highlight-color: transparent;
+}
+.lil-gui input {
+  border: 0;
+  outline: none;
+  font-family: var(--font-family);
+  font-size: var(--input-font-size);
+  border-radius: var(--widget-border-radius);
+  height: var(--widget-height);
+  background: var(--widget-color);
+  color: var(--text-color);
+  width: 100%;
+}
+@media (hover: hover) {
+  .lil-gui input:hover {
+    background: var(--hover-color);
+  }
+  .lil-gui input:active {
+    background: var(--focus-color);
+  }
+}
+.lil-gui input:disabled {
+  opacity: 1;
+}
+.lil-gui input[type=text],
+.lil-gui input[type=number] {
+  padding: var(--widget-padding);
+  -moz-appearance: textfield;
+}
+.lil-gui input[type=text]:focus,
+.lil-gui input[type=number]:focus {
+  background: var(--focus-color);
+}
+.lil-gui input[type=checkbox] {
+  appearance: none;
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  border-radius: var(--widget-border-radius);
+  text-align: center;
+  cursor: pointer;
+}
+.lil-gui input[type=checkbox]:checked:before {
+  font-family: "lil-gui";
+  content: "\u2713";
+  font-size: var(--checkbox-size);
+  line-height: var(--checkbox-size);
+}
+@media (hover: hover) {
+  .lil-gui input[type=checkbox]:focus {
+    box-shadow: inset 0 0 0 1px var(--focus-color);
+  }
+}
+.lil-gui button {
+  outline: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  color: var(--text-color);
+  width: 100%;
+  height: var(--widget-height);
+  text-transform: none;
+  background: var(--widget-color);
+  border-radius: var(--widget-border-radius);
+  border: none;
+}
+@media (hover: hover) {
+  .lil-gui button:hover {
+    background: var(--hover-color);
+  }
+  .lil-gui button:focus {
+    box-shadow: inset 0 0 0 1px var(--focus-color);
+  }
+}
+.lil-gui button:active {
+  background: var(--focus-color);
+}
+
+@font-face {
+  font-family: "lil-gui";
+  src: url("data:application/font-woff;charset=utf-8;base64,d09GRgABAAAAAAUsAAsAAAAACJwAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABHU1VCAAABCAAAAH4AAADAImwmYE9TLzIAAAGIAAAAPwAAAGBKqH5SY21hcAAAAcgAAAD0AAACrukyyJBnbHlmAAACvAAAAF8AAACEIZpWH2hlYWQAAAMcAAAAJwAAADZfcj2zaGhlYQAAA0QAAAAYAAAAJAC5AHhobXR4AAADXAAAABAAAABMAZAAAGxvY2EAAANsAAAAFAAAACgCEgIybWF4cAAAA4AAAAAeAAAAIAEfABJuYW1lAAADoAAAASIAAAIK9SUU/XBvc3QAAATEAAAAZgAAAJCTcMc2eJxVjbEOgjAURU+hFRBK1dGRL+ALnAiToyMLEzFpnPz/eAshwSa97517c/MwwJmeB9kwPl+0cf5+uGPZXsqPu4nvZabcSZldZ6kfyWnomFY/eScKqZNWupKJO6kXN3K9uCVoL7iInPr1X5baXs3tjuMqCtzEuagm/AAlzQgPAAB4nGNgYRBlnMDAysDAYM/gBiT5oLQBAwuDJAMDEwMrMwNWEJDmmsJwgCFeXZghBcjlZMgFCzOiKOIFAB71Bb8AeJy1kjFuwkAQRZ+DwRAwBtNQRUGKQ8OdKCAWUhAgKLhIuAsVSpWz5Bbkj3dEgYiUIszqWdpZe+Z7/wB1oCYmIoboiwiLT2WjKl/jscrHfGg/pKdMkyklC5Zs2LEfHYpjcRoPzme9MWWmk3dWbK9ObkWkikOetJ554fWyoEsmdSlt+uR0pCJR34b6t/TVg1SY3sYvdf8vuiKrpyaDXDISiegp17p7579Gp3p++y7HPAiY9pmTibljrr85qSidtlg4+l25GLCaS8e6rRxNBmsnERunKbaOObRz7N72ju5vdAjYpBXHgJylOAVsMseDAPEP8LYoUHicY2BiAAEfhiAGJgZWBgZ7RnFRdnVJELCQlBSRlATJMoLV2DK4glSYs6ubq5vbKrJLSbGrgEmovDuDJVhe3VzcXFwNLCOILB/C4IuQ1xTn5FPilBTj5FPmBAB4WwoqAHicY2BkYGAA4sk1sR/j+W2+MnAzpDBgAyEMQUCSg4EJxAEAwUgFHgB4nGNgZGBgSGFggJMhDIwMqEAYAByHATJ4nGNgAIIUNEwmAABl3AGReJxjYAACIQYlBiMGJ3wQAEcQBEV4nGNgZGBgEGZgY2BiAAEQyQWEDAz/wXwGAAsPATIAAHicXdBNSsNAHAXwl35iA0UQXYnMShfS9GPZA7T7LgIu03SSpkwzYTIt1BN4Ak/gKTyAeCxfw39jZkjymzcvAwmAW/wgwHUEGDb36+jQQ3GXGot79L24jxCP4gHzF/EIr4jEIe7wxhOC3g2TMYy4Q7+Lu/SHuEd/ivt4wJd4wPxbPEKMX3GI5+DJFGaSn4qNzk8mcbKSR6xdXdhSzaOZJGtdapd4vVPbi6rP+cL7TGXOHtXKll4bY1Xl7EGnPtp7Xy2n00zyKLVHfkHBa4IcJ2oD3cgggWvt/V/FbDrUlEUJhTn/0azVWbNTNr0Ens8de1tceK9xZmfB1CPjOmPH4kitmvOubcNpmVTN3oFJyjzCvnmrwhJTzqzVj9jiSX911FjeAAB4nG3HMRKCMBBA0f0giiKi4DU8k0V2GWbIZDOh4PoWWvq6J5V8If9NVNQcaDhyouXMhY4rPTcG7jwYmXhKq8Wz+p762aNaeYXom2n3m2dLTVgsrCgFJ7OTmIkYbwIbC6vIB7WmFfAAAA==") format("woff");
+}`;
+  function _injectStyles(cssContent) {
+    const injected = document.createElement("style");
+    injected.innerHTML = cssContent;
+    const before = document.querySelector("head link[rel=stylesheet], head style");
+    if (before) {
+      document.head.insertBefore(injected, before);
+    } else {
+      document.head.appendChild(injected);
+    }
+  }
+  var stylesInjected = false;
+  var GUI = class _GUI {
+    /**
+     * Creates a panel that holds controllers.
+     * @example
+     * new GUI();
+     * new GUI( { container: document.getElementById( 'custom' ) } );
+     *
+     * @param {object} [options]
+     * @param {boolean} [options.autoPlace=true]
+     * Adds the GUI to `document.body` and fixes it to the top right of the page.
+     *
+     * @param {HTMLElement} [options.container]
+     * Adds the GUI to this DOM element. Overrides `autoPlace`.
+     *
+     * @param {number} [options.width=245]
+     * Width of the GUI in pixels, usually set when name labels become too long. Note that you can make
+     * name labels wider in CSS with `.lil‑gui { ‑‑name‑width: 55% }`.
+     *
+     * @param {string} [options.title=Controls]
+     * Name to display in the title bar.
+     *
+     * @param {boolean} [options.closeFolders=false]
+     * Pass `true` to close all folders in this GUI by default.
+     *
+     * @param {boolean} [options.injectStyles=true]
+     * Injects the default stylesheet into the page if this is the first GUI.
+     * Pass `false` to use your own stylesheet.
+     *
+     * @param {number} [options.touchStyles=true]
+     * Makes controllers larger on touch devices. Pass `false` to disable touch styles.
+     *
+     * @param {GUI} [options.parent]
+     * Adds this GUI as a child in another GUI. Usually this is done for you by `addFolder()`.
+     *
+     */
+    constructor({
+      parent,
+      autoPlace = parent === void 0,
+      container,
+      width,
+      title = "Controls",
+      closeFolders = false,
+      injectStyles = true,
+      touchStyles = true
+    } = {}) {
+      this.parent = parent;
+      this.root = parent ? parent.root : this;
+      this.children = [];
+      this.controllers = [];
+      this.folders = [];
+      this._closed = false;
+      this._hidden = false;
+      this.domElement = document.createElement("div");
+      this.domElement.classList.add("lil-gui");
+      this.$title = document.createElement("div");
+      this.$title.classList.add("title");
+      this.$title.setAttribute("role", "button");
+      this.$title.setAttribute("aria-expanded", true);
+      this.$title.setAttribute("tabindex", 0);
+      this.$title.addEventListener("click", () => this.openAnimated(this._closed));
+      this.$title.addEventListener("keydown", (e) => {
+        if (e.code === "Enter" || e.code === "Space") {
+          e.preventDefault();
+          this.$title.click();
+        }
+      });
+      this.$title.addEventListener("touchstart", () => {
+      }, { passive: true });
+      this.$children = document.createElement("div");
+      this.$children.classList.add("children");
+      this.domElement.appendChild(this.$title);
+      this.domElement.appendChild(this.$children);
+      this.title(title);
+      if (this.parent) {
+        this.parent.children.push(this);
+        this.parent.folders.push(this);
+        this.parent.$children.appendChild(this.domElement);
+        return;
+      }
+      this.domElement.classList.add("root");
+      if (touchStyles) {
+        this.domElement.classList.add("allow-touch-styles");
+      }
+      if (!stylesInjected && injectStyles) {
+        _injectStyles(stylesheet);
+        stylesInjected = true;
+      }
+      if (container) {
+        container.appendChild(this.domElement);
+      } else if (autoPlace) {
+        this.domElement.classList.add("autoPlace");
+        document.body.appendChild(this.domElement);
+      }
+      if (width) {
+        this.domElement.style.setProperty("--width", width + "px");
+      }
+      this._closeFolders = closeFolders;
+    }
+    /**
+     * Adds a controller to the GUI, inferring controller type using the `typeof` operator.
+     * @example
+     * gui.add( object, 'property' );
+     * gui.add( object, 'number', 0, 100, 1 );
+     * gui.add( object, 'options', [ 1, 2, 3 ] );
+     *
+     * @param {object} object The object the controller will modify.
+     * @param {string} property Name of the property to control.
+     * @param {number|object|Array} [$1] Minimum value for number controllers, or the set of
+     * selectable values for a dropdown.
+     * @param {number} [max] Maximum value for number controllers.
+     * @param {number} [step] Step value for number controllers.
+     * @returns {Controller}
+     */
+    add(object, property, $1, max, step) {
+      if (Object($1) === $1) {
+        return new OptionController(this, object, property, $1);
+      }
+      const initialValue = object[property];
+      switch (typeof initialValue) {
+        case "number":
+          return new NumberController(this, object, property, $1, max, step);
+        case "boolean":
+          return new BooleanController(this, object, property);
+        case "string":
+          return new StringController(this, object, property);
+        case "function":
+          return new FunctionController(this, object, property);
+      }
+      console.error(`gui.add failed
+	property:`, property, `
+	object:`, object, `
+	value:`, initialValue);
+    }
+    /**
+     * Adds a color controller to the GUI.
+     * @example
+     * params = {
+     * 	cssColor: '#ff00ff',
+     * 	rgbColor: { r: 0, g: 0.2, b: 0.4 },
+     * 	customRange: [ 0, 127, 255 ],
+     * };
+     *
+     * gui.addColor( params, 'cssColor' );
+     * gui.addColor( params, 'rgbColor' );
+     * gui.addColor( params, 'customRange', 255 );
+     *
+     * @param {object} object The object the controller will modify.
+     * @param {string} property Name of the property to control.
+     * @param {number} rgbScale Maximum value for a color channel when using an RGB color. You may
+     * need to set this to 255 if your colors are too bright.
+     * @returns {Controller}
+     */
+    addColor(object, property, rgbScale = 1) {
+      return new ColorController(this, object, property, rgbScale);
+    }
+    /**
+     * Adds a folder to the GUI, which is just another GUI. This method returns
+     * the nested GUI so you can add controllers to it.
+     * @example
+     * const folder = gui.addFolder( 'Position' );
+     * folder.add( position, 'x' );
+     * folder.add( position, 'y' );
+     * folder.add( position, 'z' );
+     *
+     * @param {string} title Name to display in the folder's title bar.
+     * @returns {GUI}
+     */
+    addFolder(title) {
+      const folder = new _GUI({ parent: this, title });
+      if (this.root._closeFolders)
+        folder.close();
+      return folder;
+    }
+    /**
+     * Recalls values that were saved with `gui.save()`.
+     * @param {object} obj
+     * @param {boolean} recursive Pass false to exclude folders descending from this GUI.
+     * @returns {this}
+     */
+    load(obj, recursive = true) {
+      if (obj.controllers) {
+        this.controllers.forEach((c) => {
+          if (c instanceof FunctionController)
+            return;
+          if (c._name in obj.controllers) {
+            c.load(obj.controllers[c._name]);
+          }
+        });
+      }
+      if (recursive && obj.folders) {
+        this.folders.forEach((f) => {
+          if (f._title in obj.folders) {
+            f.load(obj.folders[f._title]);
+          }
+        });
+      }
+      return this;
+    }
+    /**
+     * Returns an object mapping controller names to values. The object can be passed to `gui.load()` to
+     * recall these values.
+     * @example
+     * {
+     * 	controllers: {
+     * 		prop1: 1,
+     * 		prop2: 'value',
+     * 		...
+     * 	},
+     * 	folders: {
+     * 		folderName1: { controllers, folders },
+     * 		folderName2: { controllers, folders }
+     * 		...
+     * 	}
+     * }
+     *
+     * @param {boolean} recursive Pass false to exclude folders descending from this GUI.
+     * @returns {object}
+     */
+    save(recursive = true) {
+      const obj = {
+        controllers: {},
+        folders: {}
+      };
+      this.controllers.forEach((c) => {
+        if (c instanceof FunctionController)
+          return;
+        if (c._name in obj.controllers) {
+          throw new Error(`Cannot save GUI with duplicate property "${c._name}"`);
+        }
+        obj.controllers[c._name] = c.save();
+      });
+      if (recursive) {
+        this.folders.forEach((f) => {
+          if (f._title in obj.folders) {
+            throw new Error(`Cannot save GUI with duplicate folder "${f._title}"`);
+          }
+          obj.folders[f._title] = f.save();
+        });
+      }
+      return obj;
+    }
+    /**
+     * Opens a GUI or folder. GUI and folders are open by default.
+     * @param {boolean} open Pass false to close.
+     * @returns {this}
+     * @example
+     * gui.open(); // open
+     * gui.open( false ); // close
+     * gui.open( gui._closed ); // toggle
+     */
+    open(open = true) {
+      this._setClosed(!open);
+      this.$title.setAttribute("aria-expanded", !this._closed);
+      this.domElement.classList.toggle("closed", this._closed);
+      return this;
+    }
+    /**
+     * Closes the GUI.
+     * @returns {this}
+     */
+    close() {
+      return this.open(false);
+    }
+    _setClosed(closed) {
+      if (this._closed === closed)
+        return;
+      this._closed = closed;
+      this._callOnOpenClose(this);
+    }
+    /**
+     * Shows the GUI after it's been hidden.
+     * @param {boolean} show
+     * @returns {this}
+     * @example
+     * gui.show();
+     * gui.show( false ); // hide
+     * gui.show( gui._hidden ); // toggle
+     */
+    show(show = true) {
+      this._hidden = !show;
+      this.domElement.style.display = this._hidden ? "none" : "";
+      return this;
+    }
+    /**
+     * Hides the GUI.
+     * @returns {this}
+     */
+    hide() {
+      return this.show(false);
+    }
+    openAnimated(open = true) {
+      this._setClosed(!open);
+      this.$title.setAttribute("aria-expanded", !this._closed);
+      requestAnimationFrame(() => {
+        const initialHeight = this.$children.clientHeight;
+        this.$children.style.height = initialHeight + "px";
+        this.domElement.classList.add("transition");
+        const onTransitionEnd = (e) => {
+          if (e.target !== this.$children)
+            return;
+          this.$children.style.height = "";
+          this.domElement.classList.remove("transition");
+          this.$children.removeEventListener("transitionend", onTransitionEnd);
+        };
+        this.$children.addEventListener("transitionend", onTransitionEnd);
+        const targetHeight = !open ? 0 : this.$children.scrollHeight;
+        this.domElement.classList.toggle("closed", !open);
+        requestAnimationFrame(() => {
+          this.$children.style.height = targetHeight + "px";
+        });
+      });
+      return this;
+    }
+    /**
+     * Change the title of this GUI.
+     * @param {string} title
+     * @returns {this}
+     */
+    title(title) {
+      this._title = title;
+      this.$title.innerHTML = title;
+      return this;
+    }
+    /**
+     * Resets all controllers to their initial values.
+     * @param {boolean} recursive Pass false to exclude folders descending from this GUI.
+     * @returns {this}
+     */
+    reset(recursive = true) {
+      const controllers = recursive ? this.controllersRecursive() : this.controllers;
+      controllers.forEach((c) => c.reset());
+      return this;
+    }
+    /**
+     * Pass a function to be called whenever a controller in this GUI changes.
+     * @param {function({object:object, property:string, value:any, controller:Controller})} callback
+     * @returns {this}
+     * @example
+     * gui.onChange( event => {
+     * 	event.object     // object that was modified
+     * 	event.property   // string, name of property
+     * 	event.value      // new value of controller
+     * 	event.controller // controller that was modified
+     * } );
+     */
+    onChange(callback) {
+      this._onChange = callback;
+      return this;
+    }
+    _callOnChange(controller) {
+      if (this.parent) {
+        this.parent._callOnChange(controller);
+      }
+      if (this._onChange !== void 0) {
+        this._onChange.call(this, {
+          object: controller.object,
+          property: controller.property,
+          value: controller.getValue(),
+          controller
+        });
+      }
+    }
+    /**
+     * Pass a function to be called whenever a controller in this GUI has finished changing.
+     * @param {function({object:object, property:string, value:any, controller:Controller})} callback
+     * @returns {this}
+     * @example
+     * gui.onFinishChange( event => {
+     * 	event.object     // object that was modified
+     * 	event.property   // string, name of property
+     * 	event.value      // new value of controller
+     * 	event.controller // controller that was modified
+     * } );
+     */
+    onFinishChange(callback) {
+      this._onFinishChange = callback;
+      return this;
+    }
+    _callOnFinishChange(controller) {
+      if (this.parent) {
+        this.parent._callOnFinishChange(controller);
+      }
+      if (this._onFinishChange !== void 0) {
+        this._onFinishChange.call(this, {
+          object: controller.object,
+          property: controller.property,
+          value: controller.getValue(),
+          controller
+        });
+      }
+    }
+    /**
+     * Pass a function to be called when this GUI or its descendants are opened or closed.
+     * @param {function(GUI)} callback
+     * @returns {this}
+     * @example
+     * gui.onOpenClose( changedGUI => {
+     * 	console.log( changedGUI._closed );
+     * } );
+     */
+    onOpenClose(callback) {
+      this._onOpenClose = callback;
+      return this;
+    }
+    _callOnOpenClose(changedGUI) {
+      if (this.parent) {
+        this.parent._callOnOpenClose(changedGUI);
+      }
+      if (this._onOpenClose !== void 0) {
+        this._onOpenClose.call(this, changedGUI);
+      }
+    }
+    /**
+     * Destroys all DOM elements and event listeners associated with this GUI.
+     */
+    destroy() {
+      if (this.parent) {
+        this.parent.children.splice(this.parent.children.indexOf(this), 1);
+        this.parent.folders.splice(this.parent.folders.indexOf(this), 1);
+      }
+      if (this.domElement.parentElement) {
+        this.domElement.parentElement.removeChild(this.domElement);
+      }
+      Array.from(this.children).forEach((c) => c.destroy());
+    }
+    /**
+     * Returns an array of controllers contained by this GUI and its descendents.
+     * @returns {Controller[]}
+     */
+    controllersRecursive() {
+      let controllers = Array.from(this.controllers);
+      this.folders.forEach((f) => {
+        controllers = controllers.concat(f.controllersRecursive());
+      });
+      return controllers;
+    }
+    /**
+     * Returns an array of folders contained by this GUI and its descendents.
+     * @returns {GUI[]}
+     */
+    foldersRecursive() {
+      let folders = Array.from(this.folders);
+      this.folders.forEach((f) => {
+        folders = folders.concat(f.foldersRecursive());
+      });
+      return folders;
+    }
+  };
+  var lil_gui_esm_default = GUI;
+
+  // node_modules/three/examples/jsm/controls/OrbitControls.js
+  var _changeEvent = { type: "change" };
+  var _startEvent = { type: "start" };
+  var _endEvent = { type: "end" };
+  var _ray = new Ray();
+  var _plane = new Plane();
+  var TILT_LIMIT = Math.cos(70 * MathUtils.DEG2RAD);
+  var OrbitControls = class extends EventDispatcher {
+    constructor(object, domElement2) {
+      super();
+      this.object = object;
+      this.domElement = domElement2;
+      this.domElement.style.touchAction = "none";
+      this.enabled = true;
+      this.target = new Vector3();
+      this.cursor = new Vector3();
+      this.minDistance = 0;
+      this.maxDistance = Infinity;
+      this.minZoom = 0;
+      this.maxZoom = Infinity;
+      this.minTargetRadius = 0;
+      this.maxTargetRadius = Infinity;
+      this.minPolarAngle = 0;
+      this.maxPolarAngle = Math.PI;
+      this.minAzimuthAngle = -Infinity;
+      this.maxAzimuthAngle = Infinity;
+      this.enableDamping = false;
+      this.dampingFactor = 0.05;
+      this.enableZoom = true;
+      this.zoomSpeed = 1;
+      this.enableRotate = true;
+      this.rotateSpeed = 1;
+      this.enablePan = true;
+      this.panSpeed = 1;
+      this.screenSpacePanning = true;
+      this.keyPanSpeed = 7;
+      this.zoomToCursor = false;
+      this.autoRotate = false;
+      this.autoRotateSpeed = 2;
+      this.keys = { LEFT: "ArrowLeft", UP: "ArrowUp", RIGHT: "ArrowRight", BOTTOM: "ArrowDown" };
+      this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
+      this.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
+      this.target0 = this.target.clone();
+      this.position0 = this.object.position.clone();
+      this.zoom0 = this.object.zoom;
+      this._domElementKeyEvents = null;
+      this.getPolarAngle = function() {
+        return spherical.phi;
+      };
+      this.getAzimuthalAngle = function() {
+        return spherical.theta;
+      };
+      this.getDistance = function() {
+        return this.object.position.distanceTo(this.target);
+      };
+      this.listenToKeyEvents = function(domElement3) {
+        domElement3.addEventListener("keydown", onKeyDown);
+        this._domElementKeyEvents = domElement3;
+      };
+      this.stopListenToKeyEvents = function() {
+        this._domElementKeyEvents.removeEventListener("keydown", onKeyDown);
+        this._domElementKeyEvents = null;
+      };
+      this.saveState = function() {
+        scope.target0.copy(scope.target);
+        scope.position0.copy(scope.object.position);
+        scope.zoom0 = scope.object.zoom;
+      };
+      this.reset = function() {
+        scope.target.copy(scope.target0);
+        scope.object.position.copy(scope.position0);
+        scope.object.zoom = scope.zoom0;
+        scope.object.updateProjectionMatrix();
+        scope.dispatchEvent(_changeEvent);
+        scope.update();
+        state = STATE.NONE;
+      };
+      this.update = function() {
+        const offset = new Vector3();
+        const quat = new Quaternion().setFromUnitVectors(object.up, new Vector3(0, 1, 0));
+        const quatInverse = quat.clone().invert();
+        const lastPosition = new Vector3();
+        const lastQuaternion = new Quaternion();
+        const lastTargetPosition = new Vector3();
+        const twoPI = 2 * Math.PI;
+        return function update(deltaTime = null) {
+          const position = scope.object.position;
+          offset.copy(position).sub(scope.target);
+          offset.applyQuaternion(quat);
+          spherical.setFromVector3(offset);
+          if (scope.autoRotate && state === STATE.NONE) {
+            rotateLeft(getAutoRotationAngle(deltaTime));
+          }
+          if (scope.enableDamping) {
+            spherical.theta += sphericalDelta.theta * scope.dampingFactor;
+            spherical.phi += sphericalDelta.phi * scope.dampingFactor;
+          } else {
+            spherical.theta += sphericalDelta.theta;
+            spherical.phi += sphericalDelta.phi;
+          }
+          let min = scope.minAzimuthAngle;
+          let max = scope.maxAzimuthAngle;
+          if (isFinite(min) && isFinite(max)) {
+            if (min < -Math.PI)
+              min += twoPI;
+            else if (min > Math.PI)
+              min -= twoPI;
+            if (max < -Math.PI)
+              max += twoPI;
+            else if (max > Math.PI)
+              max -= twoPI;
+            if (min <= max) {
+              spherical.theta = Math.max(min, Math.min(max, spherical.theta));
+            } else {
+              spherical.theta = spherical.theta > (min + max) / 2 ? Math.max(min, spherical.theta) : Math.min(max, spherical.theta);
+            }
+          }
+          spherical.phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
+          spherical.makeSafe();
+          if (scope.enableDamping === true) {
+            scope.target.addScaledVector(panOffset, scope.dampingFactor);
+          } else {
+            scope.target.add(panOffset);
+          }
+          scope.target.sub(scope.cursor);
+          scope.target.clampLength(scope.minTargetRadius, scope.maxTargetRadius);
+          scope.target.add(scope.cursor);
+          if (scope.zoomToCursor && performCursorZoom || scope.object.isOrthographicCamera) {
+            spherical.radius = clampDistance(spherical.radius);
+          } else {
+            spherical.radius = clampDistance(spherical.radius * scale);
+          }
+          offset.setFromSpherical(spherical);
+          offset.applyQuaternion(quatInverse);
+          position.copy(scope.target).add(offset);
+          scope.object.lookAt(scope.target);
+          if (scope.enableDamping === true) {
+            sphericalDelta.theta *= 1 - scope.dampingFactor;
+            sphericalDelta.phi *= 1 - scope.dampingFactor;
+            panOffset.multiplyScalar(1 - scope.dampingFactor);
+          } else {
+            sphericalDelta.set(0, 0, 0);
+            panOffset.set(0, 0, 0);
+          }
+          let zoomChanged = false;
+          if (scope.zoomToCursor && performCursorZoom) {
+            let newRadius = null;
+            if (scope.object.isPerspectiveCamera) {
+              const prevRadius = offset.length();
+              newRadius = clampDistance(prevRadius * scale);
+              const radiusDelta = prevRadius - newRadius;
+              scope.object.position.addScaledVector(dollyDirection, radiusDelta);
+              scope.object.updateMatrixWorld();
+            } else if (scope.object.isOrthographicCamera) {
+              const mouseBefore = new Vector3(mouse.x, mouse.y, 0);
+              mouseBefore.unproject(scope.object);
+              scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom / scale));
+              scope.object.updateProjectionMatrix();
+              zoomChanged = true;
+              const mouseAfter = new Vector3(mouse.x, mouse.y, 0);
+              mouseAfter.unproject(scope.object);
+              scope.object.position.sub(mouseAfter).add(mouseBefore);
+              scope.object.updateMatrixWorld();
+              newRadius = offset.length();
+            } else {
+              console.warn("WARNING: OrbitControls.js encountered an unknown camera type - zoom to cursor disabled.");
+              scope.zoomToCursor = false;
+            }
+            if (newRadius !== null) {
+              if (this.screenSpacePanning) {
+                scope.target.set(0, 0, -1).transformDirection(scope.object.matrix).multiplyScalar(newRadius).add(scope.object.position);
+              } else {
+                _ray.origin.copy(scope.object.position);
+                _ray.direction.set(0, 0, -1).transformDirection(scope.object.matrix);
+                if (Math.abs(scope.object.up.dot(_ray.direction)) < TILT_LIMIT) {
+                  object.lookAt(scope.target);
+                } else {
+                  _plane.setFromNormalAndCoplanarPoint(scope.object.up, scope.target);
+                  _ray.intersectPlane(_plane, scope.target);
+                }
+              }
+            }
+          } else if (scope.object.isOrthographicCamera) {
+            scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom / scale));
+            scope.object.updateProjectionMatrix();
+            zoomChanged = true;
+          }
+          scale = 1;
+          performCursorZoom = false;
+          if (zoomChanged || lastPosition.distanceToSquared(scope.object.position) > EPS || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS || lastTargetPosition.distanceToSquared(scope.target) > 0) {
+            scope.dispatchEvent(_changeEvent);
+            lastPosition.copy(scope.object.position);
+            lastQuaternion.copy(scope.object.quaternion);
+            lastTargetPosition.copy(scope.target);
+            return true;
+          }
+          return false;
+        };
+      }();
+      this.dispose = function() {
+        scope.domElement.removeEventListener("contextmenu", onContextMenu);
+        scope.domElement.removeEventListener("pointerdown", onPointerDown);
+        scope.domElement.removeEventListener("pointercancel", onPointerUp);
+        scope.domElement.removeEventListener("wheel", onMouseWheel);
+        scope.domElement.removeEventListener("pointermove", onPointerMove);
+        scope.domElement.removeEventListener("pointerup", onPointerUp);
+        if (scope._domElementKeyEvents !== null) {
+          scope._domElementKeyEvents.removeEventListener("keydown", onKeyDown);
+          scope._domElementKeyEvents = null;
+        }
+      };
+      const scope = this;
+      const STATE = {
+        NONE: -1,
+        ROTATE: 0,
+        DOLLY: 1,
+        PAN: 2,
+        TOUCH_ROTATE: 3,
+        TOUCH_PAN: 4,
+        TOUCH_DOLLY_PAN: 5,
+        TOUCH_DOLLY_ROTATE: 6
+      };
+      let state = STATE.NONE;
+      const EPS = 1e-6;
+      const spherical = new Spherical();
+      const sphericalDelta = new Spherical();
+      let scale = 1;
+      const panOffset = new Vector3();
+      const rotateStart = new Vector2();
+      const rotateEnd = new Vector2();
+      const rotateDelta = new Vector2();
+      const panStart = new Vector2();
+      const panEnd = new Vector2();
+      const panDelta = new Vector2();
+      const dollyStart = new Vector2();
+      const dollyEnd = new Vector2();
+      const dollyDelta = new Vector2();
+      const dollyDirection = new Vector3();
+      const mouse = new Vector2();
+      let performCursorZoom = false;
+      const pointers = [];
+      const pointerPositions = {};
+      function getAutoRotationAngle(deltaTime) {
+        if (deltaTime !== null) {
+          return 2 * Math.PI / 60 * scope.autoRotateSpeed * deltaTime;
+        } else {
+          return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+        }
+      }
+      function getZoomScale(delta) {
+        const normalized_delta = Math.abs(delta) / (100 * (window.devicePixelRatio | 0));
+        return Math.pow(0.95, scope.zoomSpeed * normalized_delta);
+      }
+      function rotateLeft(angle) {
+        sphericalDelta.theta -= angle;
+      }
+      function rotateUp(angle) {
+        sphericalDelta.phi -= angle;
+      }
+      const panLeft = function() {
+        const v = new Vector3();
+        return function panLeft2(distance, objectMatrix) {
+          v.setFromMatrixColumn(objectMatrix, 0);
+          v.multiplyScalar(-distance);
+          panOffset.add(v);
+        };
+      }();
+      const panUp = function() {
+        const v = new Vector3();
+        return function panUp2(distance, objectMatrix) {
+          if (scope.screenSpacePanning === true) {
+            v.setFromMatrixColumn(objectMatrix, 1);
+          } else {
+            v.setFromMatrixColumn(objectMatrix, 0);
+            v.crossVectors(scope.object.up, v);
+          }
+          v.multiplyScalar(distance);
+          panOffset.add(v);
+        };
+      }();
+      const pan = function() {
+        const offset = new Vector3();
+        return function pan2(deltaX, deltaY) {
+          const element = scope.domElement;
+          if (scope.object.isPerspectiveCamera) {
+            const position = scope.object.position;
+            offset.copy(position).sub(scope.target);
+            let targetDistance = offset.length();
+            targetDistance *= Math.tan(scope.object.fov / 2 * Math.PI / 180);
+            panLeft(2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix);
+            panUp(2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix);
+          } else if (scope.object.isOrthographicCamera) {
+            panLeft(deltaX * (scope.object.right - scope.object.left) / scope.object.zoom / element.clientWidth, scope.object.matrix);
+            panUp(deltaY * (scope.object.top - scope.object.bottom) / scope.object.zoom / element.clientHeight, scope.object.matrix);
+          } else {
+            console.warn("WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.");
+            scope.enablePan = false;
+          }
+        };
+      }();
+      function dollyOut(dollyScale) {
+        if (scope.object.isPerspectiveCamera || scope.object.isOrthographicCamera) {
+          scale /= dollyScale;
+        } else {
+          console.warn("WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.");
+          scope.enableZoom = false;
+        }
+      }
+      function dollyIn(dollyScale) {
+        if (scope.object.isPerspectiveCamera || scope.object.isOrthographicCamera) {
+          scale *= dollyScale;
+        } else {
+          console.warn("WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.");
+          scope.enableZoom = false;
+        }
+      }
+      function updateZoomParameters(x, y) {
+        if (!scope.zoomToCursor) {
+          return;
+        }
+        performCursorZoom = true;
+        const rect = scope.domElement.getBoundingClientRect();
+        const dx = x - rect.left;
+        const dy = y - rect.top;
+        const w = rect.width;
+        const h = rect.height;
+        mouse.x = dx / w * 2 - 1;
+        mouse.y = -(dy / h) * 2 + 1;
+        dollyDirection.set(mouse.x, mouse.y, 1).unproject(scope.object).sub(scope.object.position).normalize();
+      }
+      function clampDistance(dist) {
+        return Math.max(scope.minDistance, Math.min(scope.maxDistance, dist));
+      }
+      function handleMouseDownRotate(event) {
+        rotateStart.set(event.clientX, event.clientY);
+      }
+      function handleMouseDownDolly(event) {
+        updateZoomParameters(event.clientX, event.clientX);
+        dollyStart.set(event.clientX, event.clientY);
+      }
+      function handleMouseDownPan(event) {
+        panStart.set(event.clientX, event.clientY);
+      }
+      function handleMouseMoveRotate(event) {
+        rotateEnd.set(event.clientX, event.clientY);
+        rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+        const element = scope.domElement;
+        rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight);
+        rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+        rotateStart.copy(rotateEnd);
+        scope.update();
+      }
+      function handleMouseMoveDolly(event) {
+        dollyEnd.set(event.clientX, event.clientY);
+        dollyDelta.subVectors(dollyEnd, dollyStart);
+        if (dollyDelta.y > 0) {
+          dollyOut(getZoomScale(dollyDelta.y));
+        } else if (dollyDelta.y < 0) {
+          dollyIn(getZoomScale(dollyDelta.y));
+        }
+        dollyStart.copy(dollyEnd);
+        scope.update();
+      }
+      function handleMouseMovePan(event) {
+        panEnd.set(event.clientX, event.clientY);
+        panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
+        pan(panDelta.x, panDelta.y);
+        panStart.copy(panEnd);
+        scope.update();
+      }
+      function handleMouseWheel(event) {
+        updateZoomParameters(event.clientX, event.clientY);
+        if (event.deltaY < 0) {
+          dollyIn(getZoomScale(event.deltaY));
+        } else if (event.deltaY > 0) {
+          dollyOut(getZoomScale(event.deltaY));
+        }
+        scope.update();
+      }
+      function handleKeyDown(event) {
+        let needsUpdate = false;
+        switch (event.code) {
+          case scope.keys.UP:
+            if (event.ctrlKey || event.metaKey || event.shiftKey) {
+              rotateUp(2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight);
+            } else {
+              pan(0, scope.keyPanSpeed);
+            }
+            needsUpdate = true;
+            break;
+          case scope.keys.BOTTOM:
+            if (event.ctrlKey || event.metaKey || event.shiftKey) {
+              rotateUp(-2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight);
+            } else {
+              pan(0, -scope.keyPanSpeed);
+            }
+            needsUpdate = true;
+            break;
+          case scope.keys.LEFT:
+            if (event.ctrlKey || event.metaKey || event.shiftKey) {
+              rotateLeft(2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight);
+            } else {
+              pan(scope.keyPanSpeed, 0);
+            }
+            needsUpdate = true;
+            break;
+          case scope.keys.RIGHT:
+            if (event.ctrlKey || event.metaKey || event.shiftKey) {
+              rotateLeft(-2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight);
+            } else {
+              pan(-scope.keyPanSpeed, 0);
+            }
+            needsUpdate = true;
+            break;
+        }
+        if (needsUpdate) {
+          event.preventDefault();
+          scope.update();
+        }
+      }
+      function handleTouchStartRotate(event) {
+        if (pointers.length === 1) {
+          rotateStart.set(event.pageX, event.pageY);
+        } else {
+          const position = getSecondPointerPosition(event);
+          const x = 0.5 * (event.pageX + position.x);
+          const y = 0.5 * (event.pageY + position.y);
+          rotateStart.set(x, y);
+        }
+      }
+      function handleTouchStartPan(event) {
+        if (pointers.length === 1) {
+          panStart.set(event.pageX, event.pageY);
+        } else {
+          const position = getSecondPointerPosition(event);
+          const x = 0.5 * (event.pageX + position.x);
+          const y = 0.5 * (event.pageY + position.y);
+          panStart.set(x, y);
+        }
+      }
+      function handleTouchStartDolly(event) {
+        const position = getSecondPointerPosition(event);
+        const dx = event.pageX - position.x;
+        const dy = event.pageY - position.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        dollyStart.set(0, distance);
+      }
+      function handleTouchStartDollyPan(event) {
+        if (scope.enableZoom)
+          handleTouchStartDolly(event);
+        if (scope.enablePan)
+          handleTouchStartPan(event);
+      }
+      function handleTouchStartDollyRotate(event) {
+        if (scope.enableZoom)
+          handleTouchStartDolly(event);
+        if (scope.enableRotate)
+          handleTouchStartRotate(event);
+      }
+      function handleTouchMoveRotate(event) {
+        if (pointers.length == 1) {
+          rotateEnd.set(event.pageX, event.pageY);
+        } else {
+          const position = getSecondPointerPosition(event);
+          const x = 0.5 * (event.pageX + position.x);
+          const y = 0.5 * (event.pageY + position.y);
+          rotateEnd.set(x, y);
+        }
+        rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+        const element = scope.domElement;
+        rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight);
+        rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+        rotateStart.copy(rotateEnd);
+      }
+      function handleTouchMovePan(event) {
+        if (pointers.length === 1) {
+          panEnd.set(event.pageX, event.pageY);
+        } else {
+          const position = getSecondPointerPosition(event);
+          const x = 0.5 * (event.pageX + position.x);
+          const y = 0.5 * (event.pageY + position.y);
+          panEnd.set(x, y);
+        }
+        panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
+        pan(panDelta.x, panDelta.y);
+        panStart.copy(panEnd);
+      }
+      function handleTouchMoveDolly(event) {
+        const position = getSecondPointerPosition(event);
+        const dx = event.pageX - position.x;
+        const dy = event.pageY - position.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        dollyEnd.set(0, distance);
+        dollyDelta.set(0, Math.pow(dollyEnd.y / dollyStart.y, scope.zoomSpeed));
+        dollyOut(dollyDelta.y);
+        dollyStart.copy(dollyEnd);
+        const centerX = (event.pageX + position.x) * 0.5;
+        const centerY = (event.pageY + position.y) * 0.5;
+        updateZoomParameters(centerX, centerY);
+      }
+      function handleTouchMoveDollyPan(event) {
+        if (scope.enableZoom)
+          handleTouchMoveDolly(event);
+        if (scope.enablePan)
+          handleTouchMovePan(event);
+      }
+      function handleTouchMoveDollyRotate(event) {
+        if (scope.enableZoom)
+          handleTouchMoveDolly(event);
+        if (scope.enableRotate)
+          handleTouchMoveRotate(event);
+      }
+      function onPointerDown(event) {
+        if (scope.enabled === false)
+          return;
+        if (pointers.length === 0) {
+          scope.domElement.setPointerCapture(event.pointerId);
+          scope.domElement.addEventListener("pointermove", onPointerMove);
+          scope.domElement.addEventListener("pointerup", onPointerUp);
+        }
+        addPointer(event);
+        if (event.pointerType === "touch") {
+          onTouchStart(event);
+        } else {
+          onMouseDown(event);
+        }
+      }
+      function onPointerMove(event) {
+        if (scope.enabled === false)
+          return;
+        if (event.pointerType === "touch") {
+          onTouchMove(event);
+        } else {
+          onMouseMove(event);
+        }
+      }
+      function onPointerUp(event) {
+        removePointer(event);
+        if (pointers.length === 0) {
+          scope.domElement.releasePointerCapture(event.pointerId);
+          scope.domElement.removeEventListener("pointermove", onPointerMove);
+          scope.domElement.removeEventListener("pointerup", onPointerUp);
+        }
+        scope.dispatchEvent(_endEvent);
+        state = STATE.NONE;
+      }
+      function onMouseDown(event) {
+        let mouseAction;
+        switch (event.button) {
+          case 0:
+            mouseAction = scope.mouseButtons.LEFT;
+            break;
+          case 1:
+            mouseAction = scope.mouseButtons.MIDDLE;
+            break;
+          case 2:
+            mouseAction = scope.mouseButtons.RIGHT;
+            break;
+          default:
+            mouseAction = -1;
+        }
+        switch (mouseAction) {
+          case MOUSE.DOLLY:
+            if (scope.enableZoom === false)
+              return;
+            handleMouseDownDolly(event);
+            state = STATE.DOLLY;
+            break;
+          case MOUSE.ROTATE:
+            if (event.ctrlKey || event.metaKey || event.shiftKey) {
+              if (scope.enablePan === false)
+                return;
+              handleMouseDownPan(event);
+              state = STATE.PAN;
+            } else {
+              if (scope.enableRotate === false)
+                return;
+              handleMouseDownRotate(event);
+              state = STATE.ROTATE;
+            }
+            break;
+          case MOUSE.PAN:
+            if (event.ctrlKey || event.metaKey || event.shiftKey) {
+              if (scope.enableRotate === false)
+                return;
+              handleMouseDownRotate(event);
+              state = STATE.ROTATE;
+            } else {
+              if (scope.enablePan === false)
+                return;
+              handleMouseDownPan(event);
+              state = STATE.PAN;
+            }
+            break;
+          default:
+            state = STATE.NONE;
+        }
+        if (state !== STATE.NONE) {
+          scope.dispatchEvent(_startEvent);
+        }
+      }
+      function onMouseMove(event) {
+        switch (state) {
+          case STATE.ROTATE:
+            if (scope.enableRotate === false)
+              return;
+            handleMouseMoveRotate(event);
+            break;
+          case STATE.DOLLY:
+            if (scope.enableZoom === false)
+              return;
+            handleMouseMoveDolly(event);
+            break;
+          case STATE.PAN:
+            if (scope.enablePan === false)
+              return;
+            handleMouseMovePan(event);
+            break;
+        }
+      }
+      function onMouseWheel(event) {
+        if (scope.enabled === false || scope.enableZoom === false || state !== STATE.NONE)
+          return;
+        event.preventDefault();
+        scope.dispatchEvent(_startEvent);
+        handleMouseWheel(event);
+        scope.dispatchEvent(_endEvent);
+      }
+      function onKeyDown(event) {
+        if (scope.enabled === false || scope.enablePan === false)
+          return;
+        handleKeyDown(event);
+      }
+      function onTouchStart(event) {
+        trackPointer(event);
+        switch (pointers.length) {
+          case 1:
+            switch (scope.touches.ONE) {
+              case TOUCH.ROTATE:
+                if (scope.enableRotate === false)
+                  return;
+                handleTouchStartRotate(event);
+                state = STATE.TOUCH_ROTATE;
+                break;
+              case TOUCH.PAN:
+                if (scope.enablePan === false)
+                  return;
+                handleTouchStartPan(event);
+                state = STATE.TOUCH_PAN;
+                break;
+              default:
+                state = STATE.NONE;
+            }
+            break;
+          case 2:
+            switch (scope.touches.TWO) {
+              case TOUCH.DOLLY_PAN:
+                if (scope.enableZoom === false && scope.enablePan === false)
+                  return;
+                handleTouchStartDollyPan(event);
+                state = STATE.TOUCH_DOLLY_PAN;
+                break;
+              case TOUCH.DOLLY_ROTATE:
+                if (scope.enableZoom === false && scope.enableRotate === false)
+                  return;
+                handleTouchStartDollyRotate(event);
+                state = STATE.TOUCH_DOLLY_ROTATE;
+                break;
+              default:
+                state = STATE.NONE;
+            }
+            break;
+          default:
+            state = STATE.NONE;
+        }
+        if (state !== STATE.NONE) {
+          scope.dispatchEvent(_startEvent);
+        }
+      }
+      function onTouchMove(event) {
+        trackPointer(event);
+        switch (state) {
+          case STATE.TOUCH_ROTATE:
+            if (scope.enableRotate === false)
+              return;
+            handleTouchMoveRotate(event);
+            scope.update();
+            break;
+          case STATE.TOUCH_PAN:
+            if (scope.enablePan === false)
+              return;
+            handleTouchMovePan(event);
+            scope.update();
+            break;
+          case STATE.TOUCH_DOLLY_PAN:
+            if (scope.enableZoom === false && scope.enablePan === false)
+              return;
+            handleTouchMoveDollyPan(event);
+            scope.update();
+            break;
+          case STATE.TOUCH_DOLLY_ROTATE:
+            if (scope.enableZoom === false && scope.enableRotate === false)
+              return;
+            handleTouchMoveDollyRotate(event);
+            scope.update();
+            break;
+          default:
+            state = STATE.NONE;
+        }
+      }
+      function onContextMenu(event) {
+        if (scope.enabled === false)
+          return;
+        event.preventDefault();
+      }
+      function addPointer(event) {
+        pointers.push(event.pointerId);
+      }
+      function removePointer(event) {
+        delete pointerPositions[event.pointerId];
+        for (let i = 0; i < pointers.length; i++) {
+          if (pointers[i] == event.pointerId) {
+            pointers.splice(i, 1);
+            return;
+          }
+        }
+      }
+      function trackPointer(event) {
+        let position = pointerPositions[event.pointerId];
+        if (position === void 0) {
+          position = new Vector2();
+          pointerPositions[event.pointerId] = position;
+        }
+        position.set(event.pageX, event.pageY);
+      }
+      function getSecondPointerPosition(event) {
+        const pointerId = event.pointerId === pointers[0] ? pointers[1] : pointers[0];
+        return pointerPositions[pointerId];
+      }
+      scope.domElement.addEventListener("contextmenu", onContextMenu);
+      scope.domElement.addEventListener("pointerdown", onPointerDown);
+      scope.domElement.addEventListener("pointercancel", onPointerUp);
+      scope.domElement.addEventListener("wheel", onMouseWheel, { passive: false });
+      this.update();
+    }
+  };
+
   // src/prototype.js
   var domElement = document.createElement("div");
   var root = (0, import_client.createRoot)(domElement);
@@ -42739,14 +45386,19 @@
     const domElement2 = (0, import_react.useRef)();
     (0, import_react.useEffect)(mount, []);
     function mount() {
+      const gui = new lil_gui_esm_default();
       const renderer = new WebGLRenderer({ antialias: true });
       const scene = new Scene();
       const camera = new OrthographicCamera();
+      const controls = new OrbitControls(camera, renderer.domElement);
+      renderer.domElement.style.position = "absolute";
+      renderer.domElement.style.top = 0;
+      renderer.domElement.style.left = 0;
       camera.position.z = -1;
       camera.rotation.y = Math.PI;
       const sticker = new Sticker();
       scene.add(sticker);
-      renderer.setClearAlpha(0);
+      gui.add(sticker.material.uniforms.fold, "value", 0, 1).name("fold");
       domElement2.current.appendChild(renderer.domElement);
       renderer.setAnimationLoop(update);
       window.addEventListener("resize", resize);
@@ -42773,6 +45425,7 @@
         scene.scale.set(scale, scale, scale);
       }
       function update() {
+        controls.update();
         renderer.render(scene, camera);
       }
     }
@@ -42833,6 +45486,15 @@ three/build/three.module.js:
    * @license
    * Copyright 2010-2023 Three.js Authors
    * SPDX-License-Identifier: MIT
+   *)
+
+lil-gui/dist/lil-gui.esm.js:
+  (**
+   * lil-gui
+   * https://lil-gui.georgealways.com
+   * @version 0.19.1
+   * @author George Michael Brower
+   * @license MIT
    *)
 */
 //# sourceMappingURL=prototype.js.map
