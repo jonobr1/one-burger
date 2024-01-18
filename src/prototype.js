@@ -35,7 +35,9 @@ function Prototype(props) {
     const sticker = new Sticker();
     scene.add(sticker);
 
-    gui.add(sticker.material.uniforms.fold, 'value', 0, 1).name('fold');
+    gui.add(sticker.material.uniforms.magnitude, 'value', 0, 1).name('magnitude');
+    gui.add(sticker.material.uniforms.cursor.value, 'x', -2, 2);
+    gui.add(sticker.material.uniforms.cursor.value, 'y', -2, 2);
 
     domElement.current.appendChild(renderer.domElement);
     renderer.setAnimationLoop(update);

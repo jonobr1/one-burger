@@ -9,41 +9,56 @@ const geometry = new THREE.PlaneGeometry(1, aspect, 64, 64);
 const material = new THREE.ShaderMaterial({
   uniforms: {
     map: { value: texture },
-    fold: { value: 0 }
+    magnitude: { value: 0 },
+    cursor: { value: new THREE.Vector2(-1, 1) }
   },
   vertexShader: `
     const float PI = ${Math.PI};
-    uniform float fold;
+    const float aspect = ${aspect};
+
+    uniform float magnitude;
+    uniform vec2 cursor;
 
     varying vec2 vUv;
+    varying float isFolded;
 
     void main() {
+
       vUv = uv;
 
-      float isRight = step( 1.0, uv.x );
-      float isTop = step( 1.0, uv.y );
-      float applies = isTop * isRight;
-
-      float theta = atan( position.y / position.x );
-      float dist = length( position );
-
       vec3 pos = vec3( position );
-      // pos.x += cos( smoothstep( 0.5, 1.0, uv.x ) * PI ) * fold;
-      pos.z += sin( smoothstep( 0.5, 1.0, uv.x ) * PI * 0.5 ) * fold;
+      vec2 cur = vec2( cursor.x, cursor.y * aspect );
+
+      float angle = atan( - cur.y, - cur.x );
+      float dist = 1.0 - smoothstep( 0.0, 1.0, distance( position.xy, cur ) );
+
+      pos.x += magnitude * dist * cos( angle );
+      pos.y += magnitude * dist * sin( angle );
+      pos.z -= dist * 0.1;
+
+      vec4 vp = modelViewMatrix * vec4( pos, 1.0 );
+      vec3 vd = normalize(-vp.xyz);
+      vec3 nv = normalize(normalMatrix * normal.xyz);
+
+      isFolded = step( 0.01, dot( vd, nv ) );                     // Darken the backside
+      isFolded = max( isFolded, step( 0.1, magnitude * dist ) );  // Get the fold to be dark
 
       gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
+
     }
   `,
   fragmentShader: `
     uniform sampler2D map;
 
     varying vec2 vUv;
+    varying float isFolded;
 
     void main() {
       vec4 texel = texture2D( map, vUv );
-      gl_FragColor = texel;
+      gl_FragColor = mix( texel, vec4( 0.8, 0.0, 0.0, 1.0 ), isFolded );
     }
-  `
+  `,
+  side: THREE.DoubleSide
 });
 
 texture.magFilter = texture.minFilter = THREE.LinearFilter;
