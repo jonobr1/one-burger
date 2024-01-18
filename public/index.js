@@ -30250,12 +30250,12 @@
   var _intersectionPoint = /* @__PURE__ */ new Vector3();
   var _intersectionPointWorld = /* @__PURE__ */ new Vector3();
   var Mesh = class extends Object3D {
-    constructor(geometry2 = new BufferGeometry(), material2 = new MeshBasicMaterial()) {
+    constructor(geometry2 = new BufferGeometry(), material = new MeshBasicMaterial()) {
       super();
       this.isMesh = true;
       this.type = "Mesh";
       this.geometry = geometry2;
-      this.material = material2;
+      this.material = material;
       this.updateMorphTargets();
     }
     copy(source, recursive) {
@@ -30314,9 +30314,9 @@
     }
     raycast(raycaster, intersects) {
       const geometry2 = this.geometry;
-      const material2 = this.material;
+      const material = this.material;
       const matrixWorld = this.matrixWorld;
-      if (material2 === void 0)
+      if (material === void 0)
         return;
       if (geometry2.boundingSphere === null)
         geometry2.computeBoundingSphere();
@@ -30340,7 +30340,7 @@
     _computeIntersections(raycaster, intersects, rayLocalSpace) {
       let intersection;
       const geometry2 = this.geometry;
-      const material2 = this.material;
+      const material = this.material;
       const index = geometry2.index;
       const position = geometry2.attributes.position;
       const uv = geometry2.attributes.uv;
@@ -30349,10 +30349,10 @@
       const groups = geometry2.groups;
       const drawRange = geometry2.drawRange;
       if (index !== null) {
-        if (Array.isArray(material2)) {
+        if (Array.isArray(material)) {
           for (let i = 0, il = groups.length; i < il; i++) {
             const group = groups[i];
-            const groupMaterial = material2[group.materialIndex];
+            const groupMaterial = material[group.materialIndex];
             const start = Math.max(group.start, drawRange.start);
             const end = Math.min(index.count, Math.min(group.start + group.count, drawRange.start + drawRange.count));
             for (let j = start, jl = end; j < jl; j += 3) {
@@ -30374,7 +30374,7 @@
             const a = index.getX(i);
             const b = index.getX(i + 1);
             const c = index.getX(i + 2);
-            intersection = checkGeometryIntersection(this, material2, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
+            intersection = checkGeometryIntersection(this, material, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
             if (intersection) {
               intersection.faceIndex = Math.floor(i / 3);
               intersects.push(intersection);
@@ -30382,10 +30382,10 @@
           }
         }
       } else if (position !== void 0) {
-        if (Array.isArray(material2)) {
+        if (Array.isArray(material)) {
           for (let i = 0, il = groups.length; i < il; i++) {
             const group = groups[i];
-            const groupMaterial = material2[group.materialIndex];
+            const groupMaterial = material[group.materialIndex];
             const start = Math.max(group.start, drawRange.start);
             const end = Math.min(position.count, Math.min(group.start + group.count, drawRange.start + drawRange.count));
             for (let j = start, jl = end; j < jl; j += 3) {
@@ -30407,7 +30407,7 @@
             const a = i;
             const b = i + 1;
             const c = i + 2;
-            intersection = checkGeometryIntersection(this, material2, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
+            intersection = checkGeometryIntersection(this, material, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
             if (intersection) {
               intersection.faceIndex = Math.floor(i / 3);
               intersects.push(intersection);
@@ -30417,12 +30417,12 @@
       }
     }
   };
-  function checkIntersection(object, material2, raycaster, ray, pA, pB, pC, point) {
+  function checkIntersection(object, material, raycaster, ray, pA, pB, pC, point) {
     let intersect;
-    if (material2.side === BackSide) {
+    if (material.side === BackSide) {
       intersect = ray.intersectTriangle(pC, pB, pA, true, point);
     } else {
-      intersect = ray.intersectTriangle(pA, pB, pC, material2.side === FrontSide, point);
+      intersect = ray.intersectTriangle(pA, pB, pC, material.side === FrontSide, point);
     }
     if (intersect === null)
       return null;
@@ -30437,11 +30437,11 @@
       object
     };
   }
-  function checkGeometryIntersection(object, material2, raycaster, ray, uv, uv1, normal, a, b, c) {
+  function checkGeometryIntersection(object, material, raycaster, ray, uv, uv1, normal, a, b, c) {
     object.getVertexPosition(a, _vA$1);
     object.getVertexPosition(b, _vB$1);
     object.getVertexPosition(c, _vC$1);
-    const intersection = checkIntersection(object, material2, raycaster, ray, _vA$1, _vB$1, _vC$1, _intersectionPoint);
+    const intersection = checkIntersection(object, material, raycaster, ray, _vA$1, _vB$1, _vC$1, _intersectionPoint);
     if (intersection) {
       if (uv) {
         _uvA$1.fromBufferAttribute(uv, a);
@@ -31109,7 +31109,7 @@
         )
       };
       const geometry2 = new BoxGeometry(5, 5, 5);
-      const material2 = new ShaderMaterial({
+      const material = new ShaderMaterial({
         name: "CubemapFromEquirect",
         uniforms: cloneUniforms(shader.uniforms),
         vertexShader: shader.vertexShader,
@@ -31117,8 +31117,8 @@
         side: BackSide,
         blending: NoBlending
       });
-      material2.uniforms.tEquirect.value = texture2;
-      const mesh = new Mesh(geometry2, material2);
+      material.uniforms.tEquirect.value = texture2;
+      const mesh = new Mesh(geometry2, material);
       const currentMinFilter = texture2.minFilter;
       if (texture2.minFilter === LinearMipmapLinearFilter)
         texture2.minFilter = LinearFilter;
@@ -32428,10 +32428,10 @@
     const defaultState = createBindingState(null);
     let currentState = defaultState;
     let forceUpdate = false;
-    function setup(object, material2, program, geometry2, index) {
+    function setup(object, material, program, geometry2, index) {
       let updateBuffers = false;
       if (vaoAvailable) {
-        const state = getBindingState(geometry2, program, material2);
+        const state = getBindingState(geometry2, program, material);
         if (currentState !== state) {
           currentState = state;
           bindVertexArrayObject(currentState.object);
@@ -32440,7 +32440,7 @@
         if (updateBuffers)
           saveCache(object, geometry2, program, index);
       } else {
-        const wireframe = material2.wireframe === true;
+        const wireframe = material.wireframe === true;
         if (currentState.geometry !== geometry2.id || currentState.program !== program.id || currentState.wireframe !== wireframe) {
           currentState.geometry = geometry2.id;
           currentState.program = program.id;
@@ -32453,7 +32453,7 @@
       }
       if (updateBuffers || forceUpdate) {
         forceUpdate = false;
-        setupVertexAttributes(object, material2, program, geometry2);
+        setupVertexAttributes(object, material, program, geometry2);
         if (index !== null) {
           gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, attributes.get(index).buffer);
         }
@@ -32474,8 +32474,8 @@
         return gl.deleteVertexArray(vao);
       return extension.deleteVertexArrayOES(vao);
     }
-    function getBindingState(geometry2, program, material2) {
-      const wireframe = material2.wireframe === true;
+    function getBindingState(geometry2, program, material) {
+      const wireframe = material.wireframe === true;
       let programMap = bindingStates[geometry2.id];
       if (programMap === void 0) {
         programMap = {};
@@ -32615,7 +32615,7 @@
         gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
       }
     }
-    function setupVertexAttributes(object, material2, program, geometry2) {
+    function setupVertexAttributes(object, material, program, geometry2) {
       if (capabilities.isWebGL2 === false && (object.isInstancedMesh || geometry2.isInstancedBufferGeometry)) {
         if (extensions.get("ANGLE_instanced_arrays") === null)
           return;
@@ -32623,7 +32623,7 @@
       initAttributes();
       const geometryAttributes = geometry2.attributes;
       const programAttributes = program.getAttributes();
-      const materialDefaultAttributeValues = material2.defaultAttributeValues;
+      const materialDefaultAttributeValues = material.defaultAttributeValues;
       for (const name in programAttributes) {
         const programAttribute = programAttributes[name];
         if (programAttribute.location >= 0) {
@@ -32931,9 +32931,9 @@
     this.setGlobalState = function(planes, camera) {
       globalState = projectPlanes(planes, camera, 0);
     };
-    this.setState = function(material2, camera, useCache) {
-      const planes = material2.clippingPlanes, clipIntersection = material2.clipIntersection, clipShadows = material2.clipShadows;
-      const materialProperties = properties.get(material2);
+    this.setState = function(material, camera, useCache) {
+      const planes = material.clippingPlanes, clipIntersection = material.clipIntersection, clipShadows = material.clipShadows;
+      const materialProperties = properties.get(material);
       if (!localClippingEnabled || planes === null || planes.length === 0 || renderingShadows && !clipShadows) {
         if (renderingShadows) {
           projectPlanes(null);
@@ -33288,8 +33288,8 @@
       }
       return cubeUVRenderTarget;
     }
-    _compileMaterial(material2) {
-      const tmpMesh = new Mesh(this._lodPlanes[0], material2);
+    _compileMaterial(material) {
+      const tmpMesh = new Mesh(this._lodPlanes[0], material);
       this._renderer.compile(tmpMesh, _flatCamera);
     }
     _sceneToCubeUV(scene, near, far, cubeUVRenderTarget) {
@@ -33362,9 +33362,9 @@
           this._equirectMaterial = _getEquirectMaterial();
         }
       }
-      const material2 = isCubeTexture ? this._cubemapMaterial : this._equirectMaterial;
-      const mesh = new Mesh(this._lodPlanes[0], material2);
-      const uniforms = material2.uniforms;
+      const material = isCubeTexture ? this._cubemapMaterial : this._equirectMaterial;
+      const mesh = new Mesh(this._lodPlanes[0], material);
+      const uniforms = material.uniforms;
       uniforms["envMap"].value = texture2;
       const size = this._cubeSize;
       _setViewport(cubeUVRenderTarget, 0, 0, 3 * size, 2 * size);
@@ -35604,12 +35604,12 @@
       this.shaderCache = /* @__PURE__ */ new Map();
       this.materialCache = /* @__PURE__ */ new Map();
     }
-    update(material2) {
-      const vertexShader = material2.vertexShader;
-      const fragmentShader = material2.fragmentShader;
+    update(material) {
+      const vertexShader = material.vertexShader;
+      const fragmentShader = material.fragmentShader;
       const vertexShaderStage = this._getShaderStage(vertexShader);
       const fragmentShaderStage = this._getShaderStage(fragmentShader);
-      const materialShaders = this._getShaderCacheForMaterial(material2);
+      const materialShaders = this._getShaderCacheForMaterial(material);
       if (materialShaders.has(vertexShaderStage) === false) {
         materialShaders.add(vertexShaderStage);
         vertexShaderStage.usedTimes++;
@@ -35620,32 +35620,32 @@
       }
       return this;
     }
-    remove(material2) {
-      const materialShaders = this.materialCache.get(material2);
+    remove(material) {
+      const materialShaders = this.materialCache.get(material);
       for (const shaderStage of materialShaders) {
         shaderStage.usedTimes--;
         if (shaderStage.usedTimes === 0)
           this.shaderCache.delete(shaderStage.code);
       }
-      this.materialCache.delete(material2);
+      this.materialCache.delete(material);
       return this;
     }
-    getVertexShaderID(material2) {
-      return this._getShaderStage(material2.vertexShader).id;
+    getVertexShaderID(material) {
+      return this._getShaderStage(material.vertexShader).id;
     }
-    getFragmentShaderID(material2) {
-      return this._getShaderStage(material2.fragmentShader).id;
+    getFragmentShaderID(material) {
+      return this._getShaderStage(material.fragmentShader).id;
     }
     dispose() {
       this.shaderCache.clear();
       this.materialCache.clear();
     }
-    _getShaderCacheForMaterial(material2) {
+    _getShaderCacheForMaterial(material) {
       const cache = this.materialCache;
-      let set = cache.get(material2);
+      let set = cache.get(material);
       if (set === void 0) {
         set = /* @__PURE__ */ new Set();
-        cache.set(material2, set);
+        cache.set(material, set);
       }
       return set;
     }
@@ -35696,17 +35696,17 @@
         return "uv";
       return `uv${value}`;
     }
-    function getParameters(material2, lights, shadows, scene, object) {
+    function getParameters(material, lights, shadows, scene, object) {
       const fog = scene.fog;
       const geometry2 = object.geometry;
-      const environment = material2.isMeshStandardMaterial ? scene.environment : null;
-      const envMap = (material2.isMeshStandardMaterial ? cubeuvmaps : cubemaps).get(material2.envMap || environment);
+      const environment = material.isMeshStandardMaterial ? scene.environment : null;
+      const envMap = (material.isMeshStandardMaterial ? cubeuvmaps : cubemaps).get(material.envMap || environment);
       const envMapCubeUVHeight = !!envMap && envMap.mapping === CubeUVReflectionMapping ? envMap.image.height : null;
-      const shaderID = shaderIDs[material2.type];
-      if (material2.precision !== null) {
-        precision = capabilities.getMaxPrecision(material2.precision);
-        if (precision !== material2.precision) {
-          console.warn("THREE.WebGLProgram.getParameters:", material2.precision, "not supported, using", precision, "instead.");
+      const shaderID = shaderIDs[material.type];
+      if (material.precision !== null) {
+        precision = capabilities.getMaxPrecision(material.precision);
+        if (precision !== material.precision) {
+          console.warn("THREE.WebGLProgram.getParameters:", material.precision, "not supported, using", precision, "instead.");
         }
       }
       const morphAttribute = geometry2.morphAttributes.position || geometry2.morphAttributes.normal || geometry2.morphAttributes.color;
@@ -35725,54 +35725,54 @@
         vertexShader = shader.vertexShader;
         fragmentShader = shader.fragmentShader;
       } else {
-        vertexShader = material2.vertexShader;
-        fragmentShader = material2.fragmentShader;
-        _customShaders.update(material2);
-        customVertexShaderID = _customShaders.getVertexShaderID(material2);
-        customFragmentShaderID = _customShaders.getFragmentShaderID(material2);
+        vertexShader = material.vertexShader;
+        fragmentShader = material.fragmentShader;
+        _customShaders.update(material);
+        customVertexShaderID = _customShaders.getVertexShaderID(material);
+        customFragmentShaderID = _customShaders.getFragmentShaderID(material);
       }
       const currentRenderTarget = renderer.getRenderTarget();
       const IS_INSTANCEDMESH = object.isInstancedMesh === true;
       const IS_BATCHEDMESH = object.isBatchedMesh === true;
-      const HAS_MAP = !!material2.map;
-      const HAS_MATCAP = !!material2.matcap;
+      const HAS_MAP = !!material.map;
+      const HAS_MATCAP = !!material.matcap;
       const HAS_ENVMAP = !!envMap;
-      const HAS_AOMAP = !!material2.aoMap;
-      const HAS_LIGHTMAP = !!material2.lightMap;
-      const HAS_BUMPMAP = !!material2.bumpMap;
-      const HAS_NORMALMAP = !!material2.normalMap;
-      const HAS_DISPLACEMENTMAP = !!material2.displacementMap;
-      const HAS_EMISSIVEMAP = !!material2.emissiveMap;
-      const HAS_METALNESSMAP = !!material2.metalnessMap;
-      const HAS_ROUGHNESSMAP = !!material2.roughnessMap;
-      const HAS_ANISOTROPY = material2.anisotropy > 0;
-      const HAS_CLEARCOAT = material2.clearcoat > 0;
-      const HAS_IRIDESCENCE = material2.iridescence > 0;
-      const HAS_SHEEN = material2.sheen > 0;
-      const HAS_TRANSMISSION = material2.transmission > 0;
-      const HAS_ANISOTROPYMAP = HAS_ANISOTROPY && !!material2.anisotropyMap;
-      const HAS_CLEARCOATMAP = HAS_CLEARCOAT && !!material2.clearcoatMap;
-      const HAS_CLEARCOAT_NORMALMAP = HAS_CLEARCOAT && !!material2.clearcoatNormalMap;
-      const HAS_CLEARCOAT_ROUGHNESSMAP = HAS_CLEARCOAT && !!material2.clearcoatRoughnessMap;
-      const HAS_IRIDESCENCEMAP = HAS_IRIDESCENCE && !!material2.iridescenceMap;
-      const HAS_IRIDESCENCE_THICKNESSMAP = HAS_IRIDESCENCE && !!material2.iridescenceThicknessMap;
-      const HAS_SHEEN_COLORMAP = HAS_SHEEN && !!material2.sheenColorMap;
-      const HAS_SHEEN_ROUGHNESSMAP = HAS_SHEEN && !!material2.sheenRoughnessMap;
-      const HAS_SPECULARMAP = !!material2.specularMap;
-      const HAS_SPECULAR_COLORMAP = !!material2.specularColorMap;
-      const HAS_SPECULAR_INTENSITYMAP = !!material2.specularIntensityMap;
-      const HAS_TRANSMISSIONMAP = HAS_TRANSMISSION && !!material2.transmissionMap;
-      const HAS_THICKNESSMAP = HAS_TRANSMISSION && !!material2.thicknessMap;
-      const HAS_GRADIENTMAP = !!material2.gradientMap;
-      const HAS_ALPHAMAP = !!material2.alphaMap;
-      const HAS_ALPHATEST = material2.alphaTest > 0;
-      const HAS_ALPHAHASH = !!material2.alphaHash;
-      const HAS_EXTENSIONS = !!material2.extensions;
+      const HAS_AOMAP = !!material.aoMap;
+      const HAS_LIGHTMAP = !!material.lightMap;
+      const HAS_BUMPMAP = !!material.bumpMap;
+      const HAS_NORMALMAP = !!material.normalMap;
+      const HAS_DISPLACEMENTMAP = !!material.displacementMap;
+      const HAS_EMISSIVEMAP = !!material.emissiveMap;
+      const HAS_METALNESSMAP = !!material.metalnessMap;
+      const HAS_ROUGHNESSMAP = !!material.roughnessMap;
+      const HAS_ANISOTROPY = material.anisotropy > 0;
+      const HAS_CLEARCOAT = material.clearcoat > 0;
+      const HAS_IRIDESCENCE = material.iridescence > 0;
+      const HAS_SHEEN = material.sheen > 0;
+      const HAS_TRANSMISSION = material.transmission > 0;
+      const HAS_ANISOTROPYMAP = HAS_ANISOTROPY && !!material.anisotropyMap;
+      const HAS_CLEARCOATMAP = HAS_CLEARCOAT && !!material.clearcoatMap;
+      const HAS_CLEARCOAT_NORMALMAP = HAS_CLEARCOAT && !!material.clearcoatNormalMap;
+      const HAS_CLEARCOAT_ROUGHNESSMAP = HAS_CLEARCOAT && !!material.clearcoatRoughnessMap;
+      const HAS_IRIDESCENCEMAP = HAS_IRIDESCENCE && !!material.iridescenceMap;
+      const HAS_IRIDESCENCE_THICKNESSMAP = HAS_IRIDESCENCE && !!material.iridescenceThicknessMap;
+      const HAS_SHEEN_COLORMAP = HAS_SHEEN && !!material.sheenColorMap;
+      const HAS_SHEEN_ROUGHNESSMAP = HAS_SHEEN && !!material.sheenRoughnessMap;
+      const HAS_SPECULARMAP = !!material.specularMap;
+      const HAS_SPECULAR_COLORMAP = !!material.specularColorMap;
+      const HAS_SPECULAR_INTENSITYMAP = !!material.specularIntensityMap;
+      const HAS_TRANSMISSIONMAP = HAS_TRANSMISSION && !!material.transmissionMap;
+      const HAS_THICKNESSMAP = HAS_TRANSMISSION && !!material.thicknessMap;
+      const HAS_GRADIENTMAP = !!material.gradientMap;
+      const HAS_ALPHAMAP = !!material.alphaMap;
+      const HAS_ALPHATEST = material.alphaTest > 0;
+      const HAS_ALPHAHASH = !!material.alphaHash;
+      const HAS_EXTENSIONS = !!material.extensions;
       const HAS_ATTRIBUTE_UV1 = !!geometry2.attributes.uv1;
       const HAS_ATTRIBUTE_UV2 = !!geometry2.attributes.uv2;
       const HAS_ATTRIBUTE_UV3 = !!geometry2.attributes.uv3;
       let toneMapping = NoToneMapping;
-      if (material2.toneMapped) {
+      if (material.toneMapped) {
         if (currentRenderTarget === null || currentRenderTarget.isXRRenderTarget === true) {
           toneMapping = renderer.toneMapping;
         }
@@ -35780,15 +35780,15 @@
       const parameters = {
         isWebGL2: IS_WEBGL2,
         shaderID,
-        shaderType: material2.type,
-        shaderName: material2.name,
+        shaderType: material.type,
+        shaderName: material.name,
         vertexShader,
         fragmentShader,
-        defines: material2.defines,
+        defines: material.defines,
         customVertexShaderID,
         customFragmentShaderID,
-        isRawShaderMaterial: material2.isRawShaderMaterial === true,
-        glslVersion: material2.glslVersion,
+        isRawShaderMaterial: material.isRawShaderMaterial === true,
+        glslVersion: material.glslVersion,
         precision,
         batching: IS_BATCHEDMESH,
         instancing: IS_INSTANCEDMESH,
@@ -35806,8 +35806,8 @@
         normalMap: HAS_NORMALMAP,
         displacementMap: SUPPORTS_VERTEX_TEXTURES && HAS_DISPLACEMENTMAP,
         emissiveMap: HAS_EMISSIVEMAP,
-        normalMapObjectSpace: HAS_NORMALMAP && material2.normalMapType === ObjectSpaceNormalMap,
-        normalMapTangentSpace: HAS_NORMALMAP && material2.normalMapType === TangentSpaceNormalMap,
+        normalMapObjectSpace: HAS_NORMALMAP && material.normalMapType === ObjectSpaceNormalMap,
+        normalMapTangentSpace: HAS_NORMALMAP && material.normalMapType === TangentSpaceNormalMap,
         metalnessMap: HAS_METALNESSMAP,
         roughnessMap: HAS_ROUGHNESSMAP,
         anisotropy: HAS_ANISOTROPY,
@@ -35829,48 +35829,48 @@
         transmissionMap: HAS_TRANSMISSIONMAP,
         thicknessMap: HAS_THICKNESSMAP,
         gradientMap: HAS_GRADIENTMAP,
-        opaque: material2.transparent === false && material2.blending === NormalBlending,
+        opaque: material.transparent === false && material.blending === NormalBlending,
         alphaMap: HAS_ALPHAMAP,
         alphaTest: HAS_ALPHATEST,
         alphaHash: HAS_ALPHAHASH,
-        combine: material2.combine,
+        combine: material.combine,
         //
-        mapUv: HAS_MAP && getChannel(material2.map.channel),
-        aoMapUv: HAS_AOMAP && getChannel(material2.aoMap.channel),
-        lightMapUv: HAS_LIGHTMAP && getChannel(material2.lightMap.channel),
-        bumpMapUv: HAS_BUMPMAP && getChannel(material2.bumpMap.channel),
-        normalMapUv: HAS_NORMALMAP && getChannel(material2.normalMap.channel),
-        displacementMapUv: HAS_DISPLACEMENTMAP && getChannel(material2.displacementMap.channel),
-        emissiveMapUv: HAS_EMISSIVEMAP && getChannel(material2.emissiveMap.channel),
-        metalnessMapUv: HAS_METALNESSMAP && getChannel(material2.metalnessMap.channel),
-        roughnessMapUv: HAS_ROUGHNESSMAP && getChannel(material2.roughnessMap.channel),
-        anisotropyMapUv: HAS_ANISOTROPYMAP && getChannel(material2.anisotropyMap.channel),
-        clearcoatMapUv: HAS_CLEARCOATMAP && getChannel(material2.clearcoatMap.channel),
-        clearcoatNormalMapUv: HAS_CLEARCOAT_NORMALMAP && getChannel(material2.clearcoatNormalMap.channel),
-        clearcoatRoughnessMapUv: HAS_CLEARCOAT_ROUGHNESSMAP && getChannel(material2.clearcoatRoughnessMap.channel),
-        iridescenceMapUv: HAS_IRIDESCENCEMAP && getChannel(material2.iridescenceMap.channel),
-        iridescenceThicknessMapUv: HAS_IRIDESCENCE_THICKNESSMAP && getChannel(material2.iridescenceThicknessMap.channel),
-        sheenColorMapUv: HAS_SHEEN_COLORMAP && getChannel(material2.sheenColorMap.channel),
-        sheenRoughnessMapUv: HAS_SHEEN_ROUGHNESSMAP && getChannel(material2.sheenRoughnessMap.channel),
-        specularMapUv: HAS_SPECULARMAP && getChannel(material2.specularMap.channel),
-        specularColorMapUv: HAS_SPECULAR_COLORMAP && getChannel(material2.specularColorMap.channel),
-        specularIntensityMapUv: HAS_SPECULAR_INTENSITYMAP && getChannel(material2.specularIntensityMap.channel),
-        transmissionMapUv: HAS_TRANSMISSIONMAP && getChannel(material2.transmissionMap.channel),
-        thicknessMapUv: HAS_THICKNESSMAP && getChannel(material2.thicknessMap.channel),
-        alphaMapUv: HAS_ALPHAMAP && getChannel(material2.alphaMap.channel),
+        mapUv: HAS_MAP && getChannel(material.map.channel),
+        aoMapUv: HAS_AOMAP && getChannel(material.aoMap.channel),
+        lightMapUv: HAS_LIGHTMAP && getChannel(material.lightMap.channel),
+        bumpMapUv: HAS_BUMPMAP && getChannel(material.bumpMap.channel),
+        normalMapUv: HAS_NORMALMAP && getChannel(material.normalMap.channel),
+        displacementMapUv: HAS_DISPLACEMENTMAP && getChannel(material.displacementMap.channel),
+        emissiveMapUv: HAS_EMISSIVEMAP && getChannel(material.emissiveMap.channel),
+        metalnessMapUv: HAS_METALNESSMAP && getChannel(material.metalnessMap.channel),
+        roughnessMapUv: HAS_ROUGHNESSMAP && getChannel(material.roughnessMap.channel),
+        anisotropyMapUv: HAS_ANISOTROPYMAP && getChannel(material.anisotropyMap.channel),
+        clearcoatMapUv: HAS_CLEARCOATMAP && getChannel(material.clearcoatMap.channel),
+        clearcoatNormalMapUv: HAS_CLEARCOAT_NORMALMAP && getChannel(material.clearcoatNormalMap.channel),
+        clearcoatRoughnessMapUv: HAS_CLEARCOAT_ROUGHNESSMAP && getChannel(material.clearcoatRoughnessMap.channel),
+        iridescenceMapUv: HAS_IRIDESCENCEMAP && getChannel(material.iridescenceMap.channel),
+        iridescenceThicknessMapUv: HAS_IRIDESCENCE_THICKNESSMAP && getChannel(material.iridescenceThicknessMap.channel),
+        sheenColorMapUv: HAS_SHEEN_COLORMAP && getChannel(material.sheenColorMap.channel),
+        sheenRoughnessMapUv: HAS_SHEEN_ROUGHNESSMAP && getChannel(material.sheenRoughnessMap.channel),
+        specularMapUv: HAS_SPECULARMAP && getChannel(material.specularMap.channel),
+        specularColorMapUv: HAS_SPECULAR_COLORMAP && getChannel(material.specularColorMap.channel),
+        specularIntensityMapUv: HAS_SPECULAR_INTENSITYMAP && getChannel(material.specularIntensityMap.channel),
+        transmissionMapUv: HAS_TRANSMISSIONMAP && getChannel(material.transmissionMap.channel),
+        thicknessMapUv: HAS_THICKNESSMAP && getChannel(material.thicknessMap.channel),
+        alphaMapUv: HAS_ALPHAMAP && getChannel(material.alphaMap.channel),
         //
         vertexTangents: !!geometry2.attributes.tangent && (HAS_NORMALMAP || HAS_ANISOTROPY),
-        vertexColors: material2.vertexColors,
-        vertexAlphas: material2.vertexColors === true && !!geometry2.attributes.color && geometry2.attributes.color.itemSize === 4,
+        vertexColors: material.vertexColors,
+        vertexAlphas: material.vertexColors === true && !!geometry2.attributes.color && geometry2.attributes.color.itemSize === 4,
         vertexUv1s: HAS_ATTRIBUTE_UV1,
         vertexUv2s: HAS_ATTRIBUTE_UV2,
         vertexUv3s: HAS_ATTRIBUTE_UV3,
         pointsUvs: object.isPoints === true && !!geometry2.attributes.uv && (HAS_MAP || HAS_ALPHAMAP),
         fog: !!fog,
-        useFog: material2.fog === true,
+        useFog: material.fog === true,
         fogExp2: fog && fog.isFogExp2,
-        flatShading: material2.flatShading === true,
-        sizeAttenuation: material2.sizeAttenuation === true,
+        flatShading: material.flatShading === true,
+        sizeAttenuation: material.sizeAttenuation === true,
         logarithmicDepthBuffer,
         skinning: object.isSkinnedMesh === true,
         morphTargets: geometry2.morphAttributes.position !== void 0,
@@ -35891,28 +35891,28 @@
         numLightProbes: lights.numLightProbes,
         numClippingPlanes: clipping.numPlanes,
         numClipIntersection: clipping.numIntersection,
-        dithering: material2.dithering,
+        dithering: material.dithering,
         shadowMapEnabled: renderer.shadowMap.enabled && shadows.length > 0,
         shadowMapType: renderer.shadowMap.type,
         toneMapping,
         useLegacyLights: renderer._useLegacyLights,
-        decodeVideoTexture: HAS_MAP && material2.map.isVideoTexture === true && ColorManagement.getTransfer(material2.map.colorSpace) === SRGBTransfer,
-        premultipliedAlpha: material2.premultipliedAlpha,
-        doubleSided: material2.side === DoubleSide,
-        flipSided: material2.side === BackSide,
-        useDepthPacking: material2.depthPacking >= 0,
-        depthPacking: material2.depthPacking || 0,
-        index0AttributeName: material2.index0AttributeName,
-        extensionDerivatives: HAS_EXTENSIONS && material2.extensions.derivatives === true,
-        extensionFragDepth: HAS_EXTENSIONS && material2.extensions.fragDepth === true,
-        extensionDrawBuffers: HAS_EXTENSIONS && material2.extensions.drawBuffers === true,
-        extensionShaderTextureLOD: HAS_EXTENSIONS && material2.extensions.shaderTextureLOD === true,
-        extensionClipCullDistance: HAS_EXTENSIONS && material2.extensions.clipCullDistance && extensions.has("WEBGL_clip_cull_distance"),
+        decodeVideoTexture: HAS_MAP && material.map.isVideoTexture === true && ColorManagement.getTransfer(material.map.colorSpace) === SRGBTransfer,
+        premultipliedAlpha: material.premultipliedAlpha,
+        doubleSided: material.side === DoubleSide,
+        flipSided: material.side === BackSide,
+        useDepthPacking: material.depthPacking >= 0,
+        depthPacking: material.depthPacking || 0,
+        index0AttributeName: material.index0AttributeName,
+        extensionDerivatives: HAS_EXTENSIONS && material.extensions.derivatives === true,
+        extensionFragDepth: HAS_EXTENSIONS && material.extensions.fragDepth === true,
+        extensionDrawBuffers: HAS_EXTENSIONS && material.extensions.drawBuffers === true,
+        extensionShaderTextureLOD: HAS_EXTENSIONS && material.extensions.shaderTextureLOD === true,
+        extensionClipCullDistance: HAS_EXTENSIONS && material.extensions.clipCullDistance && extensions.has("WEBGL_clip_cull_distance"),
         rendererExtensionFragDepth: IS_WEBGL2 || extensions.has("EXT_frag_depth"),
         rendererExtensionDrawBuffers: IS_WEBGL2 || extensions.has("WEBGL_draw_buffers"),
         rendererExtensionShaderTextureLod: IS_WEBGL2 || extensions.has("EXT_shader_texture_lod"),
         rendererExtensionParallelShaderCompile: extensions.has("KHR_parallel_shader_compile"),
-        customProgramCacheKey: material2.customProgramCacheKey()
+        customProgramCacheKey: material.customProgramCacheKey()
       };
       return parameters;
     }
@@ -36074,14 +36074,14 @@
         _programLayers.enable(19);
       array.push(_programLayers.mask);
     }
-    function getUniforms(material2) {
-      const shaderID = shaderIDs[material2.type];
+    function getUniforms(material) {
+      const shaderID = shaderIDs[material.type];
       let uniforms;
       if (shaderID) {
         const shader = ShaderLib[shaderID];
         uniforms = UniformsUtils.clone(shader.uniforms);
       } else {
-        uniforms = material2.uniforms;
+        uniforms = material.uniforms;
       }
       return uniforms;
     }
@@ -36109,8 +36109,8 @@
         program.destroy();
       }
     }
-    function releaseShaderCache(material2) {
-      _customShaders.remove(material2);
+    function releaseShaderCache(material) {
+      _customShaders.remove(material);
     }
     function dispose() {
       _customShaders.dispose();
@@ -36189,14 +36189,14 @@
       transmissive.length = 0;
       transparent.length = 0;
     }
-    function getNextRenderItem(object, geometry2, material2, groupOrder, z, group) {
+    function getNextRenderItem(object, geometry2, material, groupOrder, z, group) {
       let renderItem = renderItems[renderItemsIndex];
       if (renderItem === void 0) {
         renderItem = {
           id: object.id,
           object,
           geometry: geometry2,
-          material: material2,
+          material,
           groupOrder,
           renderOrder: object.renderOrder,
           z,
@@ -36207,7 +36207,7 @@
         renderItem.id = object.id;
         renderItem.object = object;
         renderItem.geometry = geometry2;
-        renderItem.material = material2;
+        renderItem.material = material;
         renderItem.groupOrder = groupOrder;
         renderItem.renderOrder = object.renderOrder;
         renderItem.z = z;
@@ -36216,21 +36216,21 @@
       renderItemsIndex++;
       return renderItem;
     }
-    function push(object, geometry2, material2, groupOrder, z, group) {
-      const renderItem = getNextRenderItem(object, geometry2, material2, groupOrder, z, group);
-      if (material2.transmission > 0) {
+    function push(object, geometry2, material, groupOrder, z, group) {
+      const renderItem = getNextRenderItem(object, geometry2, material, groupOrder, z, group);
+      if (material.transmission > 0) {
         transmissive.push(renderItem);
-      } else if (material2.transparent === true) {
+      } else if (material.transparent === true) {
         transparent.push(renderItem);
       } else {
         opaque.push(renderItem);
       }
     }
-    function unshift(object, geometry2, material2, groupOrder, z, group) {
-      const renderItem = getNextRenderItem(object, geometry2, material2, groupOrder, z, group);
-      if (material2.transmission > 0) {
+    function unshift(object, geometry2, material, groupOrder, z, group) {
+      const renderItem = getNextRenderItem(object, geometry2, material, groupOrder, z, group);
+      if (material.transmission > 0) {
         transmissive.unshift(renderItem);
-      } else if (material2.transparent === true) {
+      } else if (material.transparent === true) {
         transparent.unshift(renderItem);
       } else {
         opaque.unshift(renderItem);
@@ -36909,15 +36909,15 @@
       _renderer.clear();
       _renderer.renderBufferDirect(camera, null, geometry2, shadowMaterialHorizontal, fullScreenMesh, null);
     }
-    function getDepthMaterial(object, material2, light, type) {
+    function getDepthMaterial(object, material, light, type) {
       let result = null;
       const customMaterial = light.isPointLight === true ? object.customDistanceMaterial : object.customDepthMaterial;
       if (customMaterial !== void 0) {
         result = customMaterial;
       } else {
         result = light.isPointLight === true ? _distanceMaterial : _depthMaterial;
-        if (_renderer.localClippingEnabled && material2.clipShadows === true && Array.isArray(material2.clippingPlanes) && material2.clippingPlanes.length !== 0 || material2.displacementMap && material2.displacementScale !== 0 || material2.alphaMap && material2.alphaTest > 0 || material2.map && material2.alphaTest > 0) {
-          const keyA = result.uuid, keyB = material2.uuid;
+        if (_renderer.localClippingEnabled && material.clipShadows === true && Array.isArray(material.clippingPlanes) && material.clippingPlanes.length !== 0 || material.displacementMap && material.displacementScale !== 0 || material.alphaMap && material.alphaTest > 0 || material.map && material.alphaTest > 0) {
+          const keyA = result.uuid, keyB = material.uuid;
           let materialsForVariant = _materialCache[keyA];
           if (materialsForVariant === void 0) {
             materialsForVariant = {};
@@ -36927,29 +36927,29 @@
           if (cachedMaterial === void 0) {
             cachedMaterial = result.clone();
             materialsForVariant[keyB] = cachedMaterial;
-            material2.addEventListener("dispose", onMaterialDispose);
+            material.addEventListener("dispose", onMaterialDispose);
           }
           result = cachedMaterial;
         }
       }
-      result.visible = material2.visible;
-      result.wireframe = material2.wireframe;
+      result.visible = material.visible;
+      result.wireframe = material.wireframe;
       if (type === VSMShadowMap) {
-        result.side = material2.shadowSide !== null ? material2.shadowSide : material2.side;
+        result.side = material.shadowSide !== null ? material.shadowSide : material.side;
       } else {
-        result.side = material2.shadowSide !== null ? material2.shadowSide : shadowSide[material2.side];
+        result.side = material.shadowSide !== null ? material.shadowSide : shadowSide[material.side];
       }
-      result.alphaMap = material2.alphaMap;
-      result.alphaTest = material2.alphaTest;
-      result.map = material2.map;
-      result.clipShadows = material2.clipShadows;
-      result.clippingPlanes = material2.clippingPlanes;
-      result.clipIntersection = material2.clipIntersection;
-      result.displacementMap = material2.displacementMap;
-      result.displacementScale = material2.displacementScale;
-      result.displacementBias = material2.displacementBias;
-      result.wireframeLinewidth = material2.wireframeLinewidth;
-      result.linewidth = material2.linewidth;
+      result.alphaMap = material.alphaMap;
+      result.alphaTest = material.alphaTest;
+      result.map = material.map;
+      result.clipShadows = material.clipShadows;
+      result.clippingPlanes = material.clippingPlanes;
+      result.clipIntersection = material.clipIntersection;
+      result.displacementMap = material.displacementMap;
+      result.displacementScale = material.displacementScale;
+      result.displacementBias = material.displacementBias;
+      result.wireframeLinewidth = material.wireframeLinewidth;
+      result.linewidth = material.linewidth;
       if (light.isPointLight === true && result.isMeshDistanceMaterial === true) {
         const materialProperties = _renderer.properties.get(result);
         materialProperties.light = light;
@@ -36964,12 +36964,12 @@
         if ((object.castShadow || object.receiveShadow && type === VSMShadowMap) && (!object.frustumCulled || _frustum.intersectsObject(object))) {
           object.modelViewMatrix.multiplyMatrices(shadowCamera.matrixWorldInverse, object.matrixWorld);
           const geometry2 = _objects.update(object);
-          const material2 = object.material;
-          if (Array.isArray(material2)) {
+          const material = object.material;
+          if (Array.isArray(material)) {
             const groups = geometry2.groups;
             for (let k = 0, kl = groups.length; k < kl; k++) {
               const group = groups[k];
-              const groupMaterial = material2[group.materialIndex];
+              const groupMaterial = material[group.materialIndex];
               if (groupMaterial && groupMaterial.visible) {
                 const depthMaterial = getDepthMaterial(object, groupMaterial, light, type);
                 object.onBeforeShadow(_renderer, object, camera, shadowCamera, geometry2, depthMaterial, group);
@@ -36977,8 +36977,8 @@
                 object.onAfterShadow(_renderer, object, camera, shadowCamera, geometry2, depthMaterial, group);
               }
             }
-          } else if (material2.visible) {
-            const depthMaterial = getDepthMaterial(object, material2, light, type);
+          } else if (material.visible) {
+            const depthMaterial = getDepthMaterial(object, material, light, type);
             object.onBeforeShadow(_renderer, object, camera, shadowCamera, geometry2, depthMaterial, null);
             _renderer.renderBufferDirect(shadowCamera, null, geometry2, depthMaterial, object, null);
             object.onAfterShadow(_renderer, object, camera, shadowCamera, geometry2, depthMaterial, null);
@@ -36991,8 +36991,8 @@
       }
     }
     function onMaterialDispose(event) {
-      const material2 = event.target;
-      material2.removeEventListener("dispose", onMaterialDispose);
+      const material = event.target;
+      material.removeEventListener("dispose", onMaterialDispose);
       for (const id in _materialCache) {
         const cache = _materialCache[id];
         const uuid = event.target.uuid;
@@ -37443,26 +37443,26 @@
       currentBlending = blending;
       currentPremultipledAlpha = false;
     }
-    function setMaterial(material2, frontFaceCW) {
-      material2.side === DoubleSide ? disable(gl.CULL_FACE) : enable(gl.CULL_FACE);
-      let flipSided = material2.side === BackSide;
+    function setMaterial(material, frontFaceCW) {
+      material.side === DoubleSide ? disable(gl.CULL_FACE) : enable(gl.CULL_FACE);
+      let flipSided = material.side === BackSide;
       if (frontFaceCW)
         flipSided = !flipSided;
       setFlipSided(flipSided);
-      material2.blending === NormalBlending && material2.transparent === false ? setBlending(NoBlending) : setBlending(material2.blending, material2.blendEquation, material2.blendSrc, material2.blendDst, material2.blendEquationAlpha, material2.blendSrcAlpha, material2.blendDstAlpha, material2.blendColor, material2.blendAlpha, material2.premultipliedAlpha);
-      depthBuffer.setFunc(material2.depthFunc);
-      depthBuffer.setTest(material2.depthTest);
-      depthBuffer.setMask(material2.depthWrite);
-      colorBuffer.setMask(material2.colorWrite);
-      const stencilWrite = material2.stencilWrite;
+      material.blending === NormalBlending && material.transparent === false ? setBlending(NoBlending) : setBlending(material.blending, material.blendEquation, material.blendSrc, material.blendDst, material.blendEquationAlpha, material.blendSrcAlpha, material.blendDstAlpha, material.blendColor, material.blendAlpha, material.premultipliedAlpha);
+      depthBuffer.setFunc(material.depthFunc);
+      depthBuffer.setTest(material.depthTest);
+      depthBuffer.setMask(material.depthWrite);
+      colorBuffer.setMask(material.colorWrite);
+      const stencilWrite = material.stencilWrite;
       stencilBuffer.setTest(stencilWrite);
       if (stencilWrite) {
-        stencilBuffer.setMask(material2.stencilWriteMask);
-        stencilBuffer.setFunc(material2.stencilFunc, material2.stencilRef, material2.stencilFuncMask);
-        stencilBuffer.setOp(material2.stencilFail, material2.stencilZFail, material2.stencilZPass);
+        stencilBuffer.setMask(material.stencilWriteMask);
+        stencilBuffer.setFunc(material.stencilFunc, material.stencilRef, material.stencilFuncMask);
+        stencilBuffer.setOp(material.stencilFail, material.stencilZFail, material.stencilZPass);
       }
-      setPolygonOffset(material2.polygonOffset, material2.polygonOffsetFactor, material2.polygonOffsetUnits);
-      material2.alphaToCoverage === true ? enable(gl.SAMPLE_ALPHA_TO_COVERAGE) : disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+      setPolygonOffset(material.polygonOffset, material.polygonOffsetFactor, material.polygonOffsetUnits);
+      material.alphaToCoverage === true ? enable(gl.SAMPLE_ALPHA_TO_COVERAGE) : disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
     }
     function setFlipSided(flipSided) {
       if (currentFlipSided !== flipSided) {
@@ -39730,278 +39730,278 @@
         uniforms.fogDensity.value = fog.density;
       }
     }
-    function refreshMaterialUniforms(uniforms, material2, pixelRatio, height, transmissionRenderTarget) {
-      if (material2.isMeshBasicMaterial) {
-        refreshUniformsCommon(uniforms, material2);
-      } else if (material2.isMeshLambertMaterial) {
-        refreshUniformsCommon(uniforms, material2);
-      } else if (material2.isMeshToonMaterial) {
-        refreshUniformsCommon(uniforms, material2);
-        refreshUniformsToon(uniforms, material2);
-      } else if (material2.isMeshPhongMaterial) {
-        refreshUniformsCommon(uniforms, material2);
-        refreshUniformsPhong(uniforms, material2);
-      } else if (material2.isMeshStandardMaterial) {
-        refreshUniformsCommon(uniforms, material2);
-        refreshUniformsStandard(uniforms, material2);
-        if (material2.isMeshPhysicalMaterial) {
-          refreshUniformsPhysical(uniforms, material2, transmissionRenderTarget);
+    function refreshMaterialUniforms(uniforms, material, pixelRatio, height, transmissionRenderTarget) {
+      if (material.isMeshBasicMaterial) {
+        refreshUniformsCommon(uniforms, material);
+      } else if (material.isMeshLambertMaterial) {
+        refreshUniformsCommon(uniforms, material);
+      } else if (material.isMeshToonMaterial) {
+        refreshUniformsCommon(uniforms, material);
+        refreshUniformsToon(uniforms, material);
+      } else if (material.isMeshPhongMaterial) {
+        refreshUniformsCommon(uniforms, material);
+        refreshUniformsPhong(uniforms, material);
+      } else if (material.isMeshStandardMaterial) {
+        refreshUniformsCommon(uniforms, material);
+        refreshUniformsStandard(uniforms, material);
+        if (material.isMeshPhysicalMaterial) {
+          refreshUniformsPhysical(uniforms, material, transmissionRenderTarget);
         }
-      } else if (material2.isMeshMatcapMaterial) {
-        refreshUniformsCommon(uniforms, material2);
-        refreshUniformsMatcap(uniforms, material2);
-      } else if (material2.isMeshDepthMaterial) {
-        refreshUniformsCommon(uniforms, material2);
-      } else if (material2.isMeshDistanceMaterial) {
-        refreshUniformsCommon(uniforms, material2);
-        refreshUniformsDistance(uniforms, material2);
-      } else if (material2.isMeshNormalMaterial) {
-        refreshUniformsCommon(uniforms, material2);
-      } else if (material2.isLineBasicMaterial) {
-        refreshUniformsLine(uniforms, material2);
-        if (material2.isLineDashedMaterial) {
-          refreshUniformsDash(uniforms, material2);
+      } else if (material.isMeshMatcapMaterial) {
+        refreshUniformsCommon(uniforms, material);
+        refreshUniformsMatcap(uniforms, material);
+      } else if (material.isMeshDepthMaterial) {
+        refreshUniformsCommon(uniforms, material);
+      } else if (material.isMeshDistanceMaterial) {
+        refreshUniformsCommon(uniforms, material);
+        refreshUniformsDistance(uniforms, material);
+      } else if (material.isMeshNormalMaterial) {
+        refreshUniformsCommon(uniforms, material);
+      } else if (material.isLineBasicMaterial) {
+        refreshUniformsLine(uniforms, material);
+        if (material.isLineDashedMaterial) {
+          refreshUniformsDash(uniforms, material);
         }
-      } else if (material2.isPointsMaterial) {
-        refreshUniformsPoints(uniforms, material2, pixelRatio, height);
-      } else if (material2.isSpriteMaterial) {
-        refreshUniformsSprites(uniforms, material2);
-      } else if (material2.isShadowMaterial) {
-        uniforms.color.value.copy(material2.color);
-        uniforms.opacity.value = material2.opacity;
-      } else if (material2.isShaderMaterial) {
-        material2.uniformsNeedUpdate = false;
+      } else if (material.isPointsMaterial) {
+        refreshUniformsPoints(uniforms, material, pixelRatio, height);
+      } else if (material.isSpriteMaterial) {
+        refreshUniformsSprites(uniforms, material);
+      } else if (material.isShadowMaterial) {
+        uniforms.color.value.copy(material.color);
+        uniforms.opacity.value = material.opacity;
+      } else if (material.isShaderMaterial) {
+        material.uniformsNeedUpdate = false;
       }
     }
-    function refreshUniformsCommon(uniforms, material2) {
-      uniforms.opacity.value = material2.opacity;
-      if (material2.color) {
-        uniforms.diffuse.value.copy(material2.color);
+    function refreshUniformsCommon(uniforms, material) {
+      uniforms.opacity.value = material.opacity;
+      if (material.color) {
+        uniforms.diffuse.value.copy(material.color);
       }
-      if (material2.emissive) {
-        uniforms.emissive.value.copy(material2.emissive).multiplyScalar(material2.emissiveIntensity);
+      if (material.emissive) {
+        uniforms.emissive.value.copy(material.emissive).multiplyScalar(material.emissiveIntensity);
       }
-      if (material2.map) {
-        uniforms.map.value = material2.map;
-        refreshTransformUniform(material2.map, uniforms.mapTransform);
+      if (material.map) {
+        uniforms.map.value = material.map;
+        refreshTransformUniform(material.map, uniforms.mapTransform);
       }
-      if (material2.alphaMap) {
-        uniforms.alphaMap.value = material2.alphaMap;
-        refreshTransformUniform(material2.alphaMap, uniforms.alphaMapTransform);
+      if (material.alphaMap) {
+        uniforms.alphaMap.value = material.alphaMap;
+        refreshTransformUniform(material.alphaMap, uniforms.alphaMapTransform);
       }
-      if (material2.bumpMap) {
-        uniforms.bumpMap.value = material2.bumpMap;
-        refreshTransformUniform(material2.bumpMap, uniforms.bumpMapTransform);
-        uniforms.bumpScale.value = material2.bumpScale;
-        if (material2.side === BackSide) {
+      if (material.bumpMap) {
+        uniforms.bumpMap.value = material.bumpMap;
+        refreshTransformUniform(material.bumpMap, uniforms.bumpMapTransform);
+        uniforms.bumpScale.value = material.bumpScale;
+        if (material.side === BackSide) {
           uniforms.bumpScale.value *= -1;
         }
       }
-      if (material2.normalMap) {
-        uniforms.normalMap.value = material2.normalMap;
-        refreshTransformUniform(material2.normalMap, uniforms.normalMapTransform);
-        uniforms.normalScale.value.copy(material2.normalScale);
-        if (material2.side === BackSide) {
+      if (material.normalMap) {
+        uniforms.normalMap.value = material.normalMap;
+        refreshTransformUniform(material.normalMap, uniforms.normalMapTransform);
+        uniforms.normalScale.value.copy(material.normalScale);
+        if (material.side === BackSide) {
           uniforms.normalScale.value.negate();
         }
       }
-      if (material2.displacementMap) {
-        uniforms.displacementMap.value = material2.displacementMap;
-        refreshTransformUniform(material2.displacementMap, uniforms.displacementMapTransform);
-        uniforms.displacementScale.value = material2.displacementScale;
-        uniforms.displacementBias.value = material2.displacementBias;
+      if (material.displacementMap) {
+        uniforms.displacementMap.value = material.displacementMap;
+        refreshTransformUniform(material.displacementMap, uniforms.displacementMapTransform);
+        uniforms.displacementScale.value = material.displacementScale;
+        uniforms.displacementBias.value = material.displacementBias;
       }
-      if (material2.emissiveMap) {
-        uniforms.emissiveMap.value = material2.emissiveMap;
-        refreshTransformUniform(material2.emissiveMap, uniforms.emissiveMapTransform);
+      if (material.emissiveMap) {
+        uniforms.emissiveMap.value = material.emissiveMap;
+        refreshTransformUniform(material.emissiveMap, uniforms.emissiveMapTransform);
       }
-      if (material2.specularMap) {
-        uniforms.specularMap.value = material2.specularMap;
-        refreshTransformUniform(material2.specularMap, uniforms.specularMapTransform);
+      if (material.specularMap) {
+        uniforms.specularMap.value = material.specularMap;
+        refreshTransformUniform(material.specularMap, uniforms.specularMapTransform);
       }
-      if (material2.alphaTest > 0) {
-        uniforms.alphaTest.value = material2.alphaTest;
+      if (material.alphaTest > 0) {
+        uniforms.alphaTest.value = material.alphaTest;
       }
-      const envMap = properties.get(material2).envMap;
+      const envMap = properties.get(material).envMap;
       if (envMap) {
         uniforms.envMap.value = envMap;
         uniforms.flipEnvMap.value = envMap.isCubeTexture && envMap.isRenderTargetTexture === false ? -1 : 1;
-        uniforms.reflectivity.value = material2.reflectivity;
-        uniforms.ior.value = material2.ior;
-        uniforms.refractionRatio.value = material2.refractionRatio;
+        uniforms.reflectivity.value = material.reflectivity;
+        uniforms.ior.value = material.ior;
+        uniforms.refractionRatio.value = material.refractionRatio;
       }
-      if (material2.lightMap) {
-        uniforms.lightMap.value = material2.lightMap;
+      if (material.lightMap) {
+        uniforms.lightMap.value = material.lightMap;
         const scaleFactor = renderer._useLegacyLights === true ? Math.PI : 1;
-        uniforms.lightMapIntensity.value = material2.lightMapIntensity * scaleFactor;
-        refreshTransformUniform(material2.lightMap, uniforms.lightMapTransform);
+        uniforms.lightMapIntensity.value = material.lightMapIntensity * scaleFactor;
+        refreshTransformUniform(material.lightMap, uniforms.lightMapTransform);
       }
-      if (material2.aoMap) {
-        uniforms.aoMap.value = material2.aoMap;
-        uniforms.aoMapIntensity.value = material2.aoMapIntensity;
-        refreshTransformUniform(material2.aoMap, uniforms.aoMapTransform);
-      }
-    }
-    function refreshUniformsLine(uniforms, material2) {
-      uniforms.diffuse.value.copy(material2.color);
-      uniforms.opacity.value = material2.opacity;
-      if (material2.map) {
-        uniforms.map.value = material2.map;
-        refreshTransformUniform(material2.map, uniforms.mapTransform);
+      if (material.aoMap) {
+        uniforms.aoMap.value = material.aoMap;
+        uniforms.aoMapIntensity.value = material.aoMapIntensity;
+        refreshTransformUniform(material.aoMap, uniforms.aoMapTransform);
       }
     }
-    function refreshUniformsDash(uniforms, material2) {
-      uniforms.dashSize.value = material2.dashSize;
-      uniforms.totalSize.value = material2.dashSize + material2.gapSize;
-      uniforms.scale.value = material2.scale;
+    function refreshUniformsLine(uniforms, material) {
+      uniforms.diffuse.value.copy(material.color);
+      uniforms.opacity.value = material.opacity;
+      if (material.map) {
+        uniforms.map.value = material.map;
+        refreshTransformUniform(material.map, uniforms.mapTransform);
+      }
     }
-    function refreshUniformsPoints(uniforms, material2, pixelRatio, height) {
-      uniforms.diffuse.value.copy(material2.color);
-      uniforms.opacity.value = material2.opacity;
-      uniforms.size.value = material2.size * pixelRatio;
+    function refreshUniformsDash(uniforms, material) {
+      uniforms.dashSize.value = material.dashSize;
+      uniforms.totalSize.value = material.dashSize + material.gapSize;
+      uniforms.scale.value = material.scale;
+    }
+    function refreshUniformsPoints(uniforms, material, pixelRatio, height) {
+      uniforms.diffuse.value.copy(material.color);
+      uniforms.opacity.value = material.opacity;
+      uniforms.size.value = material.size * pixelRatio;
       uniforms.scale.value = height * 0.5;
-      if (material2.map) {
-        uniforms.map.value = material2.map;
-        refreshTransformUniform(material2.map, uniforms.uvTransform);
+      if (material.map) {
+        uniforms.map.value = material.map;
+        refreshTransformUniform(material.map, uniforms.uvTransform);
       }
-      if (material2.alphaMap) {
-        uniforms.alphaMap.value = material2.alphaMap;
-        refreshTransformUniform(material2.alphaMap, uniforms.alphaMapTransform);
+      if (material.alphaMap) {
+        uniforms.alphaMap.value = material.alphaMap;
+        refreshTransformUniform(material.alphaMap, uniforms.alphaMapTransform);
       }
-      if (material2.alphaTest > 0) {
-        uniforms.alphaTest.value = material2.alphaTest;
-      }
-    }
-    function refreshUniformsSprites(uniforms, material2) {
-      uniforms.diffuse.value.copy(material2.color);
-      uniforms.opacity.value = material2.opacity;
-      uniforms.rotation.value = material2.rotation;
-      if (material2.map) {
-        uniforms.map.value = material2.map;
-        refreshTransformUniform(material2.map, uniforms.mapTransform);
-      }
-      if (material2.alphaMap) {
-        uniforms.alphaMap.value = material2.alphaMap;
-        refreshTransformUniform(material2.alphaMap, uniforms.alphaMapTransform);
-      }
-      if (material2.alphaTest > 0) {
-        uniforms.alphaTest.value = material2.alphaTest;
+      if (material.alphaTest > 0) {
+        uniforms.alphaTest.value = material.alphaTest;
       }
     }
-    function refreshUniformsPhong(uniforms, material2) {
-      uniforms.specular.value.copy(material2.specular);
-      uniforms.shininess.value = Math.max(material2.shininess, 1e-4);
-    }
-    function refreshUniformsToon(uniforms, material2) {
-      if (material2.gradientMap) {
-        uniforms.gradientMap.value = material2.gradientMap;
+    function refreshUniformsSprites(uniforms, material) {
+      uniforms.diffuse.value.copy(material.color);
+      uniforms.opacity.value = material.opacity;
+      uniforms.rotation.value = material.rotation;
+      if (material.map) {
+        uniforms.map.value = material.map;
+        refreshTransformUniform(material.map, uniforms.mapTransform);
+      }
+      if (material.alphaMap) {
+        uniforms.alphaMap.value = material.alphaMap;
+        refreshTransformUniform(material.alphaMap, uniforms.alphaMapTransform);
+      }
+      if (material.alphaTest > 0) {
+        uniforms.alphaTest.value = material.alphaTest;
       }
     }
-    function refreshUniformsStandard(uniforms, material2) {
-      uniforms.metalness.value = material2.metalness;
-      if (material2.metalnessMap) {
-        uniforms.metalnessMap.value = material2.metalnessMap;
-        refreshTransformUniform(material2.metalnessMap, uniforms.metalnessMapTransform);
+    function refreshUniformsPhong(uniforms, material) {
+      uniforms.specular.value.copy(material.specular);
+      uniforms.shininess.value = Math.max(material.shininess, 1e-4);
+    }
+    function refreshUniformsToon(uniforms, material) {
+      if (material.gradientMap) {
+        uniforms.gradientMap.value = material.gradientMap;
       }
-      uniforms.roughness.value = material2.roughness;
-      if (material2.roughnessMap) {
-        uniforms.roughnessMap.value = material2.roughnessMap;
-        refreshTransformUniform(material2.roughnessMap, uniforms.roughnessMapTransform);
+    }
+    function refreshUniformsStandard(uniforms, material) {
+      uniforms.metalness.value = material.metalness;
+      if (material.metalnessMap) {
+        uniforms.metalnessMap.value = material.metalnessMap;
+        refreshTransformUniform(material.metalnessMap, uniforms.metalnessMapTransform);
       }
-      const envMap = properties.get(material2).envMap;
+      uniforms.roughness.value = material.roughness;
+      if (material.roughnessMap) {
+        uniforms.roughnessMap.value = material.roughnessMap;
+        refreshTransformUniform(material.roughnessMap, uniforms.roughnessMapTransform);
+      }
+      const envMap = properties.get(material).envMap;
       if (envMap) {
-        uniforms.envMapIntensity.value = material2.envMapIntensity;
+        uniforms.envMapIntensity.value = material.envMapIntensity;
       }
     }
-    function refreshUniformsPhysical(uniforms, material2, transmissionRenderTarget) {
-      uniforms.ior.value = material2.ior;
-      if (material2.sheen > 0) {
-        uniforms.sheenColor.value.copy(material2.sheenColor).multiplyScalar(material2.sheen);
-        uniforms.sheenRoughness.value = material2.sheenRoughness;
-        if (material2.sheenColorMap) {
-          uniforms.sheenColorMap.value = material2.sheenColorMap;
-          refreshTransformUniform(material2.sheenColorMap, uniforms.sheenColorMapTransform);
+    function refreshUniformsPhysical(uniforms, material, transmissionRenderTarget) {
+      uniforms.ior.value = material.ior;
+      if (material.sheen > 0) {
+        uniforms.sheenColor.value.copy(material.sheenColor).multiplyScalar(material.sheen);
+        uniforms.sheenRoughness.value = material.sheenRoughness;
+        if (material.sheenColorMap) {
+          uniforms.sheenColorMap.value = material.sheenColorMap;
+          refreshTransformUniform(material.sheenColorMap, uniforms.sheenColorMapTransform);
         }
-        if (material2.sheenRoughnessMap) {
-          uniforms.sheenRoughnessMap.value = material2.sheenRoughnessMap;
-          refreshTransformUniform(material2.sheenRoughnessMap, uniforms.sheenRoughnessMapTransform);
+        if (material.sheenRoughnessMap) {
+          uniforms.sheenRoughnessMap.value = material.sheenRoughnessMap;
+          refreshTransformUniform(material.sheenRoughnessMap, uniforms.sheenRoughnessMapTransform);
         }
       }
-      if (material2.clearcoat > 0) {
-        uniforms.clearcoat.value = material2.clearcoat;
-        uniforms.clearcoatRoughness.value = material2.clearcoatRoughness;
-        if (material2.clearcoatMap) {
-          uniforms.clearcoatMap.value = material2.clearcoatMap;
-          refreshTransformUniform(material2.clearcoatMap, uniforms.clearcoatMapTransform);
+      if (material.clearcoat > 0) {
+        uniforms.clearcoat.value = material.clearcoat;
+        uniforms.clearcoatRoughness.value = material.clearcoatRoughness;
+        if (material.clearcoatMap) {
+          uniforms.clearcoatMap.value = material.clearcoatMap;
+          refreshTransformUniform(material.clearcoatMap, uniforms.clearcoatMapTransform);
         }
-        if (material2.clearcoatRoughnessMap) {
-          uniforms.clearcoatRoughnessMap.value = material2.clearcoatRoughnessMap;
-          refreshTransformUniform(material2.clearcoatRoughnessMap, uniforms.clearcoatRoughnessMapTransform);
+        if (material.clearcoatRoughnessMap) {
+          uniforms.clearcoatRoughnessMap.value = material.clearcoatRoughnessMap;
+          refreshTransformUniform(material.clearcoatRoughnessMap, uniforms.clearcoatRoughnessMapTransform);
         }
-        if (material2.clearcoatNormalMap) {
-          uniforms.clearcoatNormalMap.value = material2.clearcoatNormalMap;
-          refreshTransformUniform(material2.clearcoatNormalMap, uniforms.clearcoatNormalMapTransform);
-          uniforms.clearcoatNormalScale.value.copy(material2.clearcoatNormalScale);
-          if (material2.side === BackSide) {
+        if (material.clearcoatNormalMap) {
+          uniforms.clearcoatNormalMap.value = material.clearcoatNormalMap;
+          refreshTransformUniform(material.clearcoatNormalMap, uniforms.clearcoatNormalMapTransform);
+          uniforms.clearcoatNormalScale.value.copy(material.clearcoatNormalScale);
+          if (material.side === BackSide) {
             uniforms.clearcoatNormalScale.value.negate();
           }
         }
       }
-      if (material2.iridescence > 0) {
-        uniforms.iridescence.value = material2.iridescence;
-        uniforms.iridescenceIOR.value = material2.iridescenceIOR;
-        uniforms.iridescenceThicknessMinimum.value = material2.iridescenceThicknessRange[0];
-        uniforms.iridescenceThicknessMaximum.value = material2.iridescenceThicknessRange[1];
-        if (material2.iridescenceMap) {
-          uniforms.iridescenceMap.value = material2.iridescenceMap;
-          refreshTransformUniform(material2.iridescenceMap, uniforms.iridescenceMapTransform);
+      if (material.iridescence > 0) {
+        uniforms.iridescence.value = material.iridescence;
+        uniforms.iridescenceIOR.value = material.iridescenceIOR;
+        uniforms.iridescenceThicknessMinimum.value = material.iridescenceThicknessRange[0];
+        uniforms.iridescenceThicknessMaximum.value = material.iridescenceThicknessRange[1];
+        if (material.iridescenceMap) {
+          uniforms.iridescenceMap.value = material.iridescenceMap;
+          refreshTransformUniform(material.iridescenceMap, uniforms.iridescenceMapTransform);
         }
-        if (material2.iridescenceThicknessMap) {
-          uniforms.iridescenceThicknessMap.value = material2.iridescenceThicknessMap;
-          refreshTransformUniform(material2.iridescenceThicknessMap, uniforms.iridescenceThicknessMapTransform);
+        if (material.iridescenceThicknessMap) {
+          uniforms.iridescenceThicknessMap.value = material.iridescenceThicknessMap;
+          refreshTransformUniform(material.iridescenceThicknessMap, uniforms.iridescenceThicknessMapTransform);
         }
       }
-      if (material2.transmission > 0) {
-        uniforms.transmission.value = material2.transmission;
+      if (material.transmission > 0) {
+        uniforms.transmission.value = material.transmission;
         uniforms.transmissionSamplerMap.value = transmissionRenderTarget.texture;
         uniforms.transmissionSamplerSize.value.set(transmissionRenderTarget.width, transmissionRenderTarget.height);
-        if (material2.transmissionMap) {
-          uniforms.transmissionMap.value = material2.transmissionMap;
-          refreshTransformUniform(material2.transmissionMap, uniforms.transmissionMapTransform);
+        if (material.transmissionMap) {
+          uniforms.transmissionMap.value = material.transmissionMap;
+          refreshTransformUniform(material.transmissionMap, uniforms.transmissionMapTransform);
         }
-        uniforms.thickness.value = material2.thickness;
-        if (material2.thicknessMap) {
-          uniforms.thicknessMap.value = material2.thicknessMap;
-          refreshTransformUniform(material2.thicknessMap, uniforms.thicknessMapTransform);
+        uniforms.thickness.value = material.thickness;
+        if (material.thicknessMap) {
+          uniforms.thicknessMap.value = material.thicknessMap;
+          refreshTransformUniform(material.thicknessMap, uniforms.thicknessMapTransform);
         }
-        uniforms.attenuationDistance.value = material2.attenuationDistance;
-        uniforms.attenuationColor.value.copy(material2.attenuationColor);
+        uniforms.attenuationDistance.value = material.attenuationDistance;
+        uniforms.attenuationColor.value.copy(material.attenuationColor);
       }
-      if (material2.anisotropy > 0) {
-        uniforms.anisotropyVector.value.set(material2.anisotropy * Math.cos(material2.anisotropyRotation), material2.anisotropy * Math.sin(material2.anisotropyRotation));
-        if (material2.anisotropyMap) {
-          uniforms.anisotropyMap.value = material2.anisotropyMap;
-          refreshTransformUniform(material2.anisotropyMap, uniforms.anisotropyMapTransform);
+      if (material.anisotropy > 0) {
+        uniforms.anisotropyVector.value.set(material.anisotropy * Math.cos(material.anisotropyRotation), material.anisotropy * Math.sin(material.anisotropyRotation));
+        if (material.anisotropyMap) {
+          uniforms.anisotropyMap.value = material.anisotropyMap;
+          refreshTransformUniform(material.anisotropyMap, uniforms.anisotropyMapTransform);
         }
       }
-      uniforms.specularIntensity.value = material2.specularIntensity;
-      uniforms.specularColor.value.copy(material2.specularColor);
-      if (material2.specularColorMap) {
-        uniforms.specularColorMap.value = material2.specularColorMap;
-        refreshTransformUniform(material2.specularColorMap, uniforms.specularColorMapTransform);
+      uniforms.specularIntensity.value = material.specularIntensity;
+      uniforms.specularColor.value.copy(material.specularColor);
+      if (material.specularColorMap) {
+        uniforms.specularColorMap.value = material.specularColorMap;
+        refreshTransformUniform(material.specularColorMap, uniforms.specularColorMapTransform);
       }
-      if (material2.specularIntensityMap) {
-        uniforms.specularIntensityMap.value = material2.specularIntensityMap;
-        refreshTransformUniform(material2.specularIntensityMap, uniforms.specularIntensityMapTransform);
+      if (material.specularIntensityMap) {
+        uniforms.specularIntensityMap.value = material.specularIntensityMap;
+        refreshTransformUniform(material.specularIntensityMap, uniforms.specularIntensityMapTransform);
       }
     }
-    function refreshUniformsMatcap(uniforms, material2) {
-      if (material2.matcap) {
-        uniforms.matcap.value = material2.matcap;
+    function refreshUniformsMatcap(uniforms, material) {
+      if (material.matcap) {
+        uniforms.matcap.value = material.matcap;
       }
     }
-    function refreshUniformsDistance(uniforms, material2) {
-      const light = properties.get(material2).light;
+    function refreshUniformsDistance(uniforms, material) {
+      const light = properties.get(material).light;
       uniforms.referencePosition.value.setFromMatrixPosition(light.matrixWorld);
       uniforms.nearDistance.value = light.shadow.camera.near;
       uniforms.farDistance.value = light.shadow.camera.far;
@@ -40587,34 +40587,34 @@
         console.error("THREE.WebGLRenderer: A WebGL context could not be created. Reason: ", event.statusMessage);
       }
       function onMaterialDispose(event) {
-        const material2 = event.target;
-        material2.removeEventListener("dispose", onMaterialDispose);
-        deallocateMaterial(material2);
+        const material = event.target;
+        material.removeEventListener("dispose", onMaterialDispose);
+        deallocateMaterial(material);
       }
-      function deallocateMaterial(material2) {
-        releaseMaterialProgramReferences(material2);
-        properties.remove(material2);
+      function deallocateMaterial(material) {
+        releaseMaterialProgramReferences(material);
+        properties.remove(material);
       }
-      function releaseMaterialProgramReferences(material2) {
-        const programs = properties.get(material2).programs;
+      function releaseMaterialProgramReferences(material) {
+        const programs = properties.get(material).programs;
         if (programs !== void 0) {
           programs.forEach(function(program) {
             programCache.releaseProgram(program);
           });
-          if (material2.isShaderMaterial) {
-            programCache.releaseShaderCache(material2);
+          if (material.isShaderMaterial) {
+            programCache.releaseShaderCache(material);
           }
         }
       }
-      this.renderBufferDirect = function(camera, scene, geometry2, material2, object, group) {
+      this.renderBufferDirect = function(camera, scene, geometry2, material, object, group) {
         if (scene === null)
           scene = _emptyScene;
         const frontFaceCW = object.isMesh && object.matrixWorld.determinant() < 0;
-        const program = setProgram(camera, scene, geometry2, material2, object);
-        state.setMaterial(material2, frontFaceCW);
+        const program = setProgram(camera, scene, geometry2, material, object);
+        state.setMaterial(material, frontFaceCW);
         let index = geometry2.index;
         let rangeFactor = 1;
-        if (material2.wireframe === true) {
+        if (material.wireframe === true) {
           index = geometries.getWireframeAttribute(geometry2);
           if (index === void 0)
             return;
@@ -40638,7 +40638,7 @@
         const drawCount = drawEnd - drawStart;
         if (drawCount < 0 || drawCount === Infinity)
           return;
-        bindingStates.setup(object, material2, program, geometry2, index);
+        bindingStates.setup(object, material, program, geometry2, index);
         let attribute;
         let renderer = bufferRenderer;
         if (index !== null) {
@@ -40647,14 +40647,14 @@
           renderer.setIndex(attribute);
         }
         if (object.isMesh) {
-          if (material2.wireframe === true) {
-            state.setLineWidth(material2.wireframeLinewidth * getTargetPixelRatio());
+          if (material.wireframe === true) {
+            state.setLineWidth(material.wireframeLinewidth * getTargetPixelRatio());
             renderer.setMode(_gl.LINES);
           } else {
             renderer.setMode(_gl.TRIANGLES);
           }
         } else if (object.isLine) {
-          let lineWidth = material2.linewidth;
+          let lineWidth = material.linewidth;
           if (lineWidth === void 0)
             lineWidth = 1;
           state.setLineWidth(lineWidth * getTargetPixelRatio());
@@ -40682,17 +40682,17 @@
           renderer.render(drawStart, drawCount);
         }
       };
-      function prepareMaterial(material2, scene, object) {
-        if (material2.transparent === true && material2.side === DoubleSide && material2.forceSinglePass === false) {
-          material2.side = BackSide;
-          material2.needsUpdate = true;
-          getProgram(material2, scene, object);
-          material2.side = FrontSide;
-          material2.needsUpdate = true;
-          getProgram(material2, scene, object);
-          material2.side = DoubleSide;
+      function prepareMaterial(material, scene, object) {
+        if (material.transparent === true && material.side === DoubleSide && material.forceSinglePass === false) {
+          material.side = BackSide;
+          material.needsUpdate = true;
+          getProgram(material, scene, object);
+          material.side = FrontSide;
+          material.needsUpdate = true;
+          getProgram(material, scene, object);
+          material.side = DoubleSide;
         } else {
-          getProgram(material2, scene, object);
+          getProgram(material, scene, object);
         }
       }
       this.compile = function(scene, camera, targetScene = null) {
@@ -40722,17 +40722,17 @@
         currentRenderState.setupLights(_this._useLegacyLights);
         const materials2 = /* @__PURE__ */ new Set();
         scene.traverse(function(object) {
-          const material2 = object.material;
-          if (material2) {
-            if (Array.isArray(material2)) {
-              for (let i = 0; i < material2.length; i++) {
-                const material22 = material2[i];
-                prepareMaterial(material22, targetScene, object);
-                materials2.add(material22);
+          const material = object.material;
+          if (material) {
+            if (Array.isArray(material)) {
+              for (let i = 0; i < material.length; i++) {
+                const material2 = material[i];
+                prepareMaterial(material2, targetScene, object);
+                materials2.add(material2);
               }
             } else {
-              prepareMaterial(material2, targetScene, object);
-              materials2.add(material2);
+              prepareMaterial(material, targetScene, object);
+              materials2.add(material);
             }
           }
         });
@@ -40744,11 +40744,11 @@
         const materials2 = this.compile(scene, camera, targetScene);
         return new Promise((resolve) => {
           function checkMaterialsReady() {
-            materials2.forEach(function(material2) {
-              const materialProperties = properties.get(material2);
+            materials2.forEach(function(material) {
+              const materialProperties = properties.get(material);
               const program = materialProperties.currentProgram;
               if (program.isReady()) {
-                materials2.delete(material2);
+                materials2.delete(material);
               }
             });
             if (materials2.size === 0) {
@@ -40882,15 +40882,15 @@
                 _vector3.setFromMatrixPosition(object.matrixWorld).applyMatrix4(_projScreenMatrix);
               }
               const geometry2 = objects.update(object);
-              const material2 = object.material;
-              if (material2.visible) {
-                currentRenderList.push(object, geometry2, material2, groupOrder, _vector3.z, null);
+              const material = object.material;
+              if (material.visible) {
+                currentRenderList.push(object, geometry2, material, groupOrder, _vector3.z, null);
               }
             }
           } else if (object.isMesh || object.isLine || object.isPoints) {
             if (!object.frustumCulled || _frustum.intersectsObject(object)) {
               const geometry2 = objects.update(object);
-              const material2 = object.material;
+              const material = object.material;
               if (sortObjects) {
                 if (object.boundingSphere !== void 0) {
                   if (object.boundingSphere === null)
@@ -40903,17 +40903,17 @@
                 }
                 _vector3.applyMatrix4(object.matrixWorld).applyMatrix4(_projScreenMatrix);
               }
-              if (Array.isArray(material2)) {
+              if (Array.isArray(material)) {
                 const groups = geometry2.groups;
                 for (let i = 0, l = groups.length; i < l; i++) {
                   const group = groups[i];
-                  const groupMaterial = material2[group.materialIndex];
+                  const groupMaterial = material[group.materialIndex];
                   if (groupMaterial && groupMaterial.visible) {
                     currentRenderList.push(object, geometry2, groupMaterial, groupOrder, _vector3.z, group);
                   }
                 }
-              } else if (material2.visible) {
-                currentRenderList.push(object, geometry2, material2, groupOrder, _vector3.z, null);
+              } else if (material.visible) {
+                currentRenderList.push(object, geometry2, material, groupOrder, _vector3.z, null);
               }
             }
           }
@@ -40982,15 +40982,15 @@
           const renderItem = transmissiveObjects[i];
           const object = renderItem.object;
           const geometry2 = renderItem.geometry;
-          const material2 = renderItem.material;
+          const material = renderItem.material;
           const group = renderItem.group;
-          if (material2.side === DoubleSide && object.layers.test(camera.layers)) {
-            const currentSide = material2.side;
-            material2.side = BackSide;
-            material2.needsUpdate = true;
-            renderObject(object, scene, camera, geometry2, material2, group);
-            material2.side = currentSide;
-            material2.needsUpdate = true;
+          if (material.side === DoubleSide && object.layers.test(camera.layers)) {
+            const currentSide = material.side;
+            material.side = BackSide;
+            material.needsUpdate = true;
+            renderObject(object, scene, camera, geometry2, material, group);
+            material.side = currentSide;
+            material.needsUpdate = true;
             renderTargetNeedsUpdate = true;
           }
         }
@@ -41008,69 +41008,69 @@
           const renderItem = renderList[i];
           const object = renderItem.object;
           const geometry2 = renderItem.geometry;
-          const material2 = overrideMaterial === null ? renderItem.material : overrideMaterial;
+          const material = overrideMaterial === null ? renderItem.material : overrideMaterial;
           const group = renderItem.group;
           if (object.layers.test(camera.layers)) {
-            renderObject(object, scene, camera, geometry2, material2, group);
+            renderObject(object, scene, camera, geometry2, material, group);
           }
         }
       }
-      function renderObject(object, scene, camera, geometry2, material2, group) {
-        object.onBeforeRender(_this, scene, camera, geometry2, material2, group);
+      function renderObject(object, scene, camera, geometry2, material, group) {
+        object.onBeforeRender(_this, scene, camera, geometry2, material, group);
         object.modelViewMatrix.multiplyMatrices(camera.matrixWorldInverse, object.matrixWorld);
         object.normalMatrix.getNormalMatrix(object.modelViewMatrix);
-        material2.onBeforeRender(_this, scene, camera, geometry2, object, group);
-        if (material2.transparent === true && material2.side === DoubleSide && material2.forceSinglePass === false) {
-          material2.side = BackSide;
-          material2.needsUpdate = true;
-          _this.renderBufferDirect(camera, scene, geometry2, material2, object, group);
-          material2.side = FrontSide;
-          material2.needsUpdate = true;
-          _this.renderBufferDirect(camera, scene, geometry2, material2, object, group);
-          material2.side = DoubleSide;
+        material.onBeforeRender(_this, scene, camera, geometry2, object, group);
+        if (material.transparent === true && material.side === DoubleSide && material.forceSinglePass === false) {
+          material.side = BackSide;
+          material.needsUpdate = true;
+          _this.renderBufferDirect(camera, scene, geometry2, material, object, group);
+          material.side = FrontSide;
+          material.needsUpdate = true;
+          _this.renderBufferDirect(camera, scene, geometry2, material, object, group);
+          material.side = DoubleSide;
         } else {
-          _this.renderBufferDirect(camera, scene, geometry2, material2, object, group);
+          _this.renderBufferDirect(camera, scene, geometry2, material, object, group);
         }
-        object.onAfterRender(_this, scene, camera, geometry2, material2, group);
+        object.onAfterRender(_this, scene, camera, geometry2, material, group);
       }
-      function getProgram(material2, scene, object) {
+      function getProgram(material, scene, object) {
         if (scene.isScene !== true)
           scene = _emptyScene;
-        const materialProperties = properties.get(material2);
+        const materialProperties = properties.get(material);
         const lights = currentRenderState.state.lights;
         const shadowsArray = currentRenderState.state.shadowsArray;
         const lightsStateVersion = lights.state.version;
-        const parameters2 = programCache.getParameters(material2, lights.state, shadowsArray, scene, object);
+        const parameters2 = programCache.getParameters(material, lights.state, shadowsArray, scene, object);
         const programCacheKey = programCache.getProgramCacheKey(parameters2);
         let programs = materialProperties.programs;
-        materialProperties.environment = material2.isMeshStandardMaterial ? scene.environment : null;
+        materialProperties.environment = material.isMeshStandardMaterial ? scene.environment : null;
         materialProperties.fog = scene.fog;
-        materialProperties.envMap = (material2.isMeshStandardMaterial ? cubeuvmaps : cubemaps).get(material2.envMap || materialProperties.environment);
+        materialProperties.envMap = (material.isMeshStandardMaterial ? cubeuvmaps : cubemaps).get(material.envMap || materialProperties.environment);
         if (programs === void 0) {
-          material2.addEventListener("dispose", onMaterialDispose);
+          material.addEventListener("dispose", onMaterialDispose);
           programs = /* @__PURE__ */ new Map();
           materialProperties.programs = programs;
         }
         let program = programs.get(programCacheKey);
         if (program !== void 0) {
           if (materialProperties.currentProgram === program && materialProperties.lightsStateVersion === lightsStateVersion) {
-            updateCommonMaterialProperties(material2, parameters2);
+            updateCommonMaterialProperties(material, parameters2);
             return program;
           }
         } else {
-          parameters2.uniforms = programCache.getUniforms(material2);
-          material2.onBuild(object, parameters2, _this);
-          material2.onBeforeCompile(parameters2, _this);
+          parameters2.uniforms = programCache.getUniforms(material);
+          material.onBuild(object, parameters2, _this);
+          material.onBeforeCompile(parameters2, _this);
           program = programCache.acquireProgram(parameters2, programCacheKey);
           programs.set(programCacheKey, program);
           materialProperties.uniforms = parameters2.uniforms;
         }
         const uniforms = materialProperties.uniforms;
-        if (!material2.isShaderMaterial && !material2.isRawShaderMaterial || material2.clipping === true) {
+        if (!material.isShaderMaterial && !material.isRawShaderMaterial || material.clipping === true) {
           uniforms.clippingPlanes = clipping.uniform;
         }
-        updateCommonMaterialProperties(material2, parameters2);
-        materialProperties.needsLights = materialNeedsLights(material2);
+        updateCommonMaterialProperties(material, parameters2);
+        materialProperties.needsLights = materialNeedsLights(material);
         materialProperties.lightsStateVersion = lightsStateVersion;
         if (materialProperties.needsLights) {
           uniforms.ambientLightColor.value = lights.state.ambient;
@@ -41104,8 +41104,8 @@
         }
         return materialProperties.uniformsList;
       }
-      function updateCommonMaterialProperties(material2, parameters2) {
-        const materialProperties = properties.get(material2);
+      function updateCommonMaterialProperties(material, parameters2) {
+        const materialProperties = properties.get(material);
         materialProperties.outputColorSpace = parameters2.outputColorSpace;
         materialProperties.batching = parameters2.batching;
         materialProperties.instancing = parameters2.instancing;
@@ -41121,37 +41121,37 @@
         materialProperties.vertexTangents = parameters2.vertexTangents;
         materialProperties.toneMapping = parameters2.toneMapping;
       }
-      function setProgram(camera, scene, geometry2, material2, object) {
+      function setProgram(camera, scene, geometry2, material, object) {
         if (scene.isScene !== true)
           scene = _emptyScene;
         textures.resetTextureUnits();
         const fog = scene.fog;
-        const environment = material2.isMeshStandardMaterial ? scene.environment : null;
+        const environment = material.isMeshStandardMaterial ? scene.environment : null;
         const colorSpace = _currentRenderTarget === null ? _this.outputColorSpace : _currentRenderTarget.isXRRenderTarget === true ? _currentRenderTarget.texture.colorSpace : LinearSRGBColorSpace;
-        const envMap = (material2.isMeshStandardMaterial ? cubeuvmaps : cubemaps).get(material2.envMap || environment);
-        const vertexAlphas = material2.vertexColors === true && !!geometry2.attributes.color && geometry2.attributes.color.itemSize === 4;
-        const vertexTangents = !!geometry2.attributes.tangent && (!!material2.normalMap || material2.anisotropy > 0);
+        const envMap = (material.isMeshStandardMaterial ? cubeuvmaps : cubemaps).get(material.envMap || environment);
+        const vertexAlphas = material.vertexColors === true && !!geometry2.attributes.color && geometry2.attributes.color.itemSize === 4;
+        const vertexTangents = !!geometry2.attributes.tangent && (!!material.normalMap || material.anisotropy > 0);
         const morphTargets = !!geometry2.morphAttributes.position;
         const morphNormals = !!geometry2.morphAttributes.normal;
         const morphColors = !!geometry2.morphAttributes.color;
         let toneMapping = NoToneMapping;
-        if (material2.toneMapped) {
+        if (material.toneMapped) {
           if (_currentRenderTarget === null || _currentRenderTarget.isXRRenderTarget === true) {
             toneMapping = _this.toneMapping;
           }
         }
         const morphAttribute = geometry2.morphAttributes.position || geometry2.morphAttributes.normal || geometry2.morphAttributes.color;
         const morphTargetsCount = morphAttribute !== void 0 ? morphAttribute.length : 0;
-        const materialProperties = properties.get(material2);
+        const materialProperties = properties.get(material);
         const lights = currentRenderState.state.lights;
         if (_clippingEnabled === true) {
           if (_localClippingEnabled === true || camera !== _currentCamera) {
-            const useCache = camera === _currentCamera && material2.id === _currentMaterialId;
-            clipping.setState(material2, camera, useCache);
+            const useCache = camera === _currentCamera && material.id === _currentMaterialId;
+            clipping.setState(material, camera, useCache);
           }
         }
         let needsProgramChange = false;
-        if (material2.version === materialProperties.__version) {
+        if (material.version === materialProperties.__version) {
           if (materialProperties.needsLights && materialProperties.lightsStateVersion !== lights.state.version) {
             needsProgramChange = true;
           } else if (materialProperties.outputColorSpace !== colorSpace) {
@@ -41174,7 +41174,7 @@
             needsProgramChange = true;
           } else if (materialProperties.envMap !== envMap) {
             needsProgramChange = true;
-          } else if (material2.fog === true && materialProperties.fog !== fog) {
+          } else if (material.fog === true && materialProperties.fog !== fog) {
             needsProgramChange = true;
           } else if (materialProperties.numClippingPlanes !== void 0 && (materialProperties.numClippingPlanes !== clipping.numPlanes || materialProperties.numIntersection !== clipping.numIntersection)) {
             needsProgramChange = true;
@@ -41195,11 +41195,11 @@
           }
         } else {
           needsProgramChange = true;
-          materialProperties.__version = material2.version;
+          materialProperties.__version = material.version;
         }
         let program = materialProperties.currentProgram;
         if (needsProgramChange === true) {
-          program = getProgram(material2, scene, object);
+          program = getProgram(material, scene, object);
         }
         let refreshProgram = false;
         let refreshMaterial = false;
@@ -41210,8 +41210,8 @@
           refreshMaterial = true;
           refreshLights = true;
         }
-        if (material2.id !== _currentMaterialId) {
-          _currentMaterialId = material2.id;
+        if (material.id !== _currentMaterialId) {
+          _currentMaterialId = material.id;
           refreshMaterial = true;
         }
         if (refreshProgram || _currentCamera !== camera) {
@@ -41228,7 +41228,7 @@
               2 / (Math.log(camera.far + 1) / Math.LN2)
             );
           }
-          if (material2.isMeshPhongMaterial || material2.isMeshToonMaterial || material2.isMeshLambertMaterial || material2.isMeshBasicMaterial || material2.isMeshStandardMaterial || material2.isShaderMaterial) {
+          if (material.isMeshPhongMaterial || material.isMeshToonMaterial || material.isMeshLambertMaterial || material.isMeshBasicMaterial || material.isMeshStandardMaterial || material.isShaderMaterial) {
             p_uniforms.setValue(_gl, "isOrthographic", camera.isOrthographicCamera === true);
           }
           if (_currentCamera !== camera) {
@@ -41263,7 +41263,7 @@
           materialProperties.receiveShadow = object.receiveShadow;
           p_uniforms.setValue(_gl, "receiveShadow", object.receiveShadow);
         }
-        if (material2.isMeshGouraudMaterial && material2.envMap !== null) {
+        if (material.isMeshGouraudMaterial && material.envMap !== null) {
           m_uniforms.envMap.value = envMap;
           m_uniforms.flipEnvMap.value = envMap.isCubeTexture && envMap.isRenderTargetTexture === false ? -1 : 1;
         }
@@ -41272,24 +41272,24 @@
           if (materialProperties.needsLights) {
             markUniformsLightsNeedsUpdate(m_uniforms, refreshLights);
           }
-          if (fog && material2.fog === true) {
+          if (fog && material.fog === true) {
             materials.refreshFogUniforms(m_uniforms, fog);
           }
-          materials.refreshMaterialUniforms(m_uniforms, material2, _pixelRatio, _height, _transmissionRenderTarget);
+          materials.refreshMaterialUniforms(m_uniforms, material, _pixelRatio, _height, _transmissionRenderTarget);
           WebGLUniforms.upload(_gl, getUniformList(materialProperties), m_uniforms, textures);
         }
-        if (material2.isShaderMaterial && material2.uniformsNeedUpdate === true) {
+        if (material.isShaderMaterial && material.uniformsNeedUpdate === true) {
           WebGLUniforms.upload(_gl, getUniformList(materialProperties), m_uniforms, textures);
-          material2.uniformsNeedUpdate = false;
+          material.uniformsNeedUpdate = false;
         }
-        if (material2.isSpriteMaterial) {
+        if (material.isSpriteMaterial) {
           p_uniforms.setValue(_gl, "center", object.center);
         }
         p_uniforms.setValue(_gl, "modelViewMatrix", object.modelViewMatrix);
         p_uniforms.setValue(_gl, "normalMatrix", object.normalMatrix);
         p_uniforms.setValue(_gl, "modelMatrix", object.matrixWorld);
-        if (material2.isShaderMaterial || material2.isRawShaderMaterial) {
-          const groups = material2.uniformsGroups;
+        if (material.isShaderMaterial || material.isRawShaderMaterial) {
+          const groups = material.uniformsGroups;
           for (let i = 0, l = groups.length; i < l; i++) {
             if (capabilities.isWebGL2) {
               const group = groups[i];
@@ -41314,8 +41314,8 @@
         uniforms.rectAreaLights.needsUpdate = value;
         uniforms.hemisphereLights.needsUpdate = value;
       }
-      function materialNeedsLights(material2) {
-        return material2.isMeshLambertMaterial || material2.isMeshToonMaterial || material2.isMeshPhongMaterial || material2.isMeshStandardMaterial || material2.isShadowMaterial || material2.isShaderMaterial && material2.lights === true;
+      function materialNeedsLights(material) {
+        return material.isMeshLambertMaterial || material.isMeshToonMaterial || material.isMeshPhongMaterial || material.isMeshStandardMaterial || material.isShadowMaterial || material.isShaderMaterial && material.lights === true;
       }
       this.getActiveCubeFace = function() {
         return _currentActiveCubeFace;
@@ -42700,64 +42700,64 @@
   var aspect2 = STICKER_HEIGHT / STICKER_WIDTH;
   var texture = new TextureLoader().load("images/texture.jpg");
   var geometry = new PlaneGeometry(1, aspect2, 64, 64);
-  var material = new ShaderMaterial({
-    uniforms: {
-      map: { value: texture },
-      magnitude: { value: 0 },
-      cursor: { value: new Vector2(-1, 1) }
-    },
-    vertexShader: `
-    const float PI = ${Math.PI};
-    const float aspect = ${aspect2};
-
-    uniform float magnitude;
-    uniform vec2 cursor;
-
-    varying vec2 vUv;
-    varying float isFolded;
-
-    void main() {
-
-      vUv = uv;
-
-      vec3 pos = vec3( position );
-      vec2 cur = vec2( cursor.x, cursor.y * aspect );
-
-      float angle = atan( - cur.y, - cur.x );
-      float dist = 1.0 - smoothstep( 0.0, 1.0, distance( position.xy, cur ) );
-
-      pos.x += magnitude * dist * cos( angle );
-      pos.y += magnitude * dist * sin( angle );
-      pos.z -= dist * 0.1;
-
-      vec4 vp = modelViewMatrix * vec4( pos, 1.0 );
-      vec3 vd = normalize(-vp.xyz);
-      vec3 nv = normalize(normalMatrix * normal.xyz);
-
-      isFolded = step( 0.01, dot( vd, nv ) );                     // Darken the backside
-      isFolded = max( isFolded, step( 0.1, magnitude * dist ) );  // Get the fold to be dark
-
-      gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
-
-    }
-  `,
-    fragmentShader: `
-    uniform sampler2D map;
-
-    varying vec2 vUv;
-    varying float isFolded;
-
-    void main() {
-      vec4 texel = texture2D( map, vUv );
-      gl_FragColor = mix( texel, vec4( 0.8, 0.0, 0.0, 1.0 ), isFolded );
-    }
-  `,
-    side: DoubleSide
-  });
   texture.magFilter = texture.minFilter = LinearFilter;
   geometry.rotateZ(Math.PI);
   var Sticker = class extends Mesh {
     constructor() {
+      const material = new ShaderMaterial({
+        uniforms: {
+          map: { value: texture },
+          magnitude: { value: 0 },
+          cursor: { value: new Vector2(-1, 1) }
+        },
+        vertexShader: `
+        const float PI = ${Math.PI};
+        const float aspect = ${aspect2};
+    
+        uniform float magnitude;
+        uniform vec2 cursor;
+    
+        varying vec2 vUv;
+        varying float isFolded;
+    
+        void main() {
+    
+          vUv = uv;
+    
+          vec3 pos = vec3( position );
+          vec2 cur = vec2( cursor.x, cursor.y * aspect );
+    
+          float angle = atan( - cur.y, - cur.x );
+          float dist = 1.0 - smoothstep( 0.0, 1.0, distance( position.xy, cur ) );
+    
+          pos.x += magnitude * dist * cos( angle );
+          pos.y += magnitude * dist * sin( angle );
+          pos.z -= dist * 0.1;
+    
+          vec4 vp = modelViewMatrix * vec4( pos, 1.0 );
+          vec3 vd = normalize(-vp.xyz);
+          vec3 nv = normalize(normalMatrix * normal.xyz);
+    
+          isFolded = step( 0.01, dot( vd, nv ) );                     // Darken the backside
+          isFolded = max( isFolded, step( 0.1, magnitude * dist ) );  // Get the fold to be dark
+    
+          gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
+    
+        }
+      `,
+        fragmentShader: `
+        uniform sampler2D map;
+    
+        varying vec2 vUv;
+        varying float isFolded;
+    
+        void main() {
+          vec4 texel = texture2D( map, vUv );
+          gl_FragColor = mix( texel, vec4( 0.8, 0.0, 0.0, 1.0 ), isFolded );
+        }
+      `,
+        side: DoubleSide
+      });
       super(geometry, material.clone());
     }
     static width = STICKER_WIDTH;
@@ -42805,7 +42805,7 @@
         camera.right = 1 / 2;
         camera.bottom = aspect3 / 2;
         camera.updateProjectionMatrix();
-        const scale = Sticker.height / height;
+        const scale = 2 * Sticker.height / height;
         scene.scale.set(scale, scale, scale);
         for (let i = 0; i < scene.children.length; i++) {
           const sticker = scene.children[i];
