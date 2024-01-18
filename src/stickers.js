@@ -23,6 +23,7 @@ export default function App(props) {
       sticker.position.y = 6 * (Math.random() - 0.5);
       sticker.rotation.z = Math.random() * Math.PI / 4 - Math.PI / 8;
       sticker.position.z = i;
+      // sticker.material.uniforms.magnitude.value = Math.random();
       scene.add(sticker);
     }
 
@@ -62,7 +63,7 @@ export default function App(props) {
 
       camera.updateProjectionMatrix();
 
-      const scale = Sticker.height / height;
+      const scale = 2 * Sticker.height / height;
       scene.scale.set(scale, scale, scale);
 
       for (let i = 0; i < scene.children.length; i++) {
