@@ -28,7 +28,6 @@ export class Sticker extends THREE.Mesh {
         uniform vec2 cursor;
     
         varying vec2 vUv;
-        varying float isFolded;
     
         void main() {
     
@@ -44,13 +43,6 @@ export class Sticker extends THREE.Mesh {
           pos.y += magnitude * dist * sin( angle );
           pos.z -= dist * 0.1;
     
-          vec4 vp = modelViewMatrix * vec4( pos, 1.0 );
-          vec3 vd = normalize(-vp.xyz);
-          vec3 nv = normalize(normalMatrix * normal.xyz);
-    
-          isFolded = step( 0.01, dot( vd, nv ) );                     // Darken the backside
-          isFolded = max( isFolded, step( 0.1, magnitude * dist ) );  // Get the fold to be dark
-    
           gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
     
         }
@@ -59,11 +51,10 @@ export class Sticker extends THREE.Mesh {
         uniform sampler2D map;
     
         varying vec2 vUv;
-        varying float isFolded;
     
         void main() {
           vec4 texel = texture2D( map, vUv );
-          gl_FragColor = mix( texel, vec4( 0.8, 0.0, 0.0, 1.0 ), isFolded );
+          gl_FragColor = texel;
         }
       `,
       side: THREE.DoubleSide
