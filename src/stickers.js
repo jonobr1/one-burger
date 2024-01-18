@@ -22,6 +22,7 @@ export default function App(props) {
       sticker.position.x = 6 * (Math.random() - 0.5);
       sticker.position.y = 6 * (Math.random() - 0.5);
       sticker.rotation.z = Math.random() * Math.PI / 4 - Math.PI / 8;
+      sticker.position.z = i;
       scene.add(sticker);
     }
 
