@@ -4,11 +4,11 @@ const STICKER_WIDTH = 340;
 const STICKER_HEIGHT = 155;
 const aspect = STICKER_HEIGHT / STICKER_WIDTH;
 
+const cursor = new THREE.Vector2(-10, -10);
 const texture = new THREE.TextureLoader().load('images/texture.jpg')
 const geometry = new THREE.PlaneGeometry(1, aspect, 64, 64);
 
 texture.magFilter = texture.minFilter = THREE.LinearFilter;
-geometry.rotateZ(Math.PI);
 
 export class Sticker extends THREE.Mesh {
 
@@ -18,11 +18,10 @@ export class Sticker extends THREE.Mesh {
       uniforms: {
         map: { value: texture },
         magnitude: { value: 0 },
-        cursor: { value: new THREE.Vector2(-1, 1) }
+        cursor: { value: cursor }
       },
       vertexShader: `
         const float PI = ${Math.PI};
-        const float aspect = ${aspect};
     
         uniform float magnitude;
         uniform vec2 cursor;
@@ -33,15 +32,18 @@ export class Sticker extends THREE.Mesh {
     
           vUv = uv;
     
+          vec4 pmv = modelViewMatrix * vec4( position, 1.0 );
           vec3 pos = vec3( position );
-          vec2 cur = vec2( cursor.x, cursor.y * aspect );
+          vec4 cur = vec4( cursor, 1.0, 1.0 ) * inverse( modelViewMatrix );
     
-          float angle = atan( - cur.y, - cur.x );
-          float dist = 1.0 - smoothstep( 0.0, 1.0, distance( position.xy, cur ) );
-    
-          pos.x += magnitude * dist * cos( angle );
-          pos.y += magnitude * dist * sin( angle );
-          pos.z -= dist * 0.1;
+          float angle = atan( - cursor.y, - cursor.x );
+          float d = pow( smoothstep( 0.0, 1.0, length( cur.xy ) ), 0.5 );
+          float l = 1.5 * length( cursor.xy - pmv.xy );
+          float dist = 1.0 - smoothstep( 0.0, 1.0, l );
+
+          pos.x += magnitude * d * dist * cos( angle );
+          pos.y += magnitude * d * dist * sin( angle );
+          pos.z += dist * 0.1;
     
           gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
     
@@ -60,7 +62,7 @@ export class Sticker extends THREE.Mesh {
       side: THREE.DoubleSide
     });
 
-    super(geometry, material.clone());
+    super(geometry, material);
 
   }
 

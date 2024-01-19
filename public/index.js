@@ -10815,7 +10815,7 @@
               current: defaultValue
             };
           }
-          function pop(cursor, fiber) {
+          function pop(cursor2, fiber) {
             if (index < 0) {
               {
                 error("Unexpected pop.");
@@ -10827,20 +10827,20 @@
                 error("Unexpected Fiber popped.");
               }
             }
-            cursor.current = valueStack[index];
+            cursor2.current = valueStack[index];
             valueStack[index] = null;
             {
               fiberStack[index] = null;
             }
             index--;
           }
-          function push(cursor, value, fiber) {
+          function push(cursor2, value, fiber) {
             index++;
-            valueStack[index] = cursor.current;
+            valueStack[index] = cursor2.current;
             {
               fiberStack[index] = fiber;
             }
-            cursor.current = value;
+            cursor2.current = value;
           }
           var warnedAboutMissingGetChildContext;
           {
@@ -30312,7 +30312,7 @@
       }
       return target;
     }
-    raycast(raycaster, intersects) {
+    raycast(raycaster2, intersects) {
       const geometry2 = this.geometry;
       const material = this.material;
       const matrixWorld = this.matrixWorld;
@@ -30322,22 +30322,22 @@
         geometry2.computeBoundingSphere();
       _sphere$6.copy(geometry2.boundingSphere);
       _sphere$6.applyMatrix4(matrixWorld);
-      _ray$3.copy(raycaster.ray).recast(raycaster.near);
+      _ray$3.copy(raycaster2.ray).recast(raycaster2.near);
       if (_sphere$6.containsPoint(_ray$3.origin) === false) {
         if (_ray$3.intersectSphere(_sphere$6, _sphereHitAt) === null)
           return;
-        if (_ray$3.origin.distanceToSquared(_sphereHitAt) > (raycaster.far - raycaster.near) ** 2)
+        if (_ray$3.origin.distanceToSquared(_sphereHitAt) > (raycaster2.far - raycaster2.near) ** 2)
           return;
       }
       _inverseMatrix$3.copy(matrixWorld).invert();
-      _ray$3.copy(raycaster.ray).applyMatrix4(_inverseMatrix$3);
+      _ray$3.copy(raycaster2.ray).applyMatrix4(_inverseMatrix$3);
       if (geometry2.boundingBox !== null) {
         if (_ray$3.intersectsBox(geometry2.boundingBox) === false)
           return;
       }
-      this._computeIntersections(raycaster, intersects, _ray$3);
+      this._computeIntersections(raycaster2, intersects, _ray$3);
     }
-    _computeIntersections(raycaster, intersects, rayLocalSpace) {
+    _computeIntersections(raycaster2, intersects, rayLocalSpace) {
       let intersection;
       const geometry2 = this.geometry;
       const material = this.material;
@@ -30359,7 +30359,7 @@
               const a = index.getX(j);
               const b = index.getX(j + 1);
               const c = index.getX(j + 2);
-              intersection = checkGeometryIntersection(this, groupMaterial, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
+              intersection = checkGeometryIntersection(this, groupMaterial, raycaster2, rayLocalSpace, uv, uv1, normal, a, b, c);
               if (intersection) {
                 intersection.faceIndex = Math.floor(j / 3);
                 intersection.face.materialIndex = group.materialIndex;
@@ -30374,7 +30374,7 @@
             const a = index.getX(i);
             const b = index.getX(i + 1);
             const c = index.getX(i + 2);
-            intersection = checkGeometryIntersection(this, material, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
+            intersection = checkGeometryIntersection(this, material, raycaster2, rayLocalSpace, uv, uv1, normal, a, b, c);
             if (intersection) {
               intersection.faceIndex = Math.floor(i / 3);
               intersects.push(intersection);
@@ -30392,7 +30392,7 @@
               const a = j;
               const b = j + 1;
               const c = j + 2;
-              intersection = checkGeometryIntersection(this, groupMaterial, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
+              intersection = checkGeometryIntersection(this, groupMaterial, raycaster2, rayLocalSpace, uv, uv1, normal, a, b, c);
               if (intersection) {
                 intersection.faceIndex = Math.floor(j / 3);
                 intersection.face.materialIndex = group.materialIndex;
@@ -30407,7 +30407,7 @@
             const a = i;
             const b = i + 1;
             const c = i + 2;
-            intersection = checkGeometryIntersection(this, material, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
+            intersection = checkGeometryIntersection(this, material, raycaster2, rayLocalSpace, uv, uv1, normal, a, b, c);
             if (intersection) {
               intersection.faceIndex = Math.floor(i / 3);
               intersects.push(intersection);
@@ -30417,7 +30417,7 @@
       }
     }
   };
-  function checkIntersection(object, material, raycaster, ray, pA, pB, pC, point) {
+  function checkIntersection(object, material, raycaster2, ray, pA, pB, pC, point) {
     let intersect;
     if (material.side === BackSide) {
       intersect = ray.intersectTriangle(pC, pB, pA, true, point);
@@ -30428,8 +30428,8 @@
       return null;
     _intersectionPointWorld.copy(point);
     _intersectionPointWorld.applyMatrix4(object.matrixWorld);
-    const distance = raycaster.ray.origin.distanceTo(_intersectionPointWorld);
-    if (distance < raycaster.near || distance > raycaster.far)
+    const distance = raycaster2.ray.origin.distanceTo(_intersectionPointWorld);
+    if (distance < raycaster2.near || distance > raycaster2.far)
       return null;
     return {
       distance,
@@ -30437,11 +30437,11 @@
       object
     };
   }
-  function checkGeometryIntersection(object, material, raycaster, ray, uv, uv1, normal, a, b, c) {
+  function checkGeometryIntersection(object, material, raycaster2, ray, uv, uv1, normal, a, b, c) {
     object.getVertexPosition(a, _vA$1);
     object.getVertexPosition(b, _vB$1);
     object.getVertexPosition(c, _vC$1);
-    const intersection = checkIntersection(object, material, raycaster, ray, _vA$1, _vB$1, _vC$1, _intersectionPoint);
+    const intersection = checkIntersection(object, material, raycaster2, ray, _vA$1, _vB$1, _vC$1, _intersectionPoint);
     if (intersection) {
       if (uv) {
         _uvA$1.fromBufferAttribute(uv, a);
@@ -41625,6 +41625,78 @@
       return data;
     }
   };
+  var SphereGeometry = class _SphereGeometry extends BufferGeometry {
+    constructor(radius = 1, widthSegments = 32, heightSegments = 16, phiStart = 0, phiLength = Math.PI * 2, thetaStart = 0, thetaLength = Math.PI) {
+      super();
+      this.type = "SphereGeometry";
+      this.parameters = {
+        radius,
+        widthSegments,
+        heightSegments,
+        phiStart,
+        phiLength,
+        thetaStart,
+        thetaLength
+      };
+      widthSegments = Math.max(3, Math.floor(widthSegments));
+      heightSegments = Math.max(2, Math.floor(heightSegments));
+      const thetaEnd = Math.min(thetaStart + thetaLength, Math.PI);
+      let index = 0;
+      const grid = [];
+      const vertex2 = new Vector3();
+      const normal = new Vector3();
+      const indices = [];
+      const vertices = [];
+      const normals = [];
+      const uvs = [];
+      for (let iy = 0; iy <= heightSegments; iy++) {
+        const verticesRow = [];
+        const v = iy / heightSegments;
+        let uOffset = 0;
+        if (iy === 0 && thetaStart === 0) {
+          uOffset = 0.5 / widthSegments;
+        } else if (iy === heightSegments && thetaEnd === Math.PI) {
+          uOffset = -0.5 / widthSegments;
+        }
+        for (let ix = 0; ix <= widthSegments; ix++) {
+          const u = ix / widthSegments;
+          vertex2.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+          vertex2.y = radius * Math.cos(thetaStart + v * thetaLength);
+          vertex2.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+          vertices.push(vertex2.x, vertex2.y, vertex2.z);
+          normal.copy(vertex2).normalize();
+          normals.push(normal.x, normal.y, normal.z);
+          uvs.push(u + uOffset, 1 - v);
+          verticesRow.push(index++);
+        }
+        grid.push(verticesRow);
+      }
+      for (let iy = 0; iy < heightSegments; iy++) {
+        for (let ix = 0; ix < widthSegments; ix++) {
+          const a = grid[iy][ix + 1];
+          const b = grid[iy][ix];
+          const c = grid[iy + 1][ix];
+          const d = grid[iy + 1][ix + 1];
+          if (iy !== 0 || thetaStart > 0)
+            indices.push(a, b, d);
+          if (iy !== heightSegments - 1 || thetaEnd < Math.PI)
+            indices.push(b, c, d);
+        }
+      }
+      this.setIndex(indices);
+      this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+      this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+      this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    }
+    copy(source) {
+      super.copy(source);
+      this.parameters = Object.assign({}, source.parameters);
+      return this;
+    }
+    static fromJSON(data) {
+      return new _SphereGeometry(data.radius, data.widthSegments, data.heightSegments, data.phiStart, data.phiLength, data.thetaStart, data.thetaLength);
+    }
+  };
   function convertArray(array, type, forceClone) {
     if (!array || // let 'undefined' and 'null' pass
     !forceClone && array.constructor === type)
@@ -42681,6 +42753,64 @@
     ]
   ];
   var _controlInterpolantsResultBuffer = new Float32Array(1);
+  var Raycaster = class {
+    constructor(origin, direction, near = 0, far = Infinity) {
+      this.ray = new Ray(origin, direction);
+      this.near = near;
+      this.far = far;
+      this.camera = null;
+      this.layers = new Layers();
+      this.params = {
+        Mesh: {},
+        Line: { threshold: 1 },
+        LOD: {},
+        Points: { threshold: 1 },
+        Sprite: {}
+      };
+    }
+    set(origin, direction) {
+      this.ray.set(origin, direction);
+    }
+    setFromCamera(coords, camera) {
+      if (camera.isPerspectiveCamera) {
+        this.ray.origin.setFromMatrixPosition(camera.matrixWorld);
+        this.ray.direction.set(coords.x, coords.y, 0.5).unproject(camera).sub(this.ray.origin).normalize();
+        this.camera = camera;
+      } else if (camera.isOrthographicCamera) {
+        this.ray.origin.set(coords.x, coords.y, (camera.near + camera.far) / (camera.near - camera.far)).unproject(camera);
+        this.ray.direction.set(0, 0, -1).transformDirection(camera.matrixWorld);
+        this.camera = camera;
+      } else {
+        console.error("THREE.Raycaster: Unsupported camera type: " + camera.type);
+      }
+    }
+    intersectObject(object, recursive = true, intersects = []) {
+      intersectObject(object, this, intersects, recursive);
+      intersects.sort(ascSort);
+      return intersects;
+    }
+    intersectObjects(objects, recursive = true, intersects = []) {
+      for (let i = 0, l = objects.length; i < l; i++) {
+        intersectObject(objects[i], this, intersects, recursive);
+      }
+      intersects.sort(ascSort);
+      return intersects;
+    }
+  };
+  function ascSort(a, b) {
+    return a.distance - b.distance;
+  }
+  function intersectObject(object, raycaster2, intersects, recursive) {
+    if (object.layers.test(raycaster2.layers)) {
+      object.raycast(raycaster2, intersects);
+    }
+    if (recursive === true) {
+      const children = object.children;
+      for (let i = 0, l = children.length; i < l; i++) {
+        intersectObject(children[i], raycaster2, intersects, true);
+      }
+    }
+  }
   if (typeof __THREE_DEVTOOLS__ !== "undefined") {
     __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent("register", { detail: {
       revision: REVISION
@@ -42698,21 +42828,20 @@
   var STICKER_WIDTH = 340;
   var STICKER_HEIGHT = 155;
   var aspect2 = STICKER_HEIGHT / STICKER_WIDTH;
+  var cursor = new Vector2(-10, -10);
   var texture = new TextureLoader().load("images/texture.jpg");
   var geometry = new PlaneGeometry(1, aspect2, 64, 64);
   texture.magFilter = texture.minFilter = LinearFilter;
-  geometry.rotateZ(Math.PI);
   var Sticker = class extends Mesh {
     constructor() {
       const material = new ShaderMaterial({
         uniforms: {
           map: { value: texture },
           magnitude: { value: 0 },
-          cursor: { value: new Vector2(-1, 1) }
+          cursor: { value: cursor }
         },
         vertexShader: `
         const float PI = ${Math.PI};
-        const float aspect = ${aspect2};
     
         uniform float magnitude;
         uniform vec2 cursor;
@@ -42723,15 +42852,18 @@
     
           vUv = uv;
     
+          vec4 pmv = modelViewMatrix * vec4( position, 1.0 );
           vec3 pos = vec3( position );
-          vec2 cur = vec2( cursor.x, cursor.y * aspect );
+          vec4 cur = vec4( cursor, 1.0, 1.0 ) * inverse( modelViewMatrix );
     
-          float angle = atan( - cur.y, - cur.x );
-          float dist = 1.0 - smoothstep( 0.0, 1.0, distance( position.xy, cur ) );
-    
-          pos.x += magnitude * dist * cos( angle );
-          pos.y += magnitude * dist * sin( angle );
-          pos.z -= dist * 0.1;
+          float angle = atan( - cursor.y, - cursor.x );
+          float d = pow( smoothstep( 0.0, 1.0, length( cur.xy ) ), 0.5 );
+          float l = 1.5 * length( cursor.xy - pmv.xy );
+          float dist = 1.0 - smoothstep( 0.0, 1.0, l );
+
+          pos.x += magnitude * d * dist * cos( angle );
+          pos.y += magnitude * d * dist * sin( angle );
+          pos.z += dist * 0.1;
     
           gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
     
@@ -42749,59 +42881,91 @@
       `,
         side: DoubleSide
       });
-      super(geometry, material.clone());
+      super(geometry, material);
     }
     static width = STICKER_WIDTH;
     static height = STICKER_HEIGHT;
   };
 
   // src/stickers.js
+  var raycaster = new Raycaster();
+  var mouse = new Vector2(-10, -10);
   function App(props) {
     const domElement2 = (0, import_react.useRef)();
     (0, import_react.useEffect)(mount, []);
     function mount() {
       const renderer = new WebGLRenderer({ antialias: true });
       const scene = new Scene();
-      const camera = new OrthographicCamera();
-      camera.position.z = -1;
-      camera.rotation.y = Math.PI;
+      const camera = new PerspectiveCamera();
+      const plane = new Mesh(
+        new PlaneGeometry(50, 50, 250, 250),
+        new MeshBasicMaterial({
+          color: "blue",
+          wireframe: true,
+          opacity: 0,
+          transparent: true
+        })
+      );
+      const cursor2 = new Mesh(
+        new SphereGeometry(1, 1, 32, 32),
+        new MeshBasicMaterial({
+          color: "green"
+        })
+      );
+      cursor2.visible = false;
+      cursor2.scale.set(0.05, 0.05, 0.05);
+      scene.add(cursor2, plane);
+      camera.position.z = 2;
       for (let i = 0; i < 350; i++) {
         const sticker = new Sticker();
         sticker.position.x = 6 * (Math.random() - 0.5);
         sticker.position.y = 6 * (Math.random() - 0.5);
-        sticker.rotation.z = Math.random() * Math.PI / 4 - Math.PI / 8;
-        sticker.position.z = i;
+        sticker.rotation.z = Math.random() * Math.PI / 3 - Math.PI / 6;
+        sticker.material.uniforms.cursor.value = mouse;
+        sticker.material.uniforms.magnitude.value = 1;
+        sticker.renderOrder = i;
         scene.add(sticker);
       }
       renderer.setClearAlpha(0);
       domElement2.current.appendChild(renderer.domElement);
       renderer.setAnimationLoop(update);
       window.addEventListener("resize", resize);
+      window.addEventListener("pointermove", pointermove);
       resize();
       return unmount;
       function unmount() {
         renderer.setAnimationLoop(null);
         window.addEventListener("resize", resize);
+        window.removeEventListener("pointermove", pointermove);
         if (renderer.domElement.parentElement) {
           renderer.domElement.parentElement.removeChild(renderer.domElement);
+        }
+      }
+      function pointermove(e) {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        mouse.x = e.clientX / width * 2 - 1;
+        mouse.y = -(e.clientY / height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        const intersections = raycaster.intersectObject(plane);
+        if (intersections.length > 0) {
+          cursor2.position.copy(intersections[0].point);
+        } else {
+          cursor2.position.set(-10, -10, 0);
         }
       }
       function resize() {
         const width = window.innerWidth;
         const height = window.innerHeight;
-        const aspect3 = height / width;
         renderer.setSize(width, height);
-        camera.top = -aspect3 / 2;
-        camera.left = -1 / 2;
-        camera.right = 1 / 2;
-        camera.bottom = aspect3 / 2;
+        camera.aspect = width / height;
         camera.updateProjectionMatrix();
-        const scale = 2 * Sticker.height / height;
+        const scale = Sticker.height / height;
         scene.scale.set(scale, scale, scale);
         for (let i = 0; i < scene.children.length; i++) {
           const sticker = scene.children[i];
-          sticker.position.x = (Math.random() - 0.5) / scale;
-          sticker.position.y = aspect3 * (Math.random() - 0.5) / scale;
+          sticker.position.x = 10 * (Math.random() - 0.5);
+          sticker.position.y = 10 * (Math.random() - 0.5);
         }
       }
       function update() {
