@@ -43672,7 +43672,7 @@
 
           pos.x += magnitude * dist * cos( angle );
           pos.y += magnitude * dist * sin( angle );
-          pos.z -= magnitude * dist * 0.01;
+          // pos.z -= magnitude * dist * 0.01;
     
           gl_Position = pos;
     
