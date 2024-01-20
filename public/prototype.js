@@ -10815,7 +10815,7 @@
               current: defaultValue
             };
           }
-          function pop(cursor2, fiber) {
+          function pop(cursor, fiber) {
             if (index < 0) {
               {
                 error("Unexpected pop.");
@@ -10827,20 +10827,20 @@
                 error("Unexpected Fiber popped.");
               }
             }
-            cursor2.current = valueStack[index];
+            cursor.current = valueStack[index];
             valueStack[index] = null;
             {
               fiberStack[index] = null;
             }
             index--;
           }
-          function push(cursor2, value, fiber) {
+          function push(cursor, value, fiber) {
             index++;
-            valueStack[index] = cursor2.current;
+            valueStack[index] = cursor.current;
             {
               fiberStack[index] = fiber;
             }
-            cursor2.current = value;
+            cursor.current = value;
           }
           var warnedAboutMissingGetChildContext;
           {
@@ -42825,7 +42825,6 @@
   var STICKER_WIDTH = 340;
   var STICKER_HEIGHT = 155;
   var aspect2 = STICKER_HEIGHT / STICKER_WIDTH;
-  var cursor = new Vector2(-10, -10);
   var texture = new TextureLoader().load("images/texture.jpg");
   var geometry = new PlaneGeometry(1, aspect2, 64, 64);
   texture.magFilter = texture.minFilter = LinearFilter;
@@ -42835,34 +42834,59 @@
         uniforms: {
           map: { value: texture },
           magnitude: { value: 0 },
-          cursor: { value: cursor }
+          cursor: { value: new Vector2(-10, -10) }
         },
         vertexShader: `
-        const float PI = ${Math.PI};
+        const float PI = ${Math.PI.toFixed(3)};
+        const float aspect = ${aspect2};
+        const float cap = 0.7;
     
         uniform float magnitude;
         uniform vec2 cursor;
     
         varying vec2 vUv;
+
+        vec2 pointToSegment( vec2 p, vec2 s1, vec2 s2 ) {
+    
+          float sd = distance( s1, s2 );
+          vec2 pg = p - s1;
+          vec2 sg = s2 - s1;
+          float t = ( pg.x * sg.x + pg.y * sg.y ) / pow( sd, 2.0 );
+
+          return s1 + t * sg;
+
+        }
     
         void main() {
     
           vUv = uv;
     
+          vec4 center = modelViewMatrix * vec4( vec3( 0.0 ), 1.0 );
           vec4 pmv = modelViewMatrix * vec4( position, 1.0 );
-          vec3 pos = vec3( position );
-          vec4 cur = vec4( cursor, 1.0, 1.0 ) * inverse( modelViewMatrix );
+          vec4 pos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
     
-          float angle = atan( - cursor.y, - cursor.x );
-          float d = pow( smoothstep( 0.0, 1.0, length( cur.xy ) ), 0.5 );
-          float l = 1.5 * length( cursor.xy - pmv.xy );
+          float r = 10.0;
+          float toCenter = length( center.xy - cursor.xy );
+          float angle = atan( center.y - cursor.y, center.x - cursor.x );
+
+          vec2 cur = vec2( center.xy );
+          cur.x += max( cap, toCenter ) * cos( angle + PI );
+          cur.y += max( cap * aspect, toCenter ) * sin( angle + PI );
+
+          float aa = angle + PI * 0.5;
+          float ab = angle - PI * 0.5;
+          vec2 s1 = vec2( r * cos( aa ), r * sin( aa ) ) + cur.xy;
+          vec2 s2 = vec2( r * cos( ab ), r * sin( ab ) ) + cur.xy;
+          vec2 intersect = pointToSegment( pmv.xy, s1, s2 );
+
+          float l = 1.5 * length( intersect - pmv.xy );
           float dist = 1.0 - smoothstep( 0.0, 1.0, l );
 
-          pos.x += magnitude * d * dist * cos( angle );
-          pos.y += magnitude * d * dist * sin( angle );
-          pos.z += dist * 0.1;
+          pos.x += magnitude * dist * cos( angle );
+          pos.y += magnitude * dist * sin( angle );
+          pos.z -= magnitude * dist * 0.01;
     
-          gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
+          gl_Position = pos;
     
         }
       `,
@@ -44626,23 +44650,32 @@
           wireframe: true
         })
       );
-      const cursor2 = new Mesh(
+      const cursor = new Mesh(
         new SphereGeometry(1, 1, 32, 32),
         new MeshBasicMaterial({
           color: "green"
         })
       );
-      cursor2.scale.set(0.05, 0.05, 0.05);
+      cursor.scale.set(0.05, 0.05, 0.05);
       renderer.domElement.style.position = "absolute";
       renderer.domElement.style.top = 0;
       renderer.domElement.style.left = 0;
-      camera.position.z = 2;
-      const sticker = new Sticker();
+      camera.position.x = 11;
+      camera.position.z = 2.5;
+      let sticker = new Sticker();
       sticker.material.uniforms.cursor.value = mouse;
       sticker.material.uniforms.magnitude.value = 1;
-      sticker.position.x = 0.5;
-      sticker.position.y = 0.5;
-      scene.add(sticker, plane, cursor2);
+      sticker.position.x = 10;
+      sticker.position.y = 0;
+      scene.add(sticker);
+      sticker = new Sticker();
+      sticker.material.uniforms.cursor.value = mouse;
+      sticker.material.uniforms.magnitude.value = 1;
+      sticker.position.x = 12;
+      sticker.position.y = 0;
+      sticker.rotation.z = Math.PI / 3;
+      scene.add(sticker);
+      scene.add(plane, cursor);
       gui.add(sticker.material.uniforms.magnitude, "value", 0, 1.5).name("magnitude");
       domElement2.current.appendChild(renderer.domElement);
       renderer.setAnimationLoop(update);
@@ -44666,9 +44699,9 @@
         raycaster.setFromCamera(mouse, camera);
         const intersections = raycaster.intersectObject(plane);
         if (intersections.length > 0) {
-          cursor2.position.copy(intersections[0].point);
+          cursor.position.copy(intersections[0].point);
         } else {
-          cursor2.position.set(-10, -10, 0);
+          cursor.position.set(-10, -10, 0);
         }
       }
       function resize() {

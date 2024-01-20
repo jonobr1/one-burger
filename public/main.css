@@ -11,6 +11,9 @@
   margin: 0;
   padding: 0;
 }
+html {
+  cursor: pointer;
+}
 body {
   font-family: "Helvetica Neue Condensed Bold";
   text-transform: uppercase;
@@ -35,8 +38,8 @@ body div.seo h1 {
 }
 body div.seo span.globe {
   display: inline-block;
-  background: url(images/globe.svg) center center;
-  background-size: cover;
+  background: url(images/GLOBE-Logo_SPIN.gif) center center;
+  background-size: 300%;
   overflow: hidden;
   text-indent: -100vw;
   width: 2.8125vw;

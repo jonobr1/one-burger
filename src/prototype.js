@@ -46,16 +46,29 @@ function Prototype(props) {
     renderer.domElement.style.top = 0;
     renderer.domElement.style.left = 0;
 
-    camera.position.z = 2;
+    camera.position.x = 11;
+    camera.position.z = 2.5;
 
-    const sticker = new Sticker();
+    let sticker = new Sticker();
+
     sticker.material.uniforms.cursor.value = mouse;
     sticker.material.uniforms.magnitude.value = 1;
 
-    sticker.position.x = 0.5;
-    sticker.position.y = 0.5;
+    sticker.position.x = 10;
+    sticker.position.y = 0;
+    scene.add(sticker);
 
-    scene.add(sticker, plane, cursor);
+    sticker = new Sticker();
+
+    sticker.material.uniforms.cursor.value = mouse;
+    sticker.material.uniforms.magnitude.value = 1;
+
+    sticker.position.x = 12;
+    sticker.position.y = 0;
+    sticker.rotation.z = Math.PI / 3;
+    scene.add(sticker);
+
+    scene.add(plane, cursor);
 
     gui.add(sticker.material.uniforms.magnitude, 'value', 0, 1.5).name('magnitude');
 

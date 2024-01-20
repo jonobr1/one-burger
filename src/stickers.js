@@ -1,6 +1,15 @@
 import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
+import * as TWEEN from "@tweenjs/tween.js";
 import { Sticker } from "./sticker.js";
+
+const TWO_PI = Math.PI * 2;
+
+let direction = true;
+
+const amount = 100;
+const spin = 100;
+const stickers = [];
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2(-10, -10);
@@ -18,7 +27,7 @@ export default function App(props) {
     const camera = new THREE.PerspectiveCamera();
 
     const plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(50, 50, 250, 250),
+      new THREE.PlaneGeometry(50, 50, 1, 1),
       new THREE.MeshBasicMaterial({
         color: 'blue',
         wireframe: true,
@@ -28,27 +37,37 @@ export default function App(props) {
     );
 
     const cursor = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 1, 32, 32),
+      new THREE.SphereGeometry(1, 1, 1, 1),
       new THREE.MeshBasicMaterial({
         color: 'green'
       })
     );
+    cursor.position.set(-10, -10);
     cursor.visible = false;
     cursor.scale.set(0.05, 0.05, 0.05);
 
     scene.add(cursor, plane);
-
     camera.position.z = 2;
 
-    for (let i = 0; i < 350; i++) {
+    for (let i = 0; i < amount; i++) {
+
       const sticker = new Sticker();
-      sticker.position.x = 6 * (Math.random() - 0.5);
-      sticker.position.y = 6 * (Math.random() - 0.5);
-      sticker.rotation.z = Math.random() * Math.PI / 3 - Math.PI / 6;
-      sticker.material.uniforms.cursor.value = mouse;
-      sticker.material.uniforms.magnitude.value = 1;
+      const isLast = i >= amount - 1;
+      const rotation = TWO_PI * Math.random() * spin / 100;
+
+      const x = Math.random() * 4 - 2;
+      const y = Math.random() * 4 - 2;
+
+      sticker.position.x = isLast ? 0 : x;
+      sticker.position.y = isLast ? 0 : y;
+      sticker.rotation.z = isLast ? 0 : rotation;
+
+      sticker.userData.position = new THREE.Vector2();
       sticker.renderOrder = i;
+
       scene.add(sticker);
+      stickers.push(sticker);
+
     }
 
     renderer.setClearAlpha(0);
@@ -58,7 +77,9 @@ export default function App(props) {
 
     window.addEventListener('resize', resize);
     window.addEventListener('pointermove', pointermove);
-    resize();
+    window.addEventListener('click', click);
+    
+    setTimeout(resize, 0);
 
     return unmount;
 
@@ -77,6 +98,10 @@ export default function App(props) {
 
     function pointermove(e) {
 
+      if (TWEEN.getAll().length > 0) {
+        return;
+      }
+
       const width = window.innerWidth;
       const height = window.innerHeight;
 
@@ -93,6 +118,65 @@ export default function App(props) {
         cursor.position.set(-10, -10, 0);
       }
 
+      const sticker = stickers[stickers.length - 1];
+      sticker.material.uniforms.cursor.value.copy(cursor.position);
+      sticker.material.uniforms.magnitude.value = 1;
+      
+
+    }
+
+    function click() {
+
+      for (let i = 0; i < stickers.length; i++) {
+
+        const sticker = stickers[i];
+        let pct = sticker.renderOrder / stickers.length;
+
+        if (direction) {
+          pct = 1 - pct;
+        }
+        if (sticker.userData.tween) {
+          sticker.userData.tween.stop();
+        }
+
+        sticker.userData.tween  = new TWEEN.Tween(sticker.material.uniforms.magnitude)
+          .to({ value: direction ? 1 : 0 }, 350)
+          .delay(Math.pow(pct, 1.5) * 1000)
+          .easing(TWEEN.Easing.Circular.Out)
+          .onUpdate(move(sticker))
+          .start();
+        
+        if (direction) {
+          sticker.userData.tween.onComplete(hide(sticker));
+        } else {
+          sticker.userData.tween.onStart(show(sticker)).onComplete(stop(sticker));
+        }
+
+      }
+
+      direction = !direction;
+
+    }
+
+    function move(sticker) {
+
+      const position = sticker.userData.position;
+      const rotation = Math.random() * Math.PI * 2;
+
+      return () => {
+
+        const magnitude = sticker.material.uniforms.magnitude.value;
+
+        sticker.position.x = position.x + 0.33 * Math.cos(rotation) * magnitude;
+        sticker.position.y = position.y + 0.33 * Math.sin(rotation) * magnitude;
+
+        sticker.material.uniforms.cursor.value
+          .copy(sticker.position);
+
+        sticker.material.uniforms.cursor.value.x += 0.01 * Math.cos(rotation);
+        sticker.material.uniforms.cursor.value.y += 0.01 * Math.sin(rotation);
+
+      };
     }
 
     function resize() {
@@ -105,19 +189,27 @@ export default function App(props) {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
 
-      const scale = Sticker.height / height;
-      scene.scale.set(scale, scale, scale);
+      const size = getMaxDimensionInWorldSpace(camera, plane);
+      stickers.forEach((sticker, i) => {
 
-      for (let i = 0; i < scene.children.length; i++) {
-        const sticker = scene.children[i];
-        sticker.position.x = 10 * (Math.random() - 0.5);
-        sticker.position.y = 10 * (Math.random() - 0.5);
-      }
+        const isLast = i >= amount - 1;
+        const w = size;
+        const h = w / camera.aspect;
+  
+        const x = Math.random() * w - w * 0.5;
+        const y = Math.random() * h - h * 0.5;
+  
+        sticker.position.x = isLast ? 0 : x;
+        sticker.position.y = isLast ? 0 : y;
+        sticker.userData.position.copy(sticker.position)
+
+      });
 
     }
 
     function update() {
 
+      TWEEN.update();
       renderer.render(scene, camera);
 
     }
@@ -126,4 +218,36 @@ export default function App(props) {
 
   return <div ref={ domElement } />;
 
+}
+
+function getMaxDimensionInWorldSpace(camera, plane) {
+
+  let i;
+
+  raycaster.setFromCamera(new THREE.Vector2(-1, 1), camera);
+  [i] = raycaster.intersectObject(plane);
+
+  const topLeft = i.point;
+
+  raycaster.setFromCamera(new THREE.Vector2(1, -1), camera);
+  [i] = raycaster.intersectObject(plane);
+
+  const bottomRight = i.point;
+
+  console.log(topLeft, bottomRight);
+
+  return Math.max(
+    bottomRight.y - topLeft.y,
+    bottomRight.x - topLeft.x
+  );
+
+}
+function hide(sticker) {
+  return () => sticker.visible = false;
+}
+function stop(sticker) {
+  return () => sticker.userData.tween.stop();
+}
+function show(sticker) {
+  return () => sticker.visible = true;
 }
