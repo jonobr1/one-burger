@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import * as TWEEN from "@tweenjs/tween.js";
 import { Sticker } from "./sticker.js";
@@ -185,6 +185,16 @@ export default function App(props) {
       const width = window.innerWidth;
       const height = window.innerHeight;
 
+      const hasTouch = window.navigator.maxTouchPoints > 0;
+      const isPortrait = height > width;
+      const isMobile = hasTouch && isPortrait;
+
+      const domElement = document.querySelector('div.seo');
+      const wasMobile = domElement.classList.contains('mobile');
+      if (wasMobile !== isMobile) {
+        domElement.classList[isMobile ? 'add' : 'remove']('mobile');
+      }
+
       renderer.setSize(width, height);
 
       camera.aspect = width / height;
@@ -234,8 +244,6 @@ function getMaxDimensionInWorldSpace(camera, plane) {
   [i] = raycaster.intersectObject(plane);
 
   const bottomRight = i.point;
-
-  console.log(topLeft, bottomRight);
 
   return Math.max(
     bottomRight.y - topLeft.y,

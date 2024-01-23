@@ -47,6 +47,28 @@ body div.seo span.globe {
   margin-left: 0.25vw;
   margin-right: -0.5vw;
 }
+body div.seo.mobile {
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+}
+body div.seo.mobile h1 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  width: 80vh;
+  height: 11.2vh;
+  text-indent: -100vh;
+  margin-bottom: 0;
+}
+body div.seo.mobile div.details {
+  position: absolute;
+  bottom: 4vh;
+  left: 0;
+  right: 0;
+}
 body canvas {
   position: absolute;
   display: block;

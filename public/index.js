@@ -43817,6 +43817,14 @@
       function resize() {
         const width = window.innerWidth;
         const height = window.innerHeight;
+        const hasTouch = window.navigator.maxTouchPoints > 0;
+        const isPortrait = height > width;
+        const isMobile = hasTouch && isPortrait;
+        const domElement3 = document.querySelector("div.seo");
+        const wasMobile = domElement3.classList.contains("mobile");
+        if (wasMobile !== isMobile) {
+          domElement3.classList[isMobile ? "add" : "remove"]("mobile");
+        }
         renderer.setSize(width, height);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
@@ -43847,7 +43855,6 @@
     raycaster.setFromCamera(new Vector2(1, -1), camera);
     [i] = raycaster.intersectObject(plane);
     const bottomRight = i.point;
-    console.log(topLeft, bottomRight);
     return Math.max(
       bottomRight.y - topLeft.y,
       bottomRight.x - topLeft.x
