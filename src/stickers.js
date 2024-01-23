@@ -5,14 +5,38 @@ import { Sticker } from "./sticker.js";
 
 const TWO_PI = Math.PI * 2;
 
+let tweenIndex = -1;
 let direction = true;
+let touch;
 
 const amount = 100;
 const spin = 100;
 const stickers = [];
+const rounds = 3;
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2(-10, -10);
+const eventParams = { passive: false };
+
+const plane = new THREE.Mesh(
+  new THREE.PlaneGeometry(50, 50, 1, 1),
+  new THREE.MeshBasicMaterial({
+    color: 'blue',
+    wireframe: true,
+    opacity: 0,
+    transparent: true
+  })
+);
+
+const cursor = new THREE.Mesh(
+  new THREE.SphereGeometry(1, 1, 1, 1),
+  new THREE.MeshBasicMaterial({
+    color: 'green'
+  })
+);
+cursor.position.set(-10, -10);
+cursor.visible = false;
+cursor.scale.set(0.05, 0.05, 0.05);
 
 export default function App(props) {
 
@@ -25,26 +49,6 @@ export default function App(props) {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera();
-
-    const plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(50, 50, 1, 1),
-      new THREE.MeshBasicMaterial({
-        color: 'blue',
-        wireframe: true,
-        opacity: 0,
-        transparent: true
-      })
-    );
-
-    const cursor = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 1, 1, 1),
-      new THREE.MeshBasicMaterial({
-        color: 'green'
-      })
-    );
-    cursor.position.set(-10, -10);
-    cursor.visible = false;
-    cursor.scale.set(0.05, 0.05, 0.05);
 
     scene.add(cursor, plane);
     camera.position.z = 2;
@@ -65,6 +69,10 @@ export default function App(props) {
       sticker.userData.position = new THREE.Vector2();
       sticker.renderOrder = i;
       sticker.material.uniforms.is3D.value = isLast ? 1 : 0;
+      sticker.material.uniforms.cursor.value = new THREE.Vector2(
+        0.1 * (Math.random() - 0.5),
+        0.1 * (Math.random() - 0.5)
+      );
 
       scene.add(sticker);
       stickers.push(sticker);
@@ -77,8 +85,12 @@ export default function App(props) {
     renderer.setAnimationLoop(update);
 
     window.addEventListener('resize', resize);
-    window.addEventListener('pointermove', pointermove);
-    window.addEventListener('click', click);
+    renderer.domElement.addEventListener('pointermove', pointermove);
+    renderer.domElement.addEventListener('touchstart', touchstart, eventParams);
+    renderer.domElement.addEventListener('touchmove', touchmove, eventParams);
+    renderer.domElement.addEventListener('touchend', touchend, eventParams);
+    renderer.domElement.addEventListener('touchcancel', touchend, eventParams);
+    renderer.domElement.addEventListener('click', trigger);
     
     setTimeout(resize, 0);
 
@@ -88,7 +100,11 @@ export default function App(props) {
 
       renderer.setAnimationLoop(null);
       window.addEventListener('resize', resize);
-      window.removeEventListener('pointermove', pointermove);
+      renderer.domElement.removeEventListener('pointermove', pointermove);
+      renderer.domElement.removeEventListener('touchstart', touchstart, eventParams);
+      renderer.domElement.removeEventListener('touchmove', touchmove, eventParams);
+      renderer.domElement.removeEventListener('touchend', touchend, eventParams);
+      renderer.domElement.removeEventListener('touchcancel', touchend, eventParams);
 
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement
@@ -98,6 +114,49 @@ export default function App(props) {
     }
 
     function pointermove(e) {
+      drag(e);
+    }
+
+    function touchstart(e) {
+      e.preventDefault();
+      if (e.touches.length > 0) {
+        touch = e.touches[0];
+        drag(touch);
+      }
+    }
+
+    function touchmove(e) {
+      e.preventDefault();
+      if (e.touches.length > 0) {
+        drag(e.touches[0])
+      }
+    }
+
+    function touchend(e) {
+
+      e.preventDefault();
+
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      if (e.touches.length > 0) {
+
+        const t = e.touches[0];
+        const dx = width / 2 - t.clientX;
+        const dy = height / 2 - t.clientY;
+        const d2c = Math.sqrt(dx * dx + dy * dy);
+
+        if (tweenIndex < 0 && d2c < 0.33 * width) {
+          trigger();
+        } else {
+          trigger();
+        }
+
+      }
+
+    }
+
+    function drag({ clientX, clientY }) {
 
       if (TWEEN.getAll().length > 0) {
         return;
@@ -106,8 +165,8 @@ export default function App(props) {
       const width = window.innerWidth;
       const height = window.innerHeight;
 
-      mouse.x = ( e.clientX / width ) * 2 - 1;
-      mouse.y = - ( e.clientY / height ) * 2 + 1;
+      mouse.x = ( clientX / width ) * 2 - 1;
+      mouse.y = - ( clientY / height ) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
 
@@ -122,47 +181,113 @@ export default function App(props) {
       const sticker = stickers[stickers.length - 1];
       sticker.material.uniforms.cursor.value.copy(cursor.position);
       sticker.material.uniforms.magnitude.value = 1;
-      
 
     }
 
-    function click() {
+    function trigger() {
 
-      for (let i = 0; i < stickers.length; i++) {
+      const count = Math.floor(stickers.length / rounds);
+      const last = stickers.length - 1;
 
-        const sticker = stickers[i];
-        let pct = sticker.renderOrder / stickers.length;
+      let inc = direction ? 1 : -1;
+      let start = clamp(tweenIndex * count, 0, last);
+      let end = clamp(start + count * inc, 0, last);
 
+      start = last - start;
+      end = last - end;
+
+      let min = Math.min(start, end);
+      let max = Math.max(start, end);
+
+      if (tweenIndex < 0 || tweenIndex === 0 && min === last && max === last) {
+        const sticker = stickers[stickers.length - 1];
         if (direction) {
-          pct = 1 - pct;
-        }
-        if (sticker.userData.tween) {
-          sticker.userData.tween.stop();
-        }
-
-        sticker.userData.tween  = new TWEEN.Tween(sticker.material.uniforms.magnitude)
-          .to({ value: direction ? 1 : 0 }, 350)
-          .delay(Math.pow(pct, 1.5) * 1000)
-          .easing(TWEEN.Easing.Circular.Out)
-          .onUpdate(move(sticker))
-          .start();
-        
-        if (direction) {
-          sticker.userData.tween.onComplete(hide(sticker));
+          animateOut(sticker);
         } else {
-          sticker.userData.tween.onStart(show(sticker)).onComplete(stop(sticker));
+          animateIn(sticker);
         }
-
+        sticker.userData.tween.start();
+      } else {
+        let j = 0;
+        if (direction) {
+          for (let i = max - 1; i >= min; i--) {
+            const sticker = stickers[i];
+            if (direction) {
+              animateOut(sticker);
+            } else {
+              animateIn(sticker);
+            }
+            sticker.userData.tween.delay(j * 50).start();
+            j++;
+          }
+        } else {
+          for (let i = min; i < max; i++) {
+            const sticker = stickers[i];
+            if (direction) {
+              animateOut(sticker);
+            } else {
+              animateIn(sticker);
+            }
+            sticker.userData.tween.delay(j * 50).start();
+            j++;
+          }
+        }
       }
 
-      direction = !direction;
+      console.log(tweenIndex, min, max);
+
+      tweenIndex += inc;
+
+      if (tweenIndex < 0 || tweenIndex > rounds) {
+        direction = !direction;
+        tweenIndex = clamp(tweenIndex, -1, rounds);
+      }
+
+    }
+
+    function animateOut(sticker) {
+
+      if (sticker.userData.tween) {
+        sticker.userData.tween.stop();
+      }
+
+      const value = sticker.material.uniforms.magnitude.value + 1;
+
+      sticker.userData.tween = new TWEEN.Tween(sticker.material.uniforms.magnitude)
+        .to({ value }, 350)
+        .easing(TWEEN.Easing.Circular.Out)
+        .onUpdate(move(sticker))
+        .onComplete(hide(sticker));
+
+      return sticker.userData.tween;
+
+    }
+    function animateIn(sticker) {
+
+      if (sticker.userData.tween) {
+        sticker.userData.tween.stop();
+      }
+
+      const value = 0;
+
+      sticker.userData.tween = new TWEEN.Tween(sticker.material.uniforms.magnitude)
+        .to({ value }, 350)
+        .easing(TWEEN.Easing.Circular.Out)
+        .onUpdate(move(sticker))
+        .onStart(show(sticker))
+        .onComplete(stop(sticker));
+
+      return sticker.userData.tween;
 
     }
 
     function move(sticker) {
 
       const position = sticker.userData.position;
-      const rotation = Math.random() * Math.PI * 2;
+      const rotation = Math.atan2(
+        position.y - sticker.material.uniforms.cursor.value.y,
+        position.x - sticker.material.uniforms.cursor.value.x
+      );
 
       return () => {
 
@@ -259,4 +384,7 @@ function stop(sticker) {
 }
 function show(sticker) {
   return () => sticker.visible = true;
+}
+function clamp(v, a, b) {
+  return Math.min(Math.max(v, a), b);
 }

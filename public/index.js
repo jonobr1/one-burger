@@ -10815,7 +10815,7 @@
               current: defaultValue
             };
           }
-          function pop(cursor, fiber) {
+          function pop(cursor2, fiber) {
             if (index < 0) {
               {
                 error("Unexpected pop.");
@@ -10827,20 +10827,20 @@
                 error("Unexpected Fiber popped.");
               }
             }
-            cursor.current = valueStack[index];
+            cursor2.current = valueStack[index];
             valueStack[index] = null;
             {
               fiberStack[index] = null;
             }
             index--;
           }
-          function push(cursor, value, fiber) {
+          function push(cursor2, value, fiber) {
             index++;
-            valueStack[index] = cursor.current;
+            valueStack[index] = cursor2.current;
             {
               fiberStack[index] = fiber;
             }
-            cursor.current = value;
+            cursor2.current = value;
           }
           var warnedAboutMissingGetChildContext;
           {
@@ -26200,30 +26200,30 @@
       this.clampPoint(sphere.center, _vector$b);
       return _vector$b.distanceToSquared(sphere.center) <= sphere.radius * sphere.radius;
     }
-    intersectsPlane(plane) {
+    intersectsPlane(plane2) {
       let min, max;
-      if (plane.normal.x > 0) {
-        min = plane.normal.x * this.min.x;
-        max = plane.normal.x * this.max.x;
+      if (plane2.normal.x > 0) {
+        min = plane2.normal.x * this.min.x;
+        max = plane2.normal.x * this.max.x;
       } else {
-        min = plane.normal.x * this.max.x;
-        max = plane.normal.x * this.min.x;
+        min = plane2.normal.x * this.max.x;
+        max = plane2.normal.x * this.min.x;
       }
-      if (plane.normal.y > 0) {
-        min += plane.normal.y * this.min.y;
-        max += plane.normal.y * this.max.y;
+      if (plane2.normal.y > 0) {
+        min += plane2.normal.y * this.min.y;
+        max += plane2.normal.y * this.max.y;
       } else {
-        min += plane.normal.y * this.max.y;
-        max += plane.normal.y * this.min.y;
+        min += plane2.normal.y * this.max.y;
+        max += plane2.normal.y * this.min.y;
       }
-      if (plane.normal.z > 0) {
-        min += plane.normal.z * this.min.z;
-        max += plane.normal.z * this.max.z;
+      if (plane2.normal.z > 0) {
+        min += plane2.normal.z * this.min.z;
+        max += plane2.normal.z * this.max.z;
       } else {
-        min += plane.normal.z * this.max.z;
-        max += plane.normal.z * this.min.z;
+        min += plane2.normal.z * this.max.z;
+        max += plane2.normal.z * this.min.z;
       }
-      return min <= -plane.constant && max >= -plane.constant;
+      return min <= -plane2.constant && max >= -plane2.constant;
     }
     intersectsTriangle(triangle) {
       if (this.isEmpty()) {
@@ -26416,8 +26416,8 @@
     intersectsBox(box) {
       return box.intersectsSphere(this);
     }
-    intersectsPlane(plane) {
-      return Math.abs(plane.distanceToPoint(this.center)) <= this.radius;
+    intersectsPlane(plane2) {
+      return Math.abs(plane2.distanceToPoint(this.center)) <= this.radius;
     }
     clampPoint(point, target) {
       const deltaLengthSq = this.center.distanceToSquared(point);
@@ -26617,30 +26617,30 @@
     intersectsSphere(sphere) {
       return this.distanceSqToPoint(sphere.center) <= sphere.radius * sphere.radius;
     }
-    distanceToPlane(plane) {
-      const denominator = plane.normal.dot(this.direction);
+    distanceToPlane(plane2) {
+      const denominator = plane2.normal.dot(this.direction);
       if (denominator === 0) {
-        if (plane.distanceToPoint(this.origin) === 0) {
+        if (plane2.distanceToPoint(this.origin) === 0) {
           return 0;
         }
         return null;
       }
-      const t = -(this.origin.dot(plane.normal) + plane.constant) / denominator;
+      const t = -(this.origin.dot(plane2.normal) + plane2.constant) / denominator;
       return t >= 0 ? t : null;
     }
-    intersectPlane(plane, target) {
-      const t = this.distanceToPlane(plane);
+    intersectPlane(plane2, target) {
+      const t = this.distanceToPlane(plane2);
       if (t === null) {
         return null;
       }
       return this.at(t, target);
     }
-    intersectsPlane(plane) {
-      const distToPoint = plane.distanceToPoint(this.origin);
+    intersectsPlane(plane2) {
+      const distToPoint = plane2.distanceToPoint(this.origin);
       if (distToPoint === 0) {
         return true;
       }
-      const denominator = plane.normal.dot(this.direction);
+      const denominator = plane2.normal.dot(this.direction);
       if (denominator * distToPoint < 0) {
         return true;
       }
@@ -31167,9 +31167,9 @@
       this.setFromNormalAndCoplanarPoint(normal, a);
       return this;
     }
-    copy(plane) {
-      this.normal.copy(plane.normal);
-      this.constant = plane.constant;
+    copy(plane2) {
+      this.normal.copy(plane2.normal);
+      this.constant = plane2.constant;
       return this;
     }
     normalize() {
@@ -31232,8 +31232,8 @@
       this.constant -= offset.dot(this.normal);
       return this;
     }
-    equals(plane) {
-      return plane.normal.equals(this.normal) && plane.constant === this.constant;
+    equals(plane2) {
+      return plane2.normal.equals(this.normal) && plane2.constant === this.constant;
     }
     clone() {
       return new this.constructor().copy(this);
@@ -31317,11 +31317,11 @@
     intersectsBox(box) {
       const planes = this.planes;
       for (let i = 0; i < 6; i++) {
-        const plane = planes[i];
-        _vector$7.x = plane.normal.x > 0 ? box.max.x : box.min.x;
-        _vector$7.y = plane.normal.y > 0 ? box.max.y : box.min.y;
-        _vector$7.z = plane.normal.z > 0 ? box.max.z : box.min.z;
-        if (plane.distanceToPoint(_vector$7) < 0) {
+        const plane2 = planes[i];
+        _vector$7.x = plane2.normal.x > 0 ? box.max.x : box.min.x;
+        _vector$7.y = plane2.normal.y > 0 ? box.max.y : box.min.y;
+        _vector$7.z = plane2.normal.z > 0 ? box.max.z : box.min.z;
+        if (plane2.distanceToPoint(_vector$7) < 0) {
           return false;
         }
       }
@@ -32909,7 +32909,7 @@
   function WebGLClipping(properties) {
     const scope = this;
     let globalState = null, numGlobalPlanes = 0, localClippingEnabled = false, renderingShadows = false;
-    const plane = new Plane(), viewNormalMatrix = new Matrix3(), uniform = { value: null, needsUpdate: false };
+    const plane2 = new Plane(), viewNormalMatrix = new Matrix3(), uniform = { value: null, needsUpdate: false };
     this.uniform = uniform;
     this.numPlanes = 0;
     this.numIntersection = 0;
@@ -32973,9 +32973,9 @@
             dstArray = new Float32Array(flatSize);
           }
           for (let i = 0, i4 = dstOffset; i !== nPlanes; ++i, i4 += 4) {
-            plane.copy(planes[i]).applyMatrix4(viewMatrix, viewNormalMatrix);
-            plane.normal.toArray(dstArray, i4);
-            dstArray[i4 + 3] = plane.constant;
+            plane2.copy(planes[i]).applyMatrix4(viewMatrix, viewNormalMatrix);
+            plane2.normal.toArray(dstArray, i4);
+            dstArray[i4 + 3] = plane2.constant;
           }
         }
         uniform.value = dstArray;
@@ -43628,7 +43628,7 @@
         vertexShader: `
         const float PI = ${Math.PI.toFixed(3)};
         const float aspect = ${aspect2};
-        const float cap = 1.0;
+        const vec2 cap = vec2( 0.75, 0.5 );
     
         uniform float magnitude;
         uniform vec2 cursor;
@@ -43656,12 +43656,12 @@
           vec4 pos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
     
           float r = 10.0;
-          float toCenter = length( center.xy - cursor.xy );
+          float toCenter = 2.0 * length( center.xy - cursor.xy );
           float angle = atan( center.y - cursor.y, center.x - cursor.x );
 
           vec2 cur = vec2( center.xy );
-          cur.x += max( cap, toCenter ) * cos( angle + PI );
-          cur.y += max( cap * aspect, toCenter ) * sin( angle + PI );
+          cur.x += max( cap.x, toCenter ) * cos( angle + PI );
+          cur.y += max( cap.y, toCenter ) * sin( angle + PI );
 
           float aa = angle + PI * 0.5;
           float ab = angle - PI * 0.5;
@@ -43700,12 +43700,34 @@
 
   // src/stickers.js
   var TWO_PI = Math.PI * 2;
+  var tweenIndex = -1;
   var direction = true;
+  var touch;
   var amount = 100;
   var spin = 100;
   var stickers = [];
+  var rounds = 3;
   var raycaster = new Raycaster();
   var mouse = new Vector2(-10, -10);
+  var eventParams = { passive: false };
+  var plane = new Mesh(
+    new PlaneGeometry(50, 50, 1, 1),
+    new MeshBasicMaterial({
+      color: "blue",
+      wireframe: true,
+      opacity: 0,
+      transparent: true
+    })
+  );
+  var cursor = new Mesh(
+    new SphereGeometry(1, 1, 1, 1),
+    new MeshBasicMaterial({
+      color: "green"
+    })
+  );
+  cursor.position.set(-10, -10);
+  cursor.visible = false;
+  cursor.scale.set(0.05, 0.05, 0.05);
   function App(props) {
     const domElement2 = (0, import_react.useRef)();
     (0, import_react.useEffect)(mount, []);
@@ -43713,24 +43735,6 @@
       const renderer = new WebGLRenderer({ antialias: true });
       const scene = new Scene();
       const camera = new PerspectiveCamera();
-      const plane = new Mesh(
-        new PlaneGeometry(50, 50, 1, 1),
-        new MeshBasicMaterial({
-          color: "blue",
-          wireframe: true,
-          opacity: 0,
-          transparent: true
-        })
-      );
-      const cursor = new Mesh(
-        new SphereGeometry(1, 1, 1, 1),
-        new MeshBasicMaterial({
-          color: "green"
-        })
-      );
-      cursor.position.set(-10, -10);
-      cursor.visible = false;
-      cursor.scale.set(0.05, 0.05, 0.05);
       scene.add(cursor, plane);
       camera.position.z = 2;
       for (let i = 0; i < amount; i++) {
@@ -43745,6 +43749,10 @@
         sticker.userData.position = new Vector2();
         sticker.renderOrder = i;
         sticker.material.uniforms.is3D.value = isLast ? 1 : 0;
+        sticker.material.uniforms.cursor.value = new Vector2(
+          0.1 * (Math.random() - 0.5),
+          0.1 * (Math.random() - 0.5)
+        );
         scene.add(sticker);
         stickers.push(sticker);
       }
@@ -43752,26 +43760,66 @@
       domElement2.current.appendChild(renderer.domElement);
       renderer.setAnimationLoop(update2);
       window.addEventListener("resize", resize);
-      window.addEventListener("pointermove", pointermove);
-      window.addEventListener("click", click);
+      renderer.domElement.addEventListener("pointermove", pointermove);
+      renderer.domElement.addEventListener("touchstart", touchstart, eventParams);
+      renderer.domElement.addEventListener("touchmove", touchmove, eventParams);
+      renderer.domElement.addEventListener("touchend", touchend, eventParams);
+      renderer.domElement.addEventListener("touchcancel", touchend, eventParams);
+      renderer.domElement.addEventListener("click", trigger);
       setTimeout(resize, 0);
       return unmount;
       function unmount() {
         renderer.setAnimationLoop(null);
         window.addEventListener("resize", resize);
-        window.removeEventListener("pointermove", pointermove);
+        renderer.domElement.removeEventListener("pointermove", pointermove);
+        renderer.domElement.removeEventListener("touchstart", touchstart, eventParams);
+        renderer.domElement.removeEventListener("touchmove", touchmove, eventParams);
+        renderer.domElement.removeEventListener("touchend", touchend, eventParams);
+        renderer.domElement.removeEventListener("touchcancel", touchend, eventParams);
         if (renderer.domElement.parentElement) {
           renderer.domElement.parentElement.removeChild(renderer.domElement);
         }
       }
       function pointermove(e) {
+        drag(e);
+      }
+      function touchstart(e) {
+        e.preventDefault();
+        if (e.touches.length > 0) {
+          touch = e.touches[0];
+          drag(touch);
+        }
+      }
+      function touchmove(e) {
+        e.preventDefault();
+        if (e.touches.length > 0) {
+          drag(e.touches[0]);
+        }
+      }
+      function touchend(e) {
+        e.preventDefault();
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        if (e.touches.length > 0) {
+          const t = e.touches[0];
+          const dx = width / 2 - t.clientX;
+          const dy = height / 2 - t.clientY;
+          const d2c = Math.sqrt(dx * dx + dy * dy);
+          if (tweenIndex < 0 && d2c < 0.33 * width) {
+            trigger();
+          } else {
+            trigger();
+          }
+        }
+      }
+      function drag({ clientX, clientY }) {
         if (getAll().length > 0) {
           return;
         }
         const width = window.innerWidth;
         const height = window.innerHeight;
-        mouse.x = e.clientX / width * 2 - 1;
-        mouse.y = -(e.clientY / height) * 2 + 1;
+        mouse.x = clientX / width * 2 - 1;
+        mouse.y = -(clientY / height) * 2 + 1;
         raycaster.setFromCamera(mouse, camera);
         const intersections = raycaster.intersectObject(plane);
         if (intersections.length > 0) {
@@ -43783,28 +43831,79 @@
         sticker.material.uniforms.cursor.value.copy(cursor.position);
         sticker.material.uniforms.magnitude.value = 1;
       }
-      function click() {
-        for (let i = 0; i < stickers.length; i++) {
-          const sticker = stickers[i];
-          let pct = sticker.renderOrder / stickers.length;
+      function trigger() {
+        const count = Math.floor(stickers.length / rounds);
+        const last = stickers.length - 1;
+        let inc = direction ? 1 : -1;
+        let start = clamp2(tweenIndex * count, 0, last);
+        let end = clamp2(start + count * inc, 0, last);
+        start = last - start;
+        end = last - end;
+        let min = Math.min(start, end);
+        let max = Math.max(start, end);
+        if (tweenIndex < 0 || tweenIndex === 0 && min === last && max === last) {
+          const sticker = stickers[stickers.length - 1];
           if (direction) {
-            pct = 1 - pct;
-          }
-          if (sticker.userData.tween) {
-            sticker.userData.tween.stop();
-          }
-          sticker.userData.tween = new Tween(sticker.material.uniforms.magnitude).to({ value: direction ? 1 : 0 }, 350).delay(Math.pow(pct, 1.5) * 1e3).easing(Easing.Circular.Out).onUpdate(move(sticker)).start();
-          if (direction) {
-            sticker.userData.tween.onComplete(hide(sticker));
+            animateOut(sticker);
           } else {
-            sticker.userData.tween.onStart(show(sticker)).onComplete(stop(sticker));
+            animateIn(sticker);
+          }
+          sticker.userData.tween.start();
+        } else {
+          let j = 0;
+          if (direction) {
+            for (let i = max - 1; i >= min; i--) {
+              const sticker = stickers[i];
+              if (direction) {
+                animateOut(sticker);
+              } else {
+                animateIn(sticker);
+              }
+              sticker.userData.tween.delay(j * 50).start();
+              j++;
+            }
+          } else {
+            for (let i = min; i < max; i++) {
+              const sticker = stickers[i];
+              if (direction) {
+                animateOut(sticker);
+              } else {
+                animateIn(sticker);
+              }
+              sticker.userData.tween.delay(j * 50).start();
+              j++;
+            }
           }
         }
-        direction = !direction;
+        console.log(tweenIndex, min, max);
+        tweenIndex += inc;
+        if (tweenIndex < 0 || tweenIndex > rounds) {
+          direction = !direction;
+          tweenIndex = clamp2(tweenIndex, -1, rounds);
+        }
+      }
+      function animateOut(sticker) {
+        if (sticker.userData.tween) {
+          sticker.userData.tween.stop();
+        }
+        const value = sticker.material.uniforms.magnitude.value + 1;
+        sticker.userData.tween = new Tween(sticker.material.uniforms.magnitude).to({ value }, 350).easing(Easing.Circular.Out).onUpdate(move(sticker)).onComplete(hide(sticker));
+        return sticker.userData.tween;
+      }
+      function animateIn(sticker) {
+        if (sticker.userData.tween) {
+          sticker.userData.tween.stop();
+        }
+        const value = 0;
+        sticker.userData.tween = new Tween(sticker.material.uniforms.magnitude).to({ value }, 350).easing(Easing.Circular.Out).onUpdate(move(sticker)).onStart(show(sticker)).onComplete(stop(sticker));
+        return sticker.userData.tween;
       }
       function move(sticker) {
         const position = sticker.userData.position;
-        const rotation = Math.random() * Math.PI * 2;
+        const rotation = Math.atan2(
+          position.y - sticker.material.uniforms.cursor.value.y,
+          position.x - sticker.material.uniforms.cursor.value.x
+        );
         return () => {
           const magnitude = sticker.material.uniforms.magnitude.value;
           sticker.position.x = position.x + 0.33 * Math.cos(rotation) * magnitude;
@@ -43847,13 +43946,13 @@
     }
     return /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 });
   }
-  function getMaxDimensionInWorldSpace(camera, plane) {
+  function getMaxDimensionInWorldSpace(camera, plane2) {
     let i;
     raycaster.setFromCamera(new Vector2(-1, 1), camera);
-    [i] = raycaster.intersectObject(plane);
+    [i] = raycaster.intersectObject(plane2);
     const topLeft = i.point;
     raycaster.setFromCamera(new Vector2(1, -1), camera);
-    [i] = raycaster.intersectObject(plane);
+    [i] = raycaster.intersectObject(plane2);
     const bottomRight = i.point;
     return Math.max(
       bottomRight.y - topLeft.y,
@@ -43868,6 +43967,9 @@
   }
   function show(sticker) {
     return () => sticker.visible = true;
+  }
+  function clamp2(v, a, b) {
+    return Math.min(Math.max(v, a), b);
   }
 
   // src/index.js

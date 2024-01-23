@@ -42840,7 +42840,7 @@
         vertexShader: `
         const float PI = ${Math.PI.toFixed(3)};
         const float aspect = ${aspect2};
-        const float cap = 1.0;
+        const vec2 cap = vec2( 0.75, 0.5 );
     
         uniform float magnitude;
         uniform vec2 cursor;
@@ -42868,12 +42868,12 @@
           vec4 pos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
     
           float r = 10.0;
-          float toCenter = length( center.xy - cursor.xy );
+          float toCenter = 2.0 * length( center.xy - cursor.xy );
           float angle = atan( center.y - cursor.y, center.x - cursor.x );
 
           vec2 cur = vec2( center.xy );
-          cur.x += max( cap, toCenter ) * cos( angle + PI );
-          cur.y += max( cap * aspect, toCenter ) * sin( angle + PI );
+          cur.x += max( cap.x, toCenter ) * cos( angle + PI );
+          cur.y += max( cap.y, toCenter ) * sin( angle + PI );
 
           float aa = angle + PI * 0.5;
           float ab = angle - PI * 0.5;
