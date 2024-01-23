@@ -64,6 +64,7 @@ export default function App(props) {
 
       sticker.userData.position = new THREE.Vector2();
       sticker.renderOrder = i;
+      sticker.material.uniforms.is3D.value = isLast ? 1 : 0;
 
       scene.add(sticker);
       stickers.push(sticker);

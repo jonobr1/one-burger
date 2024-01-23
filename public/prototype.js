@@ -42834,7 +42834,8 @@
         uniforms: {
           map: { value: texture },
           magnitude: { value: 0 },
-          cursor: { value: new Vector2(-10, -10) }
+          cursor: { value: new Vector2(-10, -10) },
+          is3D: { value: false }
         },
         vertexShader: `
         const float PI = ${Math.PI.toFixed(3)};
@@ -42843,6 +42844,7 @@
     
         uniform float magnitude;
         uniform vec2 cursor;
+        uniform float is3D;
     
         varying vec2 vUv;
 
@@ -42884,7 +42886,7 @@
 
           pos.x += magnitude * dist * cos( angle );
           pos.y += magnitude * dist * sin( angle );
-          // pos.z -= magnitude * dist * 0.01;
+          pos.z -= magnitude * dist * 0.01 * step( 0.5, is3D );
     
           gl_Position = pos;
     
