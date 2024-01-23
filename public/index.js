@@ -43628,7 +43628,7 @@
         vertexShader: `
         const float PI = ${Math.PI.toFixed(3)};
         const float aspect = ${aspect2};
-        const float cap = 0.7;
+        const float cap = 1.0;
     
         uniform float magnitude;
         uniform vec2 cursor;
