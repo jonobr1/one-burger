@@ -42825,9 +42825,10 @@
   var STICKER_WIDTH = 340;
   var STICKER_HEIGHT = 155;
   var aspect2 = STICKER_HEIGHT / STICKER_WIDTH;
-  var texture = new TextureLoader().load("images/texture.jpg");
+  var texture = new TextureLoader().load("images/texture-unwrapped.png");
   var geometry = new PlaneGeometry(1, aspect2, 64, 64);
   texture.magFilter = texture.minFilter = LinearFilter;
+  texture.wrapS = texture.wrapT = ClampToEdgeWrapping;
   var Sticker = class extends Mesh {
     constructor() {
       const material = new ShaderMaterial({
@@ -42902,7 +42903,8 @@
           gl_FragColor = texel;
         }
       `,
-        side: DoubleSide
+        side: DoubleSide,
+        transparent: true
       });
       super(geometry, material);
     }

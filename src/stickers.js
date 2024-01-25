@@ -46,12 +46,12 @@ export default function App(props) {
 
   function mount() {
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: false });
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera();
 
     scene.add(cursor, plane);
-    camera.position.z = 2;
+    camera.position.z = 2.25;
 
     for (let i = 0; i < amount; i++) {
 
@@ -233,8 +233,6 @@ export default function App(props) {
           }
         }
       }
-
-      console.log(tweenIndex, min, max);
 
       tweenIndex += inc;
 

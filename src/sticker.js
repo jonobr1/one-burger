@@ -4,10 +4,11 @@ const STICKER_WIDTH = 340;
 const STICKER_HEIGHT = 155;
 const aspect = STICKER_HEIGHT / STICKER_WIDTH;
 
-const texture = new THREE.TextureLoader().load('images/texture.jpg')
+const texture = new THREE.TextureLoader().load('images/texture-unwrapped.png')
 const geometry = new THREE.PlaneGeometry(1, aspect, 64, 64);
 
 texture.magFilter = texture.minFilter = THREE.LinearFilter;
+texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
 
 export class Sticker extends THREE.Mesh {
 
@@ -85,7 +86,8 @@ export class Sticker extends THREE.Mesh {
           gl_FragColor = texel;
         }
       `,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
+      transparent: true
     });
 
     super(geometry, material);

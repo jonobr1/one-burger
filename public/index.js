@@ -43613,9 +43613,10 @@
   var STICKER_WIDTH = 340;
   var STICKER_HEIGHT = 155;
   var aspect2 = STICKER_HEIGHT / STICKER_WIDTH;
-  var texture = new TextureLoader().load("images/texture.jpg");
+  var texture = new TextureLoader().load("images/texture-unwrapped.png");
   var geometry = new PlaneGeometry(1, aspect2, 64, 64);
   texture.magFilter = texture.minFilter = LinearFilter;
+  texture.wrapS = texture.wrapT = ClampToEdgeWrapping;
   var Sticker = class extends Mesh {
     constructor() {
       const material = new ShaderMaterial({
@@ -43690,7 +43691,8 @@
           gl_FragColor = texel;
         }
       `,
-        side: DoubleSide
+        side: DoubleSide,
+        transparent: true
       });
       super(geometry, material);
     }
@@ -43732,11 +43734,11 @@
     const domElement2 = (0, import_react.useRef)();
     (0, import_react.useEffect)(mount, []);
     function mount() {
-      const renderer = new WebGLRenderer({ antialias: true });
+      const renderer = new WebGLRenderer({ antialias: false });
       const scene = new Scene();
       const camera = new PerspectiveCamera();
       scene.add(cursor, plane);
-      camera.position.z = 2;
+      camera.position.z = 2.25;
       for (let i = 0; i < amount; i++) {
         const sticker = new Sticker();
         const isLast = i >= amount - 1;
@@ -43875,7 +43877,6 @@
             }
           }
         }
-        console.log(tweenIndex, min, max);
         tweenIndex += inc;
         if (tweenIndex < 0 || tweenIndex > rounds) {
           direction = !direction;
