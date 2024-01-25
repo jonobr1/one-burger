@@ -42904,8 +42904,7 @@
         }
       `,
         side: DoubleSide,
-        transparent: true,
-        depthWrite: false
+        transparent: true
       });
       super(geometry, material);
     }

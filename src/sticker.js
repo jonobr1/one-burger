@@ -87,8 +87,7 @@ export class Sticker extends THREE.Mesh {
         }
       `,
       side: THREE.DoubleSide,
-      transparent: true,
-      depthWrite: false
+      transparent: true
     });
 
     super(geometry, material);

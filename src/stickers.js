@@ -68,10 +68,11 @@ export default function App(props) {
 
       sticker.userData.position = new THREE.Vector2();
       sticker.renderOrder = i;
+      sticker.material.depthTest = isLast;
       sticker.material.uniforms.is3D.value = 1;
       sticker.material.uniforms.cursor.value = new THREE.Vector2(
-        0.5 * (Math.random() - 0.5),
-        0.1 * (Math.random() - 0.5)
+        1 * (Math.random() - 0.5),
+        1 * (Math.random() - 0.5)
       );
 
       scene.add(sticker);
@@ -295,9 +296,9 @@ export default function App(props) {
 
       return () => {
 
-        const magnitude = sticker.material.uniforms.magnitude.t;
-        sticker.position.x = position.x + 0.05 * Math.cos(rotation) * magnitude;
-        sticker.position.y = position.y + 0.05 * Math.sin(rotation) * magnitude;
+        const amp = sticker.material.uniforms.magnitude.t;
+        sticker.position.x = position.x + 0.05 * Math.cos(rotation) * amp;
+        sticker.position.y = position.y + 0.05 * Math.sin(rotation) * amp;
 
       };
     }
@@ -374,7 +375,10 @@ function getMaxDimensionInWorldSpace(camera, plane) {
 
 }
 function hide(sticker) {
-  return () => sticker.visible = false;
+  return () => {
+    sticker.userData.tween.stop();
+    sticker.visible = false;
+  }
 }
 function stop(sticker) {
   return () => sticker.userData.tween.stop();
