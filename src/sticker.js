@@ -52,8 +52,8 @@ export class Sticker extends THREE.Mesh {
           vec4 pos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
     
           float r = 10.0;
-          float toCenter = 2.0 * length( center.xy - cursor.xy );
-          float angle = atan( center.y - cursor.y, center.x - cursor.x );
+          float toCenter = 2.0 * length( - cursor.xy );
+          float angle = atan( - cursor.y, - cursor.x );
 
           vec2 cur = vec2( center.xy );
           cur.x += max( cap.x, toCenter ) * cos( angle + PI );
@@ -87,7 +87,8 @@ export class Sticker extends THREE.Mesh {
         }
       `,
       side: THREE.DoubleSide,
-      transparent: true
+      transparent: true,
+      depthWrite: false
     });
 
     super(geometry, material);

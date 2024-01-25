@@ -43657,8 +43657,8 @@
           vec4 pos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
     
           float r = 10.0;
-          float toCenter = 2.0 * length( center.xy - cursor.xy );
-          float angle = atan( center.y - cursor.y, center.x - cursor.x );
+          float toCenter = 2.0 * length( - cursor.xy );
+          float angle = atan( - cursor.y, - cursor.x );
 
           vec2 cur = vec2( center.xy );
           cur.x += max( cap.x, toCenter ) * cos( angle + PI );
@@ -43692,7 +43692,8 @@
         }
       `,
         side: DoubleSide,
-        transparent: true
+        transparent: true,
+        depthWrite: false
       });
       super(geometry, material);
     }
@@ -43708,7 +43709,7 @@
   var amount = 100;
   var spin = 100;
   var stickers = [];
-  var rounds = 3;
+  var rounds = 4;
   var raycaster = new Raycaster();
   var mouse = new Vector2(-10, -10);
   var eventParams = { passive: false };
@@ -43750,9 +43751,9 @@
         sticker.rotation.z = isLast ? 0 : rotation;
         sticker.userData.position = new Vector2();
         sticker.renderOrder = i;
-        sticker.material.uniforms.is3D.value = isLast ? 1 : 0;
+        sticker.material.uniforms.is3D.value = 1;
         sticker.material.uniforms.cursor.value = new Vector2(
-          0.1 * (Math.random() - 0.5),
+          0.5 * (Math.random() - 0.5),
           0.1 * (Math.random() - 0.5)
         );
         scene.add(sticker);
@@ -43832,6 +43833,7 @@
         const sticker = stickers[stickers.length - 1];
         sticker.material.uniforms.cursor.value.copy(cursor.position);
         sticker.material.uniforms.magnitude.value = 1;
+        sticker.material.uniforms.magnitude.t = 0;
       }
       function trigger() {
         const count = Math.floor(stickers.length / rounds);
@@ -43857,22 +43859,24 @@
             for (let i = max - 1; i >= min; i--) {
               const sticker = stickers[i];
               if (direction) {
-                animateOut(sticker);
+                animateOut(sticker, j);
               } else {
-                animateIn(sticker);
+                animateIn(sticker, j);
               }
-              sticker.userData.tween.delay(j * 50).start();
+              const delay = j * 50 + 25 * (Math.random() - 0.5);
+              sticker.userData.tween.delay(delay).start();
               j++;
             }
           } else {
             for (let i = min; i < max; i++) {
               const sticker = stickers[i];
               if (direction) {
-                animateOut(sticker);
+                animateOut(sticker, j);
               } else {
-                animateIn(sticker);
+                animateIn(sticker, j);
               }
-              sticker.userData.tween.delay(j * 50).start();
+              const delay = j * 50 + 100 * (Math.random() - 0.5);
+              sticker.userData.tween.delay(delay).start();
               j++;
             }
           }
@@ -43883,35 +43887,35 @@
           tweenIndex = clamp2(tweenIndex, -1, rounds);
         }
       }
-      function animateOut(sticker) {
+      function animateOut(sticker, index) {
         if (sticker.userData.tween) {
           sticker.userData.tween.stop();
         }
-        const value = sticker.material.uniforms.magnitude.value + 1;
-        sticker.userData.tween = new Tween(sticker.material.uniforms.magnitude).to({ value }, 350).easing(Easing.Circular.Out).onUpdate(move(sticker)).onComplete(hide(sticker));
+        const value = Math.max(sticker.material.uniforms.magnitude.value + 0.75, 1.5);
+        sticker.material.uniforms.magnitude.t = 0;
+        sticker.userData.tween = new Tween(sticker.material.uniforms.magnitude).to({ value, t: 1 }, 350).easing(Easing.Circular.In).onUpdate(move(sticker)).onComplete(hide(sticker));
         return sticker.userData.tween;
       }
-      function animateIn(sticker) {
+      function animateIn(sticker, index) {
         if (sticker.userData.tween) {
           sticker.userData.tween.stop();
         }
         const value = 0;
-        sticker.userData.tween = new Tween(sticker.material.uniforms.magnitude).to({ value }, 350).easing(Easing.Circular.Out).onUpdate(move(sticker)).onStart(show(sticker)).onComplete(stop(sticker));
+        sticker.material.uniforms.magnitude.t = 0;
+        sticker.userData.tween = new Tween(sticker.material.uniforms.magnitude).to({ value, t: 1 }, 350).easing(Easing.Circular.Out).onUpdate(move(sticker)).onStart(show(sticker)).onComplete(stop(sticker));
         return sticker.userData.tween;
       }
       function move(sticker) {
         const position = sticker.userData.position;
-        const rotation = Math.atan2(
-          position.y - sticker.material.uniforms.cursor.value.y,
-          position.x - sticker.material.uniforms.cursor.value.x
-        );
+        const angle = Math.atan2(
+          -sticker.material.uniforms.cursor.value.y,
+          -sticker.material.uniforms.cursor.value.x
+        ) / Math.PI;
+        let rotation = sticker.rotation.z + Math.round(angle * 2) * Math.PI / 2;
         return () => {
-          const magnitude = sticker.material.uniforms.magnitude.value;
-          sticker.position.x = position.x + 0.33 * Math.cos(rotation) * magnitude;
-          sticker.position.y = position.y + 0.33 * Math.sin(rotation) * magnitude;
-          sticker.material.uniforms.cursor.value.copy(sticker.position);
-          sticker.material.uniforms.cursor.value.x += 0.01 * Math.cos(rotation);
-          sticker.material.uniforms.cursor.value.y += 0.01 * Math.sin(rotation);
+          const magnitude = sticker.material.uniforms.magnitude.t;
+          sticker.position.x = position.x + 0.05 * Math.cos(rotation) * magnitude;
+          sticker.position.y = position.y + 0.05 * Math.sin(rotation) * magnitude;
         };
       }
       function resize() {

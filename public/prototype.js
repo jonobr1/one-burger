@@ -42869,8 +42869,8 @@
           vec4 pos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
     
           float r = 10.0;
-          float toCenter = 2.0 * length( center.xy - cursor.xy );
-          float angle = atan( center.y - cursor.y, center.x - cursor.x );
+          float toCenter = 2.0 * length( - cursor.xy );
+          float angle = atan( - cursor.y, - cursor.x );
 
           vec2 cur = vec2( center.xy );
           cur.x += max( cap.x, toCenter ) * cos( angle + PI );
@@ -42904,7 +42904,8 @@
         }
       `,
         side: DoubleSide,
-        transparent: true
+        transparent: true,
+        depthWrite: false
       });
       super(geometry, material);
     }
@@ -44669,12 +44670,14 @@
       let sticker = new Sticker();
       sticker.material.uniforms.cursor.value = mouse;
       sticker.material.uniforms.magnitude.value = 1;
+      sticker.material.uniforms.is3D.value = 1;
       sticker.position.x = 10;
       sticker.position.y = 0;
       scene.add(sticker);
       sticker = new Sticker();
       sticker.material.uniforms.cursor.value = mouse;
       sticker.material.uniforms.magnitude.value = 1;
+      sticker.material.uniforms.is3D.value = 1;
       sticker.position.x = 12;
       sticker.position.y = 0;
       sticker.rotation.z = Math.PI / 3;

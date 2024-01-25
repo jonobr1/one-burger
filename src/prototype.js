@@ -53,6 +53,7 @@ function Prototype(props) {
 
     sticker.material.uniforms.cursor.value = mouse;
     sticker.material.uniforms.magnitude.value = 1;
+    sticker.material.uniforms.is3D.value = 1;
 
     sticker.position.x = 10;
     sticker.position.y = 0;
@@ -62,6 +63,7 @@ function Prototype(props) {
 
     sticker.material.uniforms.cursor.value = mouse;
     sticker.material.uniforms.magnitude.value = 1;
+    sticker.material.uniforms.is3D.value = 1;
 
     sticker.position.x = 12;
     sticker.position.y = 0;
