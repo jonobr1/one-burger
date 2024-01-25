@@ -9,7 +9,7 @@ let tweenIndex = -1;
 let direction = true;
 let touch;
 
-const amount = 100;
+const amount = 101;
 const spin = 100;
 const stickers = [];
 const rounds = 4;
@@ -272,10 +272,10 @@ export default function App(props) {
       }
 
       const value = 0;
-      sticker.material.uniforms.magnitude.t = 0;
+      sticker.material.uniforms.magnitude.t = 1;
 
       sticker.userData.tween = new TWEEN.Tween(sticker.material.uniforms.magnitude)
-        .to({ value, t: 1 }, 350)
+        .to({ value, t: 0 }, 350)
         .easing(TWEEN.Easing.Circular.Out)
         .onUpdate(move(sticker))
         .onStart(show(sticker))
