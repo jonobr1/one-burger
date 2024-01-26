@@ -43914,7 +43914,6 @@
         let rotation = sticker.rotation.z + Math.round(angle * 2) * Math.PI / 2;
         return () => {
           const amp = sticker.material.uniforms.magnitude.t;
-          console.log(amp);
           sticker.position.x = position.x + 0.05 * Math.cos(rotation) * amp;
           sticker.position.y = position.y + 0.05 * Math.sin(rotation) * amp;
         };
@@ -43950,7 +43949,7 @@
         renderer.render(scene, camera);
       }
     }
-    return /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 });
+    return /* @__PURE__ */ import_react.default.createElement("div", { className: "react" }, /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 }), /* @__PURE__ */ import_react.default.createElement("div", { id: "contact" }, /* @__PURE__ */ import_react.default.createElement("a", { href: "mailto:buns@oneburger.com" }, "Contact \u2192 ", /* @__PURE__ */ import_react.default.createElement("span", { className: "mail" }))));
   }
   function getMaxDimensionInWorldSpace(camera, plane2) {
     let i;

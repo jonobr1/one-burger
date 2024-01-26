@@ -350,7 +350,16 @@ export default function App(props) {
 
   }
 
-  return <div ref={ domElement } />;
+  return (
+    <div className="react">
+      <div ref={ domElement } />
+      <div id="contact">
+        <a href="mailto:buns@oneburger.com">
+          Contact → <span className="mail" />
+        </a>
+      </div>
+    </div>
+  );
 
 }
 

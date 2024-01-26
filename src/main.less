@@ -19,7 +19,7 @@
 
 body {
 
-  font-family: "Helvetica Neue Condensed Bold";
+  font-family: "Helvetica Neue Condensed Bold", sans-serif;
   text-transform: uppercase;
 
   div.seo {
@@ -88,7 +88,38 @@ body {
     display: block;
     top: 0;
     left: 0;
-    cursor: pointer;
+    // cursor: pointer;
+  }
+
+  div#contact {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    @size: 20px;
+    a {
+      font-family: "Diatype Mono Bold", sans-serif;
+      color: black;
+      text-decoration: none;
+      border: 1px solid black;
+      font-size: @size;
+      font-weight: 100;
+      letter-spacing: 1px;
+      line-height: 100%;
+      padding: 0.5 * @size @size;
+      background: white;
+      cursor: pointer;
+    }
+    span.mail {
+      @aspect: 1.5;
+      display: inline-block;
+      width: @size * @aspect;
+      height: @size;
+      background: url(images/mail.svg) center bottom;
+      background-repeat: no-repeat;
+      background-size: contain;
+      content: "";
+    }
   }
 }
 
