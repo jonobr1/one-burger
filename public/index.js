@@ -43769,7 +43769,10 @@
       renderer.domElement.addEventListener("touchend", touchend, eventParams);
       renderer.domElement.addEventListener("touchcancel", touchend, eventParams);
       renderer.domElement.addEventListener("click", trigger);
-      setTimeout(resize, 0);
+      setTimeout(() => {
+        resize();
+        document.body.style.opacity = 1;
+      }, 100);
       return unmount;
       function unmount() {
         renderer.setAnimationLoop(null);
