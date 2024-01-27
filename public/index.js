@@ -43868,7 +43868,11 @@
             queue.push(sticker);
           }
         }
-        queue = queue.sort((a, b) => b.renderOrder - a.renderOrder);
+        if (direction) {
+          queue = queue.sort((a, b) => b.renderOrder - a.renderOrder);
+        } else {
+          queue = queue.sort((a, b) => a.renderOrder - b.renderOrder);
+        }
         for (let i = 0; i < queue.length; i++) {
           const sticker = queue[i];
           if (direction) {
