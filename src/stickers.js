@@ -183,7 +183,13 @@ export default function App(props) {
       }
 
       const sticker = stickers[stickers.length - 1];
-      sticker.material.uniforms.cursor.value.copy(cursor.position);
+      const distance = Math.max(cursor.position.length(), 0.5);
+
+      sticker.material.uniforms.cursor.value
+        .copy(cursor.position)
+        .normalize()
+        .setLength(distance);
+
       sticker.material.uniforms.magnitude.value = 1;
       sticker.material.uniforms.magnitude.t = 0;
 
