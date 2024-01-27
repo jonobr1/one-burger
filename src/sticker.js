@@ -18,7 +18,8 @@ export class Sticker extends THREE.Mesh {
         map: { value: texture },
         magnitude: { value: 0 },
         cursor: { value: new THREE.Vector2(-10, -10) },
-        is3D: { value: false }
+        is3D: { value: false },
+        hasShadows: { value: false }
       },
       vertexShader: `
         const float PI = ${Math.PI.toFixed(3)};
@@ -51,10 +52,11 @@ export class Sticker extends THREE.Mesh {
           vec4 center = modelViewMatrix * vec4( vec3( 0.0 ), 1.0 );
           vec4 pmv = modelViewMatrix * vec4( position, 1.0 );
           vec4 pos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+          vec4 mvCursor = modelViewMatrix * vec4( cursor, 0.0, 1.0 );
     
           float r = 10.0;
-          float toCenter = 2.0 * length( - cursor.xy );
-          float angle = atan( - cursor.y, - cursor.x );
+          float toCenter = 2.0 * length( - mvCursor.xy );
+          float angle = atan( - mvCursor.y, - mvCursor.x );
 
           vec2 cur = vec2( center.xy );
           cur.x += max( cap.x, toCenter ) * cos( angle + PI );
@@ -91,6 +93,7 @@ export class Sticker extends THREE.Mesh {
 
         uniform sampler2D map;
         uniform float magnitude;
+        uniform float hasShadows;
     
         varying vec2 vUv;
         varying float vShadow;
@@ -102,7 +105,7 @@ export class Sticker extends THREE.Mesh {
           vec4 texel = texture2D( map, vUv );
           
           gl_FragColor = mix( texel, black,
-            0.33 * magnitude * vIsFrontSide * vShadow );
+            0.33 * magnitude * vIsFrontSide * vShadow * hasShadows );
 
         }
       `,

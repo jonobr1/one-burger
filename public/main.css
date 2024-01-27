@@ -63,7 +63,7 @@ body div.seo.mobile h1 {
 }
 body div.seo.mobile div.details {
   position: absolute;
-  bottom: 4vh;
+  top: 4vh;
   left: 0;
   right: 0;
 }
@@ -72,12 +72,14 @@ body canvas {
   display: block;
   top: 0;
   left: 0;
+  cursor: pointer;
 }
 body div#contact {
   position: fixed;
-  bottom: 50px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 30px;
+  left: 0;
+  right: 0;
+  text-align: center;
 }
 body div#contact a {
   font-family: "Diatype Mono Bold", sans-serif;

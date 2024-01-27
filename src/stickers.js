@@ -5,14 +5,15 @@ import { Sticker } from "./sticker.js";
 
 const TWO_PI = Math.PI * 2;
 
-let tweenIndex = -1;
+let top = null;
 let direction = true;
+let toAnimate = [];
 let touch;
+let isMobile;
 
 const amount = 101;
 const spin = 100;
 const stickers = [];
-const rounds = 4;
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2(-10, -10);
@@ -71,6 +72,7 @@ export default function App(props) {
       sticker.renderOrder = i;
       sticker.material.depthTest = isLast;
       sticker.material.uniforms.is3D.value = 1;
+      sticker.material.uniforms.hasShadows.value = isLast ? 1 : 0;
       sticker.material.uniforms.cursor.value = new THREE.Vector2(
         1 * (Math.random() - 0.5),
         1 * (Math.random() - 0.5)
@@ -78,6 +80,11 @@ export default function App(props) {
 
       scene.add(sticker);
       stickers.push(sticker);
+      toAnimate.push(sticker);
+
+      if (isLast) {
+        top = sticker;
+      }
 
     }
 
@@ -139,24 +146,7 @@ export default function App(props) {
     function touchend(e) {
 
       e.preventDefault();
-
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-
-      if (e.touches.length > 0) {
-
-        const t = e.touches[0];
-        const dx = width / 2 - t.clientX;
-        const dy = height / 2 - t.clientY;
-        const d2c = Math.sqrt(dx * dx + dy * dy);
-
-        if (tweenIndex < 0 && d2c < 0.33 * width) {
-          trigger();
-        } else {
-          trigger();
-        }
-
-      }
+      trigger();
 
     }
 
@@ -182,7 +172,7 @@ export default function App(props) {
         cursor.position.set(-10, -10, 0);
       }
 
-      const sticker = stickers[stickers.length - 1];
+      const sticker = top;
       const distance = Math.max(cursor.position.length(), 0.5);
 
       sticker.material.uniforms.cursor.value
@@ -197,66 +187,49 @@ export default function App(props) {
 
     function trigger() {
 
-      const count = Math.floor(stickers.length / rounds);
-      const last = stickers.length - 1;
+      if (toAnimate.length <= 0) {
+        // Switch directions
+        direction = !direction;
+        toAnimate = stickers.slice(0);
+      }
 
-      let inc = direction ? 1 : -1;
-      let start = clamp(tweenIndex * count, 0, last);
-      let end = clamp(start + count * inc, 0, last);
+      let queue = [];
+      const mouse = cursor.position;
+      let j = 0;
 
-      start = last - start;
-      end = last - end;
+      for (let i = 0; i < toAnimate.length; i++) {
 
-      let min = Math.min(start, end);
-      let max = Math.max(start, end);
+        const sticker = toAnimate[i];
+        const distance = sticker.position.distanceTo(mouse);
 
-      if (tweenIndex < 0 || tweenIndex === 0 && min === last && max === last) {
-        const sticker = stickers[stickers.length - 1];
+        if (distance < 0.5) {
+          toAnimate.splice(i, 1);
+          queue.push(sticker);
+        }
+
+      }
+
+      queue = queue.sort((a, b) => b.renderOrder - a.renderOrder);
+
+      for (let i = 0; i < queue.length; i++) {
+
+        const sticker = queue[i];
+
         if (direction) {
           animateOut(sticker);
         } else {
           animateIn(sticker);
         }
-        sticker.userData.tween.start();
-      } else {
-        let j = 0;
-        if (direction) {
-          for (let i = max - 1; i >= min; i--) {
-            const sticker = stickers[i];
-            if (direction) {
-              animateOut(sticker, j);
-            } else {
-              animateIn(sticker, j);
-            }
-            const delay = j * 50 + 25 * (Math.random() - 0.5);
-            sticker.userData.tween.delay(delay).start();
-            j++;
-          }
-        } else {
-          for (let i = min; i < max; i++) {
-            const sticker = stickers[i];
-            if (direction) {
-              animateOut(sticker, j);
-            } else {
-              animateIn(sticker, j);
-            }
-            const delay = j * 50 + 100 * (Math.random() - 0.5);
-            sticker.userData.tween.delay(delay).start();
-            j++;
-          }
-        }
-      }
 
-      tweenIndex += inc;
+        const delay = j * 50 + 25 * (Math.random() - 0.5);
+        sticker.userData.tween.delay(delay).start();
+        j++;
 
-      if (tweenIndex < 0 || tweenIndex > rounds) {
-        direction = !direction;
-        tweenIndex = clamp(tweenIndex, -1, rounds);
       }
 
     }
 
-    function animateOut(sticker, index) {
+    function animateOut(sticker) {
 
       if (sticker.userData.tween) {
         sticker.userData.tween.stop();
@@ -274,7 +247,7 @@ export default function App(props) {
       return sticker.userData.tween;
 
     }
-    function animateIn(sticker, index) {
+    function animateIn(sticker) {
 
       if (sticker.userData.tween) {
         sticker.userData.tween.stop();
@@ -314,15 +287,17 @@ export default function App(props) {
 
     function resize() {
 
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      let width = window.innerWidth;
+      let height = window.innerHeight;
 
       const hasTouch = window.navigator.maxTouchPoints > 0;
       const isPortrait = height > width;
-      const isMobile = hasTouch && isPortrait;
+      
+      isMobile = hasTouch && isPortrait;
 
       const domElement = document.querySelector('div.seo');
       const wasMobile = domElement.classList.contains('mobile');
+
       if (wasMobile !== isMobile) {
         domElement.classList[isMobile ? 'add' : 'remove']('mobile');
       }
@@ -332,15 +307,24 @@ export default function App(props) {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
 
+      if (isMobile) {
+        camera.rotation.z = Math.PI / 2;
+      } else {
+        camera.rotation.z = 0;
+      }
+
       const size = getMaxDimensionInWorldSpace(camera, plane);
       stickers.forEach((sticker, i) => {
 
         const isLast = i >= amount - 1;
-        const w = size;
-        const h = w / camera.aspect;
   
-        const x = Math.random() * w - w * 0.5;
-        const y = Math.random() * h - h * 0.5;
+        let x = Math.random() * size.width - size.width / 2;
+        let y = Math.random() * size.height - size.height / 2;
+
+        if (isMobile) {
+          x = Math.random() * size.height - size.height / 2;
+          y = Math.random() * size.width - size.width / 2;
+        }
   
         sticker.position.x = isLast ? 0 : x;
         sticker.position.y = isLast ? 0 : y;
@@ -384,11 +368,10 @@ function getMaxDimensionInWorldSpace(camera, plane) {
   [i] = raycaster.intersectObject(plane);
 
   const bottomRight = i.point;
+  const width = Math.max(bottomRight.x - topLeft.x, topLeft.x - bottomRight.x);
+  const height = Math.max(bottomRight.y - topLeft.y, topLeft.y - bottomRight.y)
 
-  return Math.max(
-    bottomRight.y - topLeft.y,
-    bottomRight.x - topLeft.x
-  );
+  return { width, height };
 
 }
 function hide(sticker) {

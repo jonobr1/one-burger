@@ -27401,12 +27401,12 @@
       scale.z = sz;
       return this;
     }
-    makePerspective(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem) {
+    makePerspective(left, right, top2, bottom, near, far, coordinateSystem = WebGLCoordinateSystem) {
       const te = this.elements;
       const x = 2 * near / (right - left);
-      const y = 2 * near / (top - bottom);
+      const y = 2 * near / (top2 - bottom);
       const a = (right + left) / (right - left);
-      const b = (top + bottom) / (top - bottom);
+      const b = (top2 + bottom) / (top2 - bottom);
       let c, d;
       if (coordinateSystem === WebGLCoordinateSystem) {
         c = -(far + near) / (far - near);
@@ -27435,13 +27435,13 @@
       te[15] = 0;
       return this;
     }
-    makeOrthographic(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem) {
+    makeOrthographic(left, right, top2, bottom, near, far, coordinateSystem = WebGLCoordinateSystem) {
       const te = this.elements;
       const w = 1 / (right - left);
-      const h = 1 / (top - bottom);
+      const h = 1 / (top2 - bottom);
       const p = 1 / (far - near);
       const x = (right + left) * w;
-      const y = (top + bottom) * h;
+      const y = (top2 + bottom) * h;
       let z, zInv;
       if (coordinateSystem === WebGLCoordinateSystem) {
         z = (far + near) * p;
@@ -30889,22 +30889,22 @@
     }
     updateProjectionMatrix() {
       const near = this.near;
-      let top = near * Math.tan(DEG2RAD * 0.5 * this.fov) / this.zoom;
-      let height = 2 * top;
+      let top2 = near * Math.tan(DEG2RAD * 0.5 * this.fov) / this.zoom;
+      let height = 2 * top2;
       let width = this.aspect * height;
       let left = -0.5 * width;
       const view = this.view;
       if (this.view !== null && this.view.enabled) {
         const fullWidth = view.fullWidth, fullHeight = view.fullHeight;
         left += view.offsetX * width / fullWidth;
-        top -= view.offsetY * height / fullHeight;
+        top2 -= view.offsetY * height / fullHeight;
         width *= view.width / fullWidth;
         height *= view.height / fullHeight;
       }
       const skew = this.filmOffset;
       if (skew !== 0)
         left += near * skew / this.getFilmWidth();
-      this.projectionMatrix.makePerspective(left, left + width, top, top - height, near, this.far, this.coordinateSystem);
+      this.projectionMatrix.makePerspective(left, left + width, top2, top2 - height, near, this.far, this.coordinateSystem);
       this.projectionMatrixInverse.copy(this.projectionMatrix).invert();
     }
     toJSON(meta) {
@@ -33037,7 +33037,7 @@
     };
   }
   var OrthographicCamera = class extends Camera {
-    constructor(left = -1, right = 1, top = 1, bottom = -1, near = 0.1, far = 2e3) {
+    constructor(left = -1, right = 1, top2 = 1, bottom = -1, near = 0.1, far = 2e3) {
       super();
       this.isOrthographicCamera = true;
       this.type = "OrthographicCamera";
@@ -33045,7 +33045,7 @@
       this.view = null;
       this.left = left;
       this.right = right;
-      this.top = top;
+      this.top = top2;
       this.bottom = bottom;
       this.near = near;
       this.far = far;
@@ -33097,17 +33097,17 @@
       const cy = (this.top + this.bottom) / 2;
       let left = cx - dx;
       let right = cx + dx;
-      let top = cy + dy;
+      let top2 = cy + dy;
       let bottom = cy - dy;
       if (this.view !== null && this.view.enabled) {
         const scaleW = (this.right - this.left) / this.view.fullWidth / this.zoom;
         const scaleH = (this.top - this.bottom) / this.view.fullHeight / this.zoom;
         left += scaleW * this.view.offsetX;
         right = left + scaleW * this.view.width;
-        top -= scaleH * this.view.offsetY;
-        bottom = top - scaleH * this.view.height;
+        top2 -= scaleH * this.view.offsetY;
+        bottom = top2 - scaleH * this.view.height;
       }
-      this.projectionMatrix.makeOrthographic(left, right, top, bottom, this.near, this.far, this.coordinateSystem);
+      this.projectionMatrix.makeOrthographic(left, right, top2, bottom, this.near, this.far, this.coordinateSystem);
       this.projectionMatrixInverse.copy(this.projectionMatrix).invert();
     }
     toJSON(meta) {
@@ -43623,7 +43623,8 @@
           map: { value: texture },
           magnitude: { value: 0 },
           cursor: { value: new Vector2(-10, -10) },
-          is3D: { value: false }
+          is3D: { value: false },
+          hasShadows: { value: false }
         },
         vertexShader: `
         const float PI = ${Math.PI.toFixed(3)};
@@ -43656,10 +43657,11 @@
           vec4 center = modelViewMatrix * vec4( vec3( 0.0 ), 1.0 );
           vec4 pmv = modelViewMatrix * vec4( position, 1.0 );
           vec4 pos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+          vec4 mvCursor = modelViewMatrix * vec4( cursor, 0.0, 1.0 );
     
           float r = 10.0;
-          float toCenter = 2.0 * length( - cursor.xy );
-          float angle = atan( - cursor.y, - cursor.x );
+          float toCenter = 2.0 * length( - mvCursor.xy );
+          float angle = atan( - mvCursor.y, - mvCursor.x );
 
           vec2 cur = vec2( center.xy );
           cur.x += max( cap.x, toCenter ) * cos( angle + PI );
@@ -43696,6 +43698,7 @@
 
         uniform sampler2D map;
         uniform float magnitude;
+        uniform float hasShadows;
     
         varying vec2 vUv;
         varying float vShadow;
@@ -43707,7 +43710,7 @@
           vec4 texel = texture2D( map, vUv );
           
           gl_FragColor = mix( texel, black,
-            0.33 * magnitude * vIsFrontSide * vShadow );
+            0.33 * magnitude * vIsFrontSide * vShadow * hasShadows );
 
         }
       `,
@@ -43723,13 +43726,14 @@
 
   // src/stickers.js
   var TWO_PI = Math.PI * 2;
-  var tweenIndex = -1;
+  var top = null;
   var direction = true;
+  var toAnimate = [];
   var touch;
+  var isMobile;
   var amount = 101;
   var spin = 100;
   var stickers = [];
-  var rounds = 4;
   var raycaster = new Raycaster();
   var mouse = new Vector2(-10, -10);
   var eventParams = { passive: false };
@@ -43774,12 +43778,17 @@
         sticker.renderOrder = i;
         sticker.material.depthTest = isLast;
         sticker.material.uniforms.is3D.value = 1;
+        sticker.material.uniforms.hasShadows.value = isLast ? 1 : 0;
         sticker.material.uniforms.cursor.value = new Vector2(
           1 * (Math.random() - 0.5),
           1 * (Math.random() - 0.5)
         );
         scene.add(sticker);
         stickers.push(sticker);
+        toAnimate.push(sticker);
+        if (isLast) {
+          top = sticker;
+        }
       }
       renderer.setClearAlpha(0);
       domElement2.current.appendChild(renderer.domElement);
@@ -43825,19 +43834,7 @@
       }
       function touchend(e) {
         e.preventDefault();
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        if (e.touches.length > 0) {
-          const t = e.touches[0];
-          const dx = width / 2 - t.clientX;
-          const dy = height / 2 - t.clientY;
-          const d2c = Math.sqrt(dx * dx + dy * dy);
-          if (tweenIndex < 0 && d2c < 0.33 * width) {
-            trigger();
-          } else {
-            trigger();
-          }
-        }
+        trigger();
       }
       function drag({ clientX, clientY }) {
         if (getAll().length > 0) {
@@ -43854,65 +43851,42 @@
         } else {
           cursor.position.set(-10, -10, 0);
         }
-        const sticker = stickers[stickers.length - 1];
+        const sticker = top;
         const distance = Math.max(cursor.position.length(), 0.5);
         sticker.material.uniforms.cursor.value.copy(cursor.position).normalize().setLength(distance);
         sticker.material.uniforms.magnitude.value = 1;
         sticker.material.uniforms.magnitude.t = 0;
       }
       function trigger() {
-        const count = Math.floor(stickers.length / rounds);
-        const last = stickers.length - 1;
-        let inc = direction ? 1 : -1;
-        let start = clamp2(tweenIndex * count, 0, last);
-        let end = clamp2(start + count * inc, 0, last);
-        start = last - start;
-        end = last - end;
-        let min = Math.min(start, end);
-        let max = Math.max(start, end);
-        if (tweenIndex < 0 || tweenIndex === 0 && min === last && max === last) {
-          const sticker = stickers[stickers.length - 1];
+        if (toAnimate.length <= 0) {
+          direction = !direction;
+          toAnimate = stickers.slice(0);
+        }
+        let queue = [];
+        const mouse2 = cursor.position;
+        let j = 0;
+        for (let i = 0; i < toAnimate.length; i++) {
+          const sticker = toAnimate[i];
+          const distance = sticker.position.distanceTo(mouse2);
+          if (distance < 0.5) {
+            toAnimate.splice(i, 1);
+            queue.push(sticker);
+          }
+        }
+        queue = queue.sort((a, b) => b.renderOrder - a.renderOrder);
+        for (let i = 0; i < queue.length; i++) {
+          const sticker = queue[i];
           if (direction) {
             animateOut(sticker);
           } else {
             animateIn(sticker);
           }
-          sticker.userData.tween.start();
-        } else {
-          let j = 0;
-          if (direction) {
-            for (let i = max - 1; i >= min; i--) {
-              const sticker = stickers[i];
-              if (direction) {
-                animateOut(sticker, j);
-              } else {
-                animateIn(sticker, j);
-              }
-              const delay = j * 50 + 25 * (Math.random() - 0.5);
-              sticker.userData.tween.delay(delay).start();
-              j++;
-            }
-          } else {
-            for (let i = min; i < max; i++) {
-              const sticker = stickers[i];
-              if (direction) {
-                animateOut(sticker, j);
-              } else {
-                animateIn(sticker, j);
-              }
-              const delay = j * 50 + 100 * (Math.random() - 0.5);
-              sticker.userData.tween.delay(delay).start();
-              j++;
-            }
-          }
-        }
-        tweenIndex += inc;
-        if (tweenIndex < 0 || tweenIndex > rounds) {
-          direction = !direction;
-          tweenIndex = clamp2(tweenIndex, -1, rounds);
+          const delay = j * 50 + 25 * (Math.random() - 0.5);
+          sticker.userData.tween.delay(delay).start();
+          j++;
         }
       }
-      function animateOut(sticker, index) {
+      function animateOut(sticker) {
         if (sticker.userData.tween) {
           sticker.userData.tween.stop();
         }
@@ -43921,7 +43895,7 @@
         sticker.userData.tween = new Tween(sticker.material.uniforms.magnitude).to({ value, t: 1 }, 350).easing(Easing.Circular.In).onUpdate(move(sticker)).onComplete(hide(sticker));
         return sticker.userData.tween;
       }
-      function animateIn(sticker, index) {
+      function animateIn(sticker) {
         if (sticker.userData.tween) {
           sticker.userData.tween.stop();
         }
@@ -43944,11 +43918,11 @@
         };
       }
       function resize() {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+        let width = window.innerWidth;
+        let height = window.innerHeight;
         const hasTouch = window.navigator.maxTouchPoints > 0;
         const isPortrait = height > width;
-        const isMobile = hasTouch && isPortrait;
+        isMobile = hasTouch && isPortrait;
         const domElement3 = document.querySelector("div.seo");
         const wasMobile = domElement3.classList.contains("mobile");
         if (wasMobile !== isMobile) {
@@ -43957,13 +43931,20 @@
         renderer.setSize(width, height);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
+        if (isMobile) {
+          camera.rotation.z = Math.PI / 2;
+        } else {
+          camera.rotation.z = 0;
+        }
         const size = getMaxDimensionInWorldSpace(camera, plane);
         stickers.forEach((sticker, i) => {
           const isLast = i >= amount - 1;
-          const w = size;
-          const h = w / camera.aspect;
-          const x = Math.random() * w - w * 0.5;
-          const y = Math.random() * h - h * 0.5;
+          let x = Math.random() * size.width - size.width / 2;
+          let y = Math.random() * size.height - size.height / 2;
+          if (isMobile) {
+            x = Math.random() * size.height - size.height / 2;
+            y = Math.random() * size.width - size.width / 2;
+          }
           sticker.position.x = isLast ? 0 : x;
           sticker.position.y = isLast ? 0 : y;
           sticker.userData.position.copy(sticker.position);
@@ -43984,10 +43965,9 @@
     raycaster.setFromCamera(new Vector2(1, -1), camera);
     [i] = raycaster.intersectObject(plane2);
     const bottomRight = i.point;
-    return Math.max(
-      bottomRight.y - topLeft.y,
-      bottomRight.x - topLeft.x
-    );
+    const width = Math.max(bottomRight.x - topLeft.x, topLeft.x - bottomRight.x);
+    const height = Math.max(bottomRight.y - topLeft.y, topLeft.y - bottomRight.y);
+    return { width, height };
   }
   function hide(sticker) {
     return () => {
@@ -44000,9 +43980,6 @@
   }
   function show(sticker) {
     return () => sticker.visible = true;
-  }
-  function clamp2(v, a, b) {
-    return Math.min(Math.max(v, a), b);
   }
 
   // src/index.js
