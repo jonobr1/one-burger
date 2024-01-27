@@ -4,10 +4,9 @@ const STICKER_WIDTH = 340;
 const STICKER_HEIGHT = 155;
 const aspect = STICKER_HEIGHT / STICKER_WIDTH;
 
-const texture = new THREE.TextureLoader().load('images/texture-unwrapped.png')
-const geometry = new THREE.PlaneGeometry(1, aspect, 64, 64);
+const texture = new THREE.TextureLoader().load('images/texture.jpg')
+const geometry = new THREE.PlaneGeometry(1, aspect, 32, 32);
 
-texture.magFilter = texture.minFilter = THREE.LinearFilter;
 texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
 
 export class Sticker extends THREE.Mesh {
@@ -31,6 +30,8 @@ export class Sticker extends THREE.Mesh {
         uniform float is3D;
     
         varying vec2 vUv;
+        varying float vShadow;
+        varying float vIsFrontSide;
 
         vec2 pointToSegment( vec2 p, vec2 s1, vec2 s2 ) {
     
@@ -67,23 +68,42 @@ export class Sticker extends THREE.Mesh {
 
           float l = 1.5 * length( intersect - pmv.xy );
           float dist = 1.0 - smoothstep( 0.0, 1.0, l );
+          float fold = dist * 0.01;
 
-          pos.x += magnitude * dist * cos( angle );
-          pos.y += magnitude * dist * sin( angle );
-          pos.z -= magnitude * dist * 0.01 * step( 0.5, is3D );
-    
+          float x = magnitude * dist * cos( angle );
+          float y = magnitude * dist * sin( angle );
+          float z = magnitude * fold * step( 0.5, is3D );
+
+          pos.x += x;
+          pos.y += y;
+          pos.z -= z;
+
+          vShadow = 1.0 - distance( position.xy, 2.0 * cursor );
+          vIsFrontSide = 1.0 - smoothstep( 0.0, 0.2, dist );
+
           gl_Position = pos;
     
         }
       `,
       fragmentShader: `
+        const float PI = ${Math.PI};
+        const float aspect = ${aspect};
+
         uniform sampler2D map;
+        uniform float magnitude;
     
         varying vec2 vUv;
+        varying float vShadow;
+        varying float vIsFrontSide;
     
         void main() {
+
+          vec4 black = vec4( vec3( 0.0 ), 1.0 );
           vec4 texel = texture2D( map, vUv );
-          gl_FragColor = texel;
+          
+          gl_FragColor = mix( texel, black,
+            0.5 * magnitude * vIsFrontSide * vShadow );
+
         }
       `,
       side: THREE.DoubleSide,
@@ -96,5 +116,7 @@ export class Sticker extends THREE.Mesh {
 
   static width = STICKER_WIDTH;
   static height = STICKER_HEIGHT;
+
+  static Texture = texture;
 
 }

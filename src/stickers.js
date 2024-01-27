@@ -46,10 +46,11 @@ export default function App(props) {
 
   function mount() {
 
-    const renderer = new THREE.WebGLRenderer({ antialias: false });
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera();
 
+    Sticker.Texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
     scene.add(cursor, plane);
     camera.position.z = 2.25;
 
@@ -93,10 +94,9 @@ export default function App(props) {
     renderer.domElement.addEventListener('touchcancel', touchend, eventParams);
     renderer.domElement.addEventListener('click', trigger);
     
-    setTimeout(() => {
-      resize();
-      document.body.style.opacity = 1;
-    }, 100);
+    renderer.render(scene, camera);
+    resize();
+    document.body.style.opacity = 1;
 
     return unmount;
 
@@ -341,7 +341,6 @@ export default function App(props) {
         sticker.userData.position.copy(sticker.position)
 
       });
-
     }
 
     function update() {

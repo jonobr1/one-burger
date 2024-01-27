@@ -43613,9 +43613,8 @@
   var STICKER_WIDTH = 340;
   var STICKER_HEIGHT = 155;
   var aspect2 = STICKER_HEIGHT / STICKER_WIDTH;
-  var texture = new TextureLoader().load("images/texture-unwrapped.png");
-  var geometry = new PlaneGeometry(1, aspect2, 64, 64);
-  texture.magFilter = texture.minFilter = LinearFilter;
+  var texture = new TextureLoader().load("images/texture.jpg");
+  var geometry = new PlaneGeometry(1, aspect2, 32, 32);
   texture.wrapS = texture.wrapT = ClampToEdgeWrapping;
   var Sticker = class extends Mesh {
     constructor() {
@@ -43636,6 +43635,8 @@
         uniform float is3D;
     
         varying vec2 vUv;
+        varying float vShadow;
+        varying float vIsFrontSide;
 
         vec2 pointToSegment( vec2 p, vec2 s1, vec2 s2 ) {
     
@@ -43672,23 +43673,42 @@
 
           float l = 1.5 * length( intersect - pmv.xy );
           float dist = 1.0 - smoothstep( 0.0, 1.0, l );
+          float fold = dist * 0.01;
 
-          pos.x += magnitude * dist * cos( angle );
-          pos.y += magnitude * dist * sin( angle );
-          pos.z -= magnitude * dist * 0.01 * step( 0.5, is3D );
-    
+          float x = magnitude * dist * cos( angle );
+          float y = magnitude * dist * sin( angle );
+          float z = magnitude * fold * step( 0.5, is3D );
+
+          pos.x += x;
+          pos.y += y;
+          pos.z -= z;
+
+          vShadow = 1.0 - distance( position.xy, 2.0 * cursor );
+          vIsFrontSide = 1.0 - smoothstep( 0.0, 0.2, dist );
+
           gl_Position = pos;
     
         }
       `,
         fragmentShader: `
+        const float PI = ${Math.PI};
+        const float aspect = ${aspect2};
+
         uniform sampler2D map;
+        uniform float magnitude;
     
         varying vec2 vUv;
+        varying float vShadow;
+        varying float vIsFrontSide;
     
         void main() {
+
+          vec4 black = vec4( vec3( 0.0 ), 1.0 );
           vec4 texel = texture2D( map, vUv );
-          gl_FragColor = texel;
+          
+          gl_FragColor = mix( texel, black,
+            0.5 * magnitude * vIsFrontSide * vShadow );
+
         }
       `,
         side: DoubleSide,
@@ -43698,6 +43718,7 @@
     }
     static width = STICKER_WIDTH;
     static height = STICKER_HEIGHT;
+    static Texture = texture;
   };
 
   // src/stickers.js
@@ -43734,9 +43755,10 @@
     const domElement2 = (0, import_react.useRef)();
     (0, import_react.useEffect)(mount, []);
     function mount() {
-      const renderer = new WebGLRenderer({ antialias: false });
+      const renderer = new WebGLRenderer({ antialias: true });
       const scene = new Scene();
       const camera = new PerspectiveCamera();
+      Sticker.Texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
       scene.add(cursor, plane);
       camera.position.z = 2.25;
       for (let i = 0; i < amount; i++) {
@@ -43769,10 +43791,9 @@
       renderer.domElement.addEventListener("touchend", touchend, eventParams);
       renderer.domElement.addEventListener("touchcancel", touchend, eventParams);
       renderer.domElement.addEventListener("click", trigger);
-      setTimeout(() => {
-        resize();
-        document.body.style.opacity = 1;
-      }, 100);
+      renderer.render(scene, camera);
+      resize();
+      document.body.style.opacity = 1;
       return unmount;
       function unmount() {
         renderer.setAnimationLoop(null);
