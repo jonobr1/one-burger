@@ -43707,7 +43707,7 @@
           vec4 texel = texture2D( map, vUv );
           
           gl_FragColor = mix( texel, black,
-            0.5 * magnitude * vIsFrontSide * vShadow );
+            0.33 * magnitude * vIsFrontSide * vShadow );
 
         }
       `,
