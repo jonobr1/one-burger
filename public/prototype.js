@@ -42846,6 +42846,7 @@
         uniform float magnitude;
         uniform vec2 cursor;
         uniform float is3D;
+        uniform float hasShadows;
     
         varying vec2 vUv;
         varying float vShadow;
@@ -42869,7 +42870,11 @@
           vec4 center = modelViewMatrix * vec4( vec3( 0.0 ), 1.0 );
           vec4 pmv = modelViewMatrix * vec4( position, 1.0 );
           vec4 pos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-          vec4 mvCursor = modelViewMatrix * vec4( cursor, 0.0, 1.0 );
+          vec4 mvCursor = vec4( cursor.xy, 0.0, 1.0 );
+
+          if ( hasShadows >= 1.0 ) {
+            mvCursor = modelViewMatrix * vec4( cursor, 0.0, 1.0 );
+          }
     
           float r = 10.0;
           float toCenter = 2.0 * length( - mvCursor.xy );

@@ -80,6 +80,7 @@ body div#contact {
   left: 0;
   right: 0;
   text-align: center;
+  pointer-events: none;
 }
 body div#contact a {
   font-family: "Diatype Mono Bold", sans-serif;
@@ -93,6 +94,7 @@ body div#contact a {
   padding: 10px 20px;
   background: white;
   cursor: pointer;
+  pointer-events: all;
 }
 body div#contact span.mail {
   display: inline-block;

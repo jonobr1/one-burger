@@ -11,7 +11,7 @@ let toAnimate = [];
 let touch;
 let isMobile;
 
-const amount = 101;
+const amount = 150;
 const spin = 100;
 const stickers = [];
 
@@ -35,7 +35,7 @@ const cursor = new THREE.Mesh(
     color: 'green'
   })
 );
-cursor.position.set(-10, -10);
+cursor.position.set(-10, -10, 0);
 cursor.visible = false;
 cursor.scale.set(0.05, 0.05, 0.05);
 
@@ -61,21 +61,16 @@ export default function App(props) {
       const isLast = i >= amount - 1;
       const rotation = TWO_PI * Math.random() * spin / 100;
 
-      const x = Math.random() * 4 - 2;
-      const y = Math.random() * 4 - 2;
-
-      sticker.position.x = isLast ? 0 : x;
-      sticker.position.y = isLast ? 0 : y;
       sticker.rotation.z = isLast ? 0 : rotation;
-
       sticker.userData.position = new THREE.Vector2();
+
       sticker.renderOrder = i;
       sticker.material.depthTest = isLast;
       sticker.material.uniforms.is3D.value = 1;
       sticker.material.uniforms.hasShadows.value = isLast ? 1 : 0;
       sticker.material.uniforms.cursor.value = new THREE.Vector2(
-        1 * (Math.random() - 0.5),
-        1 * (Math.random() - 0.5)
+        1.20 * (Math.random() - 0.5),
+        0.80 * (Math.random() - 0.5)
       );
 
       scene.add(sticker);
@@ -94,7 +89,8 @@ export default function App(props) {
     renderer.setAnimationLoop(update);
 
     window.addEventListener('resize', resize);
-    renderer.domElement.addEventListener('pointermove', pointermove);
+    renderer.domElement.addEventListener('pointermove', drag);
+
     renderer.domElement.addEventListener('touchstart', touchstart, eventParams);
     renderer.domElement.addEventListener('touchmove', touchmove, eventParams);
     renderer.domElement.addEventListener('touchend', touchend, eventParams);
@@ -111,7 +107,7 @@ export default function App(props) {
 
       renderer.setAnimationLoop(null);
       window.addEventListener('resize', resize);
-      renderer.domElement.removeEventListener('pointermove', pointermove);
+      renderer.domElement.removeEventListener('pointermove', drag);
       renderer.domElement.removeEventListener('touchstart', touchstart, eventParams);
       renderer.domElement.removeEventListener('touchmove', touchmove, eventParams);
       renderer.domElement.removeEventListener('touchend', touchend, eventParams);
@@ -122,10 +118,6 @@ export default function App(props) {
           .removeChild(renderer.domElement);
       }
 
-    }
-
-    function pointermove(e) {
-      drag(e);
     }
 
     function touchstart(e) {
@@ -151,10 +143,6 @@ export default function App(props) {
     }
 
     function drag({ clientX, clientY }) {
-
-      if (TWEEN.getAll().length > 0) {
-        return;
-      }
 
       const width = window.innerWidth;
       const height = window.innerHeight;
@@ -239,8 +227,8 @@ export default function App(props) {
       sticker.material.uniforms.magnitude.t = 0;
 
       sticker.userData.tween = new TWEEN.Tween(sticker.material.uniforms.magnitude)
-        .to({ value, t: 1 }, 350)
-        .easing(TWEEN.Easing.Circular.In)
+        .to({ value, t: 1 }, 500)
+        .easing(TWEEN.Easing.Quartic.In)
         .onUpdate(move(sticker))
         .onComplete(hide(sticker));
 
@@ -257,7 +245,7 @@ export default function App(props) {
       sticker.material.uniforms.magnitude.t = 1;
 
       sticker.userData.tween = new TWEEN.Tween(sticker.material.uniforms.magnitude)
-        .to({ value, t: 0 }, 350)
+        .to({ value, t: 0 }, 500)
         .easing(TWEEN.Easing.Circular.Out)
         .onUpdate(move(sticker))
         .onStart(show(sticker))
