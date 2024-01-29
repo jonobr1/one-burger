@@ -55,6 +55,8 @@ export default function App(props) {
     scene.add(cursor, plane);
     camera.position.z = 2.25;
 
+    renderer.setPixelRatio(window.devicePixelRatio);
+
     for (let i = 0; i < amount; i++) {
 
       const sticker = new Sticker();

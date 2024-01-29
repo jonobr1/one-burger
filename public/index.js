@@ -43770,6 +43770,7 @@
       Sticker.Texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
       scene.add(cursor, plane);
       camera.position.z = 2.25;
+      renderer.setPixelRatio(window.devicePixelRatio);
       for (let i = 0; i < amount; i++) {
         const sticker = new Sticker();
         const isLast = i >= amount - 1;
