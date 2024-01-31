@@ -43781,6 +43781,7 @@
         const cx = 1.2 * (Math.random() - 0.5);
         const cy = 0.8 * (Math.random() - 0.5);
         sticker.material.uniforms.cursor.value = new Vector2(cx, cy);
+        sticker.material.uniforms.cursor.dest = new Vector2(cx, cy);
         scene.add(sticker);
         stickers.push(sticker);
         toAnimate.push(sticker);
@@ -43792,8 +43793,8 @@
       domElement2.current.appendChild(renderer.domElement);
       renderer.setAnimationLoop(update2);
       window.addEventListener("resize", resize);
+      renderer.domElement.addEventListener("pointerdown", pointerdown);
       renderer.domElement.addEventListener("pointermove", pointermove);
-      renderer.domElement.addEventListener("click", trigger);
       renderer.render(scene, camera);
       resize();
       document.body.style.opacity = 1;
@@ -43830,7 +43831,7 @@
         window.addEventListener("pointerup", pointerup);
       }
       function drag({ clientX, clientY }) {
-        intersect(clientX, clientY);
+        intersect(clientX, clientY, 0.25);
       }
       function pointerup() {
         dragging = false;

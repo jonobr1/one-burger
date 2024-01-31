@@ -72,6 +72,7 @@ export default function App(props) {
       const cx = 1.20 * (Math.random() - 0.5);
       const cy = 0.80 * (Math.random() - 0.5);
       sticker.material.uniforms.cursor.value = new THREE.Vector2(cx, cy);
+      sticker.material.uniforms.cursor.dest = new THREE.Vector2(cx, cy);
 
       scene.add(sticker);
       stickers.push(sticker);
@@ -89,14 +90,14 @@ export default function App(props) {
     renderer.setAnimationLoop(update);
 
     window.addEventListener('resize', resize);
-    // renderer.domElement.addEventListener('pointerdown', pointerdown);
+    renderer.domElement.addEventListener('pointerdown', pointerdown);
     renderer.domElement.addEventListener('pointermove', pointermove);
 
     // renderer.domElement.addEventListener('touchstart', touchstart, eventParams);
     // renderer.domElement.addEventListener('touchmove', touchmove, eventParams);
     // renderer.domElement.addEventListener('touchend', touchend, eventParams);
     // renderer.domElement.addEventListener('touchcancel', touchend, eventParams);
-    renderer.domElement.addEventListener('click', trigger);
+    // renderer.domElement.addEventListener('click', trigger);
     
     renderer.render(scene, camera);
     resize();
@@ -115,6 +116,7 @@ export default function App(props) {
       // renderer.domElement.removeEventListener('touchmove', touchmove, eventParams);
       // renderer.domElement.removeEventListener('touchend', touchend, eventParams);
       // renderer.domElement.removeEventListener('touchcancel', touchend, eventParams);
+      // renderer.domElement.removeEventListener('click', trigger);
 
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement
@@ -152,7 +154,7 @@ export default function App(props) {
     }
 
     function drag({ clientX, clientY }) {
-      intersect(clientX, clientY);
+      intersect(clientX, clientY, 0.25);
     }
 
     function pointerup() {
