@@ -42834,6 +42834,8 @@
         uniforms: {
           map: { value: texture },
           magnitude: { value: 0 },
+          // A vec2 of where the cursor is in relation
+          // to the center of the object.
           cursor: { value: new Vector2(-10, -10) },
           is3D: { value: false },
           hasShadows: { value: false }
@@ -42867,14 +42869,10 @@
     
           vUv = uv;
     
-          vec4 center = modelViewMatrix * vec4( vec3( 0.0 ), 1.0 );
-          vec4 pmv = modelViewMatrix * vec4( position, 1.0 );
-          vec4 pos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-          vec4 mvCursor = vec4( cursor.xy, 0.0, 1.0 );
-
-          if ( hasShadows >= 1.0 ) {
-            mvCursor = modelViewMatrix * vec4( cursor, 0.0, 1.0 );
-          }
+          vec4 center = modelMatrix * vec4( vec3( 0.0 ), 1.0 );
+          vec4 pmv = modelMatrix * vec4( position, 1.0 );
+          vec4 pos = modelMatrix * vec4( position, 1.0 );
+          vec4 mvCursor = vec4( cursor, 0.0, 1.0 );
     
           float r = 10.0;
           float toCenter = 2.0 * length( - mvCursor.xy );
@@ -42900,12 +42898,12 @@
 
           pos.x += x;
           pos.y += y;
-          pos.z -= z;
+          pos.z += z;
 
-          vShadow = 1.0 - distance( position.xy, 2.0 * cursor );
+          vShadow = 1.0 - distance( pmv.xy, intersect );
           vIsFrontSide = 1.0 - smoothstep( 0.0, 0.2, dist );
 
-          gl_Position = pos;
+          gl_Position = projectionMatrix * viewMatrix * pos;
     
         }
       `,
@@ -42932,7 +42930,8 @@
         }
       `,
         side: DoubleSide,
-        transparent: true
+        transparent: true,
+        depthTest: false
       });
       super(geometry, material);
     }

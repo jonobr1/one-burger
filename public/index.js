@@ -43622,6 +43622,8 @@
         uniforms: {
           map: { value: texture },
           magnitude: { value: 0 },
+          // A vec2 of where the cursor is in relation
+          // to the center of the object.
           cursor: { value: new Vector2(-10, -10) },
           is3D: { value: false },
           hasShadows: { value: false }
@@ -43655,14 +43657,10 @@
     
           vUv = uv;
     
-          vec4 center = modelViewMatrix * vec4( vec3( 0.0 ), 1.0 );
-          vec4 pmv = modelViewMatrix * vec4( position, 1.0 );
-          vec4 pos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-          vec4 mvCursor = vec4( cursor.xy, 0.0, 1.0 );
-
-          if ( hasShadows >= 1.0 ) {
-            mvCursor = modelViewMatrix * vec4( cursor, 0.0, 1.0 );
-          }
+          vec4 center = modelMatrix * vec4( vec3( 0.0 ), 1.0 );
+          vec4 pmv = modelMatrix * vec4( position, 1.0 );
+          vec4 pos = modelMatrix * vec4( position, 1.0 );
+          vec4 mvCursor = vec4( cursor, 0.0, 1.0 );
     
           float r = 10.0;
           float toCenter = 2.0 * length( - mvCursor.xy );
@@ -43688,12 +43686,12 @@
 
           pos.x += x;
           pos.y += y;
-          pos.z -= z;
+          pos.z += z;
 
-          vShadow = 1.0 - distance( position.xy, 2.0 * cursor );
+          vShadow = 1.0 - distance( pmv.xy, intersect );
           vIsFrontSide = 1.0 - smoothstep( 0.0, 0.2, dist );
 
-          gl_Position = pos;
+          gl_Position = projectionMatrix * viewMatrix * pos;
     
         }
       `,
@@ -43720,7 +43718,8 @@
         }
       `,
         side: DoubleSide,
-        transparent: true
+        transparent: true,
+        depthTest: false
       });
       super(geometry, material);
     }
@@ -43736,12 +43735,12 @@
   var toAnimate = [];
   var touch;
   var isMobile;
+  var dragging = false;
   var amount = 150;
   var spin = 100;
   var stickers = [];
   var raycaster = new Raycaster();
   var mouse = new Vector2(-10, -10);
-  var eventParams = { passive: false };
   var plane = new Mesh(
     new PlaneGeometry(50, 50, 1, 1),
     new MeshBasicMaterial({
@@ -43770,7 +43769,6 @@
       Sticker.Texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
       scene.add(cursor, plane);
       camera.position.z = 2.25;
-      renderer.setPixelRatio(window.devicePixelRatio);
       for (let i = 0; i < amount; i++) {
         const sticker = new Sticker();
         const isLast = i >= amount - 1;
@@ -43778,29 +43776,23 @@
         sticker.rotation.z = isLast ? 0 : rotation;
         sticker.userData.position = new Vector2();
         sticker.renderOrder = i;
-        sticker.material.depthTest = isLast;
         sticker.material.uniforms.is3D.value = 1;
-        sticker.material.uniforms.hasShadows.value = isLast ? 1 : 0;
-        sticker.material.uniforms.cursor.value = new Vector2(
-          1.2 * (Math.random() - 0.5),
-          0.8 * (Math.random() - 0.5)
-        );
+        sticker.material.uniforms.hasShadows.value = 1;
+        const cx = 1.2 * (Math.random() - 0.5);
+        const cy = 0.8 * (Math.random() - 0.5);
+        sticker.material.uniforms.cursor.value = new Vector2(cx, cy);
         scene.add(sticker);
         stickers.push(sticker);
         toAnimate.push(sticker);
         if (isLast) {
-          top = sticker;
+          setTop(sticker);
         }
       }
       renderer.setClearAlpha(0);
       domElement2.current.appendChild(renderer.domElement);
       renderer.setAnimationLoop(update2);
       window.addEventListener("resize", resize);
-      renderer.domElement.addEventListener("pointermove", drag);
-      renderer.domElement.addEventListener("touchstart", touchstart, eventParams);
-      renderer.domElement.addEventListener("touchmove", touchmove, eventParams);
-      renderer.domElement.addEventListener("touchend", touchend, eventParams);
-      renderer.domElement.addEventListener("touchcancel", touchend, eventParams);
+      renderer.domElement.addEventListener("pointermove", pointermove);
       renderer.domElement.addEventListener("click", trigger);
       renderer.render(scene, camera);
       resize();
@@ -43809,11 +43801,8 @@
       function unmount() {
         renderer.setAnimationLoop(null);
         window.addEventListener("resize", resize);
-        renderer.domElement.removeEventListener("pointermove", drag);
-        renderer.domElement.removeEventListener("touchstart", touchstart, eventParams);
-        renderer.domElement.removeEventListener("touchmove", touchmove, eventParams);
-        renderer.domElement.removeEventListener("touchend", touchend, eventParams);
-        renderer.domElement.removeEventListener("touchcancel", touchend, eventParams);
+        renderer.domElement.addEventListener("pointerdown", pointerdown);
+        renderer.domElement.removeEventListener("pointermove", pointermove);
         if (renderer.domElement.parentElement) {
           renderer.domElement.parentElement.removeChild(renderer.domElement);
         }
@@ -43835,7 +43824,26 @@
         e.preventDefault();
         trigger();
       }
+      function pointerdown({ clientX, clientY }) {
+        dragging = true;
+        window.addEventListener("pointermove", drag);
+        window.addEventListener("pointerup", pointerup);
+      }
       function drag({ clientX, clientY }) {
+        intersect(clientX, clientY);
+      }
+      function pointerup() {
+        dragging = false;
+        window.removeEventListener("pointermove", drag);
+        window.removeEventListener("pointerup", pointerup);
+      }
+      function pointermove({ clientX, clientY }) {
+        if (dragging) {
+          return;
+        }
+        intersect(clientX, clientY, 0.5);
+      }
+      function intersect(clientX, clientY, cap) {
         const width = window.innerWidth;
         const height = window.innerHeight;
         mouse.x = clientX / width * 2 - 1;
@@ -43848,12 +43856,18 @@
           cursor.position.set(-10, -10, 0);
         }
         const sticker = top;
-        const distance = Math.max(cursor.position.length(), 0.5);
-        sticker.material.uniforms.cursor.value.copy(cursor.position).normalize().setLength(distance);
+        const dx = cursor.position.x - sticker.position.x;
+        const dy = cursor.position.y - sticker.position.y;
+        const angle = Math.atan2(dy, dx);
+        const distance = Math.max(cursor.position.distanceTo(sticker.position), cap || 0);
+        const p = sticker.material.uniforms.cursor.value;
+        p.x = distance * Math.cos(angle);
+        p.y = distance * Math.sin(angle);
         sticker.material.uniforms.magnitude.value = 1;
         sticker.material.uniforms.magnitude.t = 0;
       }
       function trigger() {
+        setTop(null);
         if (toAnimate.length <= 0) {
           direction = !direction;
           toAnimate = stickers.slice(0);
@@ -43867,6 +43881,8 @@
           if (distance < 0.5) {
             toAnimate.splice(i, 1);
             queue.push(sticker);
+          } else if (!top || top.renderOrder < sticker.renderOrder) {
+            setTop(sticker);
           }
         }
         if (direction) {
@@ -43929,6 +43945,7 @@
           domElement3.classList[isMobile ? "add" : "remove"]("mobile");
         }
         renderer.setSize(width, height);
+        renderer.setPixelRatio(window.devicePixelRatio);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
         if (isMobile) {
@@ -43980,6 +43997,15 @@
   }
   function show(sticker) {
     return () => sticker.visible = true;
+  }
+  function setTop(sticker) {
+    if (top) {
+      top.material.depthTest = false;
+    }
+    top = sticker;
+    if (top) {
+      top.material.depthTest = true;
+    }
   }
 
   // src/index.js
