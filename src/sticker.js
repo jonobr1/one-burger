@@ -4,7 +4,7 @@ const STICKER_WIDTH = 340;
 const STICKER_HEIGHT = 155;
 const aspect = STICKER_HEIGHT / STICKER_WIDTH;
 
-const texture = new THREE.TextureLoader().load('images/texture.jpg')
+const texture = new THREE.TextureLoader().load('images/texture.jpg');
 const geometry = new THREE.PlaneGeometry(1, aspect, 32, 32);
 
 texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
@@ -57,15 +57,15 @@ export class Sticker extends THREE.Mesh {
           vec4 center = modelMatrix * vec4( vec3( origin.xy, 0.0 ), 1.0 );
           vec4 pmv = modelMatrix * vec4( position, 1.0 );
           vec4 pos = modelMatrix * vec4( position, 1.0 );
-          vec4 mvCursor = vec4( cursor, 0.0, 1.0 );
+          vec4 cmv = modelMatrix * vec4( cursor, 0.0, 1.0 );
     
           float r = 10.0;
-          float toCenter = 2.0 * length( origin.xy - mvCursor.xy );
-          float angle = atan( - mvCursor.y, - mvCursor.x );
+          float toCenter = 2.0 * distance( center.xy, cmv.xy );
+          float angle = atan( center.y - cmv.y, center.x - cmv.x );
 
           vec2 cur = vec2( center.xy );
-          cur.x += max( cap.x, toCenter ) * cos( angle + PI );
-          cur.y += max( cap.y, toCenter ) * sin( angle + PI );
+          cur.x += max( 0.5, toCenter ) * cos( angle + PI );
+          cur.y += max( 0.5, toCenter ) * sin( angle + PI );
 
           float aa = angle + PI * 0.5;
           float ab = angle - PI * 0.5;
@@ -73,8 +73,8 @@ export class Sticker extends THREE.Mesh {
           vec2 s2 = vec2( r * cos( ab ), r * sin( ab ) ) + cur.xy;
           vec2 intersect = pointToSegment( pmv.xy, s1, s2 );
 
-          float l = 1.5 * length( intersect - pmv.xy );
-          float dist = 1.0 - smoothstep( 0.0, 1.0, l );
+          float diff = 1.5 * distance( intersect, pmv.xy );
+          float dist = 1.0 - smoothstep( 0.0, 1.0, diff );
           float fold = dist * 0.01;
 
           float x = magnitude * dist * cos( angle );
@@ -85,7 +85,7 @@ export class Sticker extends THREE.Mesh {
           pos.y += y;
           pos.z += z;
 
-          vShadow = 1.0 - distance( pmv.xy, intersect );
+          vShadow = 1.0 - diff / 1.5;
           vIsFrontSide = 1.0 - smoothstep( 0.0, 0.2, dist );
 
           gl_Position = projectionMatrix * viewMatrix * pos;
@@ -108,7 +108,7 @@ export class Sticker extends THREE.Mesh {
 
           vec4 black = vec4( vec3( 0.0 ), 1.0 );
           vec4 texel = texture2D( map, vUv );
-          
+    
           gl_FragColor = mix( texel, black,
             0.33 * magnitude * vIsFrontSide * vShadow * hasShadows );
 
