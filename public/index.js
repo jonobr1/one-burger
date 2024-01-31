@@ -43798,6 +43798,7 @@
       window.addEventListener("resize", resize);
       renderer.domElement.addEventListener("pointerdown", pointerdown);
       renderer.domElement.addEventListener("pointermove", pointermove);
+      renderer.domElement.addEventListener("click", trigger);
       renderer.render(scene, camera);
       resize();
       document.body.style.opacity = 1;
@@ -43807,6 +43808,7 @@
         window.addEventListener("resize", resize);
         renderer.domElement.addEventListener("pointerdown", pointerdown);
         renderer.domElement.removeEventListener("pointermove", pointermove);
+        renderer.domElement.removeEventListener("click", trigger);
         if (renderer.domElement.parentElement) {
           renderer.domElement.parentElement.removeChild(renderer.domElement);
         }
@@ -43832,7 +43834,6 @@
         dragging = true;
         drag({ clientX, clientY });
         window.addEventListener("pointermove", drag);
-        window.addEventListener("pointerup", pointerup);
       }
       function drag({ clientX, clientY }) {
         intersect(clientX, clientY, 0.4);
@@ -43887,6 +43888,9 @@
           cursor.position.copy(intersections[0].point);
         } else {
           cursor.position.set(-10, -10, 0);
+        }
+        if (!top) {
+          return;
         }
         const sticker = top;
         const dx = cursor.position.x - sticker.position.x;

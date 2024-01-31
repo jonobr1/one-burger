@@ -97,7 +97,7 @@ export default function App(props) {
     // renderer.domElement.addEventListener('touchmove', touchmove, eventParams);
     // renderer.domElement.addEventListener('touchend', touchend, eventParams);
     // renderer.domElement.addEventListener('touchcancel', touchend, eventParams);
-    // renderer.domElement.addEventListener('click', trigger);
+    renderer.domElement.addEventListener('click', trigger);
     
     renderer.render(scene, camera);
     resize();
@@ -116,7 +116,7 @@ export default function App(props) {
       // renderer.domElement.removeEventListener('touchmove', touchmove, eventParams);
       // renderer.domElement.removeEventListener('touchend', touchend, eventParams);
       // renderer.domElement.removeEventListener('touchcancel', touchend, eventParams);
-      // renderer.domElement.removeEventListener('click', trigger);
+      renderer.domElement.removeEventListener('click', trigger);
 
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement
@@ -151,7 +151,7 @@ export default function App(props) {
       dragging = true;
       drag({ clientX, clientY });
       window.addEventListener('pointermove', drag);
-      window.addEventListener('pointerup', pointerup);
+      // window.addEventListener('pointerup', pointerup);
     }
 
     function drag({ clientX, clientY }) {
@@ -238,6 +238,10 @@ export default function App(props) {
         cursor.position.copy(intersections[0].point);
       } else {
         cursor.position.set(-10, -10, 0);
+      }
+
+      if (!top) {
+        return;
       }
 
       const sticker = top;
