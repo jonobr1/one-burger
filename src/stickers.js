@@ -6,20 +6,19 @@ import { Sticker } from "./sticker.js";
 const TWO_PI = Math.PI * 2;
 
 let top = null;
-let direction = true;
-let toAnimate = [];
-let touch;
-let isMobile;
+let touch = null;
+let isMobile = window.navigator.maxTouchPoints > 0;
 let dragging = false;
 let animating = false;
 
 const amount = 150;
-const spin = 100;
-const stickers = [];
+const cap = { value: 0.5, tween: null };
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2(-10, -10);
 const eventParams = { passive: false };
+
+const stickers = new THREE.Group();
 
 const plane = new THREE.Mesh(
   new THREE.PlaneGeometry(50, 50, 1, 1),
@@ -54,14 +53,14 @@ export default function App(props) {
     const camera = new THREE.PerspectiveCamera();
 
     Sticker.Texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    scene.add(cursor, plane);
+    scene.add(cursor, plane, stickers);
     camera.position.z = 2.25;
 
     for (let i = 0; i < amount; i++) {
 
       const sticker = new Sticker();
       const isLast = i >= amount - 1;
-      const rotation = TWO_PI * Math.random() * spin / 100;
+      const rotation = TWO_PI * Math.random();
 
       sticker.rotation.z = isLast ? 0 : rotation;
       sticker.userData.position = new THREE.Vector2();
@@ -74,9 +73,7 @@ export default function App(props) {
       const cy = 0.80 * (Math.random() - 0.5);
       sticker.material.uniforms.cursor.value = new THREE.Vector2(cx, cy);
 
-      scene.add(sticker);
-      stickers.push(sticker);
-      toAnimate.push(sticker);
+      stickers.add(sticker);
 
       if (isLast) {
         setTop(sticker);
@@ -97,7 +94,7 @@ export default function App(props) {
     // renderer.domElement.addEventListener('touchmove', touchmove, eventParams);
     // renderer.domElement.addEventListener('touchend', touchend, eventParams);
     // renderer.domElement.addEventListener('touchcancel', touchend, eventParams);
-    renderer.domElement.addEventListener('click', trigger);
+    // renderer.domElement.addEventListener('click', trigger);
     
     renderer.render(scene, camera);
     resize();
@@ -116,7 +113,7 @@ export default function App(props) {
       // renderer.domElement.removeEventListener('touchmove', touchmove, eventParams);
       // renderer.domElement.removeEventListener('touchend', touchend, eventParams);
       // renderer.domElement.removeEventListener('touchcancel', touchend, eventParams);
-      renderer.domElement.removeEventListener('click', trigger);
+      // renderer.domElement.removeEventListener('click', trigger);
 
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement
@@ -148,19 +145,47 @@ export default function App(props) {
     }
 
     function pointerdown({ clientX, clientY }) {
+
       dragging = true;
+
+      if (cap.tween) {
+        cap.tween.stop();
+      }
+
+      cap.tween = new TWEEN.Tween(cap)
+        .to({ value: 0.4 }, 350)
+        .easing(TWEEN.Easing.Back.Out)
+        .onComplete(() => cap.tween.stop())
+        .start();
+
       drag({ clientX, clientY });
+
       window.addEventListener('pointermove', drag);
-      // window.addEventListener('pointerup', pointerup);
+      window.addEventListener('pointerup', pointerup);
+
     }
 
     function drag({ clientX, clientY }) {
-      intersect(clientX, clientY, 0.4);
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      mouse.x = (clientX / width) * 2 - 1;
+      mouse.y = - (clientY / height) * 2 + 1;
+      mouse.needsUpdate = true;
     }
 
     function pointerup({ clientX, clientY }) {
 
       dragging = false;
+
+      if (cap.tween) {
+        cap.tween.stop();
+      }
+
+      cap.tween = new TWEEN.Tween(cap)
+        .to({ value: 0.5 }, 350)
+        .easing(TWEEN.Easing.Back.Out)
+        .onComplete(() => cap.tween.stop())
+        .start();
 
       if (top) {
 
@@ -169,6 +194,7 @@ export default function App(props) {
   
         mouse.x = (clientX / width) * 2 - 1;
         mouse.y = - (clientY / height) * 2 + 1;
+        mouse.needsUpdate = true;
   
         raycaster.setFromCamera(mouse, camera);
   
@@ -190,7 +216,7 @@ export default function App(props) {
 
       return new Promise((resolve) => {
 
-        const duration = 500;
+        const duration = 350;
         const rad = 0.001;
         const angle = Math.atan2(
           sticker.material.uniforms.cursor.value.y,
@@ -202,13 +228,24 @@ export default function App(props) {
 
         const tCursor = new TWEEN.Tween(sticker.material.uniforms.cursor.value)
           .to({ x, y }, duration)
-          .easing(TWEEN.Easing.Sinusoidal.In)
+          .easing(TWEEN.Easing.Circular.In)
           .onComplete(() => {
-            // sticker.visible = false;
+            setTop(getTop());
+            sticker.visible = false;
             tCursor.stop();
-            // animating = false;
+            animating = false;
             resolve();
           })
+          .start();
+
+        if (cap.tween) {
+          cap.tween.stop();
+        }
+
+        cap.tween = new TWEEN.Tween(cap)
+          .to({ value: 0.25 }, duration)
+          .easing(TWEEN.Easing.Circular.In)
+          .onComplete(() => cap.tween.stop())
           .start();
 
       });
@@ -219,25 +256,29 @@ export default function App(props) {
       if (dragging || animating) {
         return;
       }
-      intersect(clientX, clientY, 0.5);
-    }
-
-    function intersect(clientX, clientY, cap) {
-
       const width = window.innerWidth;
       const height = window.innerHeight;
-
       mouse.x = (clientX / width) * 2 - 1;
       mouse.y = - (clientY / height) * 2 + 1;
+      mouse.needsUpdate = true;
+    }
 
-      raycaster.setFromCamera(mouse, camera);
+    function intersect() {
 
-      const intersections = raycaster.intersectObject(plane);
+      if (mouse.needsUpdate) {
 
-      if (intersections.length > 0) {
-        cursor.position.copy(intersections[0].point);
-      } else {
-        cursor.position.set(-10, -10, 0);
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersections = raycaster.intersectObject(plane);
+  
+        if (intersections.length > 0) {
+          cursor.position.copy(intersections[0].point);
+        } else {
+          cursor.position.set(-10, -10, 0);
+        }
+
+        mouse.needsUpdate = false;
+
       }
 
       if (!top) {
@@ -249,7 +290,7 @@ export default function App(props) {
       const dy = cursor.position.y - sticker.position.y;
       const angle = Math.atan2(dy, dx);
 
-      const distance = Math.max(cursor.position.distanceTo(sticker.position), cap || 0);
+      const distance = Math.max(cursor.position.distanceTo(sticker.position), cap.value);
       const p = sticker.material.uniforms.cursor.value;
 
       p.x = distance * Math.cos(angle);
@@ -258,114 +299,6 @@ export default function App(props) {
       sticker.material.uniforms.magnitude.value = 1;
       sticker.material.uniforms.magnitude.t = 0;
 
-    }
-
-    function trigger() {
-
-      setTop(null);
-
-      if (toAnimate.length <= 0) {
-        // Switch directions
-        direction = !direction;
-        toAnimate = stickers.slice(0);
-      }
-
-      let queue = [];
-      const mouse = cursor.position;
-      let j = 0;
-
-      for (let i = 0; i < toAnimate.length; i++) {
-
-        const sticker = toAnimate[i];
-        const distance = sticker.position.distanceTo(mouse);
-
-        if (distance < 0.5) {
-          toAnimate.splice(i, 1);
-          queue.push(sticker);
-        } else if (!top || top.renderOrder < sticker.renderOrder) {
-          setTop(sticker);
-        }
-
-      }
-
-      if (direction) {
-        queue = queue.sort((a, b) => b.renderOrder - a.renderOrder);
-      } else {
-        queue = queue.sort((a, b) => a.renderOrder - b.renderOrder);
-      }
-
-      for (let i = 0; i < queue.length; i++) {
-
-        const sticker = queue[i];
-
-        if (direction) {
-          animateOut(sticker);
-        } else {
-          animateIn(sticker);
-        }
-
-        const delay = j * 50 + 25 * (Math.random() - 0.5);
-        sticker.userData.tween.delay(delay).start();
-        j++;
-
-      }
-
-    }
-
-    function animateOut(sticker) {
-
-      if (sticker.userData.tween) {
-        sticker.userData.tween.stop();
-      }
-
-      const value = Math.max(sticker.material.uniforms.magnitude.value + 0.75, 1.5);
-      sticker.material.uniforms.magnitude.t = 0;
-
-      sticker.userData.tween = new TWEEN.Tween(sticker.material.uniforms.magnitude)
-        .to({ value, t: 1 }, 500)
-        .easing(TWEEN.Easing.Quartic.In)
-        .onUpdate(move(sticker))
-        .onComplete(hide(sticker));
-
-      return sticker.userData.tween;
-
-    }
-    function animateIn(sticker) {
-
-      if (sticker.userData.tween) {
-        sticker.userData.tween.stop();
-      }
-
-      const value = 0;
-      sticker.material.uniforms.magnitude.t = 1;
-
-      sticker.userData.tween = new TWEEN.Tween(sticker.material.uniforms.magnitude)
-        .to({ value, t: 0 }, 500)
-        .easing(TWEEN.Easing.Circular.Out)
-        .onUpdate(move(sticker))
-        .onStart(show(sticker))
-        .onComplete(stop(sticker));
-
-      return sticker.userData.tween;
-
-    }
-
-    function move(sticker) {
-
-      const position = sticker.userData.position;
-      const angle = Math.atan2(
-        - sticker.material.uniforms.cursor.value.y,
-        - sticker.material.uniforms.cursor.value.x
-      ) / Math.PI;
-      let rotation = sticker.rotation.z + Math.round(angle * 2) * Math.PI / 2;
-
-      return () => {
-
-        const amp = sticker.material.uniforms.magnitude.t;
-        sticker.position.x = position.x + 0.05 * Math.cos(rotation) * amp;
-        sticker.position.y = position.y + 0.05 * Math.sin(rotation) * amp;
-
-      };
     }
 
     function resize() {
@@ -398,7 +331,7 @@ export default function App(props) {
       }
 
       const size = getMaxDimensionInWorldSpace(camera, plane);
-      stickers.forEach((sticker, i) => {
+      stickers.children.forEach((sticker, i) => {
 
         const isLast = i >= amount - 1;
   
@@ -420,6 +353,8 @@ export default function App(props) {
     function update() {
 
       TWEEN.update();
+
+      intersect();
       renderer.render(scene, camera);
 
     }
@@ -458,18 +393,7 @@ function getMaxDimensionInWorldSpace(camera, plane) {
   return { width, height };
 
 }
-function hide(sticker) {
-  return () => {
-    sticker.userData.tween.stop();
-    sticker.visible = false;
-  }
-}
-function stop(sticker) {
-  return () => sticker.userData.tween.stop();
-}
-function show(sticker) {
-  return () => sticker.visible = true;
-}
+
 function setTop(sticker) {
   if (top) {
     top.material.depthTest = false;
@@ -478,4 +402,20 @@ function setTop(sticker) {
   if (top) {
     top.material.depthTest = true;
   }
+}
+
+function getTop() {
+  let renderOrder = -1;
+  let index = -1;
+  for (let i = 0; i < stickers.children.length; i++) {
+    const sticker = stickers.children[i];
+    if (sticker.visible && sticker.renderOrder > renderOrder) {
+      renderOrder = sticker.renderOrder;
+      index = i;
+    }
+  }
+  if (index < 0) {
+    return null;
+  }
+  return stickers.children[index];
 }
