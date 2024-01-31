@@ -43625,6 +43625,7 @@
           // A vec2 of where the cursor is in relation
           // to the center of the object.
           cursor: { value: new Vector2(-10, -10) },
+          origin: { value: new Vector2(0, 0) },
           is3D: { value: false },
           hasShadows: { value: false }
         },
@@ -43635,6 +43636,7 @@
     
         uniform float magnitude;
         uniform vec2 cursor;
+        uniform vec2 origin;
         uniform float is3D;
         uniform float hasShadows;
     
@@ -43657,13 +43659,13 @@
     
           vUv = uv;
     
-          vec4 center = modelMatrix * vec4( vec3( 0.0 ), 1.0 );
+          vec4 center = modelMatrix * vec4( vec3( origin.xy, 0.0 ), 1.0 );
           vec4 pmv = modelMatrix * vec4( position, 1.0 );
           vec4 pos = modelMatrix * vec4( position, 1.0 );
           vec4 mvCursor = vec4( cursor, 0.0, 1.0 );
     
           float r = 10.0;
-          float toCenter = 2.0 * length( - mvCursor.xy );
+          float toCenter = 2.0 * length( origin.xy - mvCursor.xy );
           float angle = atan( - mvCursor.y, - mvCursor.x );
 
           vec2 cur = vec2( center.xy );
@@ -43725,6 +43727,7 @@
     }
     static width = STICKER_WIDTH;
     static height = STICKER_HEIGHT;
+    static aspect = aspect2;
     static Texture = texture;
   };
 
@@ -43736,6 +43739,7 @@
   var touch;
   var isMobile;
   var dragging = false;
+  var animating = false;
   var amount = 150;
   var spin = 100;
   var stickers = [];
@@ -43781,7 +43785,6 @@
         const cx = 1.2 * (Math.random() - 0.5);
         const cy = 0.8 * (Math.random() - 0.5);
         sticker.material.uniforms.cursor.value = new Vector2(cx, cy);
-        sticker.material.uniforms.cursor.dest = new Vector2(cx, cy);
         scene.add(sticker);
         stickers.push(sticker);
         toAnimate.push(sticker);
@@ -43827,19 +43830,48 @@
       }
       function pointerdown({ clientX, clientY }) {
         dragging = true;
+        drag({ clientX, clientY });
         window.addEventListener("pointermove", drag);
         window.addEventListener("pointerup", pointerup);
       }
       function drag({ clientX, clientY }) {
-        intersect(clientX, clientY, 0.25);
+        intersect(clientX, clientY, 0.4);
       }
-      function pointerup() {
+      function pointerup({ clientX, clientY }) {
         dragging = false;
+        if (top) {
+          const width = window.innerWidth;
+          const height = window.innerHeight;
+          mouse.x = clientX / width * 2 - 1;
+          mouse.y = -(clientY / height) * 2 + 1;
+          raycaster.setFromCamera(mouse, camera);
+          const intersections = raycaster.intersectObject(top);
+          if (intersections.length > 0) {
+            peel(top);
+          }
+        }
         window.removeEventListener("pointermove", drag);
         window.removeEventListener("pointerup", pointerup);
       }
+      function peel(sticker) {
+        animating = true;
+        return new Promise((resolve) => {
+          const duration = 500;
+          const rad = 1e-3;
+          const angle = Math.atan2(
+            sticker.material.uniforms.cursor.value.y,
+            sticker.material.uniforms.cursor.value.x
+          );
+          let x = rad * Math.cos(angle);
+          let y = rad * Math.sin(angle);
+          const tCursor = new Tween(sticker.material.uniforms.cursor.value).to({ x, y }, duration).easing(Easing.Sinusoidal.In).onComplete(() => {
+            tCursor.stop();
+            resolve();
+          }).start();
+        });
+      }
       function pointermove({ clientX, clientY }) {
-        if (dragging) {
+        if (dragging || animating) {
           return;
         }
         intersect(clientX, clientY, 0.5);

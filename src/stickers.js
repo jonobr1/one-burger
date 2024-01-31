@@ -11,6 +11,7 @@ let toAnimate = [];
 let touch;
 let isMobile;
 let dragging = false;
+let animating = false;
 
 const amount = 150;
 const spin = 100;
@@ -72,7 +73,6 @@ export default function App(props) {
       const cx = 1.20 * (Math.random() - 0.5);
       const cy = 0.80 * (Math.random() - 0.5);
       sticker.material.uniforms.cursor.value = new THREE.Vector2(cx, cy);
-      sticker.material.uniforms.cursor.dest = new THREE.Vector2(cx, cy);
 
       scene.add(sticker);
       stickers.push(sticker);
@@ -149,22 +149,74 @@ export default function App(props) {
 
     function pointerdown({ clientX, clientY }) {
       dragging = true;
+      drag({ clientX, clientY });
       window.addEventListener('pointermove', drag);
       window.addEventListener('pointerup', pointerup);
     }
 
     function drag({ clientX, clientY }) {
-      intersect(clientX, clientY, 0.25);
+      intersect(clientX, clientY, 0.4);
     }
 
-    function pointerup() {
+    function pointerup({ clientX, clientY }) {
+
       dragging = false;
+
+      if (top) {
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+  
+        mouse.x = (clientX / width) * 2 - 1;
+        mouse.y = - (clientY / height) * 2 + 1;
+  
+        raycaster.setFromCamera(mouse, camera);
+  
+        const intersections = raycaster.intersectObject(top);
+        if (intersections.length > 0) {
+          peel(top);
+        }
+
+      }
+
       window.removeEventListener('pointermove', drag);
       window.removeEventListener('pointerup', pointerup);
+
+    }
+
+    function peel(sticker) {
+
+      animating = true;
+
+      return new Promise((resolve) => {
+
+        const duration = 500;
+        const rad = 0.001;
+        const angle = Math.atan2(
+          sticker.material.uniforms.cursor.value.y,
+          sticker.material.uniforms.cursor.value.x
+        );
+
+        let x = rad * Math.cos(angle);
+        let y = rad * Math.sin(angle);
+
+        const tCursor = new TWEEN.Tween(sticker.material.uniforms.cursor.value)
+          .to({ x, y }, duration)
+          .easing(TWEEN.Easing.Sinusoidal.In)
+          .onComplete(() => {
+            // sticker.visible = false;
+            tCursor.stop();
+            // animating = false;
+            resolve();
+          })
+          .start();
+
+      });
+
     }
 
     function pointermove({ clientX, clientY }) {
-      if (dragging) {
+      if (dragging || animating) {
         return;
       }
       intersect(clientX, clientY, 0.5);
@@ -175,8 +227,8 @@ export default function App(props) {
       const width = window.innerWidth;
       const height = window.innerHeight;
 
-      mouse.x = ( clientX / width ) * 2 - 1;
-      mouse.y = - ( clientY / height ) * 2 + 1;
+      mouse.x = (clientX / width) * 2 - 1;
+      mouse.y = - (clientY / height) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
 
@@ -192,6 +244,7 @@ export default function App(props) {
       const dx = cursor.position.x - sticker.position.x;
       const dy = cursor.position.y - sticker.position.y;
       const angle = Math.atan2(dy, dx);
+
       const distance = Math.max(cursor.position.distanceTo(sticker.position), cap || 0);
       const p = sticker.material.uniforms.cursor.value;
 
