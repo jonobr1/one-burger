@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import * as THREE from "three";
 import { Sticker } from "./sticker.js";
-import GUI from "lil-gui";
 
+const stickers = [];
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2(-10, -10);
 
@@ -21,8 +21,7 @@ function Prototype(props) {
 
   function mount() {
 
-    const gui = new GUI();
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: false });
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera();
 
@@ -51,28 +50,33 @@ function Prototype(props) {
 
     let sticker = new Sticker();
 
-    sticker.material.uniforms.cursor.value = mouse;
+    // sticker.material.uniforms.cursor.value = mouse;
+    // sticker.material.uniforms.origin.value.x = 0.5;
     sticker.material.uniforms.magnitude.value = 1;
     sticker.material.uniforms.is3D.value = 1;
+    sticker.material.uniforms.hasShadows.value = 1;
+    sticker.material.depthTest = true;
 
     sticker.position.x = 10;
     sticker.position.y = 0;
     scene.add(sticker);
+    stickers.push(sticker);
 
     sticker = new Sticker();
 
-    sticker.material.uniforms.cursor.value = mouse;
+    // sticker.material.uniforms.cursor.value = mouse;
     sticker.material.uniforms.magnitude.value = 1;
     sticker.material.uniforms.is3D.value = 1;
+    sticker.material.uniforms.hasShadows.value = 1;
+    sticker.material.depthTest = true;
 
     sticker.position.x = 12;
     sticker.position.y = 0;
-    sticker.rotation.z = Math.PI / 3;
+    sticker.rotation.z = Math.PI / 2;
     scene.add(sticker);
+    stickers.push(sticker);
 
     scene.add(plane, cursor);
-
-    gui.add(sticker.material.uniforms.magnitude, 'value', 0, 1.5).name('magnitude');
 
     domElement.current.appendChild(renderer.domElement);
     renderer.setAnimationLoop(update);
@@ -108,11 +112,24 @@ function Prototype(props) {
       const intersections = raycaster.intersectObject(plane);
 
       if (intersections.length > 0) {
+
         cursor.position.copy(intersections[0].point);
+
+        for (let i = 0; i < stickers.length; i++) {
+          const sticker = stickers[i];
+          const dx = cursor.position.x - sticker.position.x;
+          const dy = cursor.position.y - sticker.position.y;
+          const angle = Math.atan2(dy, dx);
+
+          const distance = cursor.position.distanceTo(sticker.position);
+          const x = distance * Math.cos(angle);
+          const y = distance * Math.sin(angle);
+          sticker.material.uniforms.cursor.value.set(x, y);
+        }
+
       } else {
         cursor.position.set(-10, -10, 0);
       }
-
     }
 
     function resize() {
@@ -121,6 +138,7 @@ function Prototype(props) {
       const height = window.innerHeight;
 
       renderer.setSize(width, height);
+      renderer.setPixelRatio(window.devicePixelRatio);
 
       camera.aspect = width / height;
       camera.updateProjectionMatrix();

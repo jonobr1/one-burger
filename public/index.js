@@ -43659,14 +43659,14 @@
     
           vUv = uv;
     
-          vec4 center = modelMatrix * vec4( vec3( origin.xy, 0.0 ), 1.0 );
+          vec4 center = modelMatrix * vec4( origin, 0.0, 1.0 );
           vec4 pmv = modelMatrix * vec4( position, 1.0 );
           vec4 pos = modelMatrix * vec4( position, 1.0 );
           vec4 cmv = modelMatrix * vec4( cursor, 0.0, 1.0 );
     
           float r = 10.0;
           float toCenter = 2.0 * distance( center.xy, cmv.xy );
-          float angle = atan( center.y - cmv.y, center.x - cmv.x );
+          float angle = atan( origin.y - cursor.y, origin.x - cursor.x );
 
           vec2 cur = vec2( center.xy );
           cur.x += max( 0.5, toCenter ) * cos( angle + PI );
