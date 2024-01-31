@@ -10,6 +10,7 @@ let direction = true;
 let toAnimate = [];
 let touch;
 let isMobile;
+let dragging = false;
 
 const amount = 150;
 const spin = 100;
@@ -55,8 +56,6 @@ export default function App(props) {
     scene.add(cursor, plane);
     camera.position.z = 2.25;
 
-    renderer.setPixelRatio(window.devicePixelRatio);
-
     for (let i = 0; i < amount; i++) {
 
       const sticker = new Sticker();
@@ -67,20 +66,19 @@ export default function App(props) {
       sticker.userData.position = new THREE.Vector2();
 
       sticker.renderOrder = i;
-      sticker.material.depthTest = isLast;
       sticker.material.uniforms.is3D.value = 1;
-      sticker.material.uniforms.hasShadows.value = isLast ? 1 : 0;
-      sticker.material.uniforms.cursor.value = new THREE.Vector2(
-        1.20 * (Math.random() - 0.5),
-        0.80 * (Math.random() - 0.5)
-      );
+      sticker.material.uniforms.hasShadows.value = 1;
+
+      const cx = 1.20 * (Math.random() - 0.5);
+      const cy = 0.80 * (Math.random() - 0.5);
+      sticker.material.uniforms.cursor.value = new THREE.Vector2(cx, cy);
 
       scene.add(sticker);
       stickers.push(sticker);
       toAnimate.push(sticker);
 
       if (isLast) {
-        top = sticker;
+        setTop(sticker);
       }
 
     }
@@ -91,12 +89,13 @@ export default function App(props) {
     renderer.setAnimationLoop(update);
 
     window.addEventListener('resize', resize);
-    renderer.domElement.addEventListener('pointermove', drag);
+    // renderer.domElement.addEventListener('pointerdown', pointerdown);
+    renderer.domElement.addEventListener('pointermove', pointermove);
 
-    renderer.domElement.addEventListener('touchstart', touchstart, eventParams);
-    renderer.domElement.addEventListener('touchmove', touchmove, eventParams);
-    renderer.domElement.addEventListener('touchend', touchend, eventParams);
-    renderer.domElement.addEventListener('touchcancel', touchend, eventParams);
+    // renderer.domElement.addEventListener('touchstart', touchstart, eventParams);
+    // renderer.domElement.addEventListener('touchmove', touchmove, eventParams);
+    // renderer.domElement.addEventListener('touchend', touchend, eventParams);
+    // renderer.domElement.addEventListener('touchcancel', touchend, eventParams);
     renderer.domElement.addEventListener('click', trigger);
     
     renderer.render(scene, camera);
@@ -109,11 +108,13 @@ export default function App(props) {
 
       renderer.setAnimationLoop(null);
       window.addEventListener('resize', resize);
-      renderer.domElement.removeEventListener('pointermove', drag);
-      renderer.domElement.removeEventListener('touchstart', touchstart, eventParams);
-      renderer.domElement.removeEventListener('touchmove', touchmove, eventParams);
-      renderer.domElement.removeEventListener('touchend', touchend, eventParams);
-      renderer.domElement.removeEventListener('touchcancel', touchend, eventParams);
+
+      renderer.domElement.addEventListener('pointerdown', pointerdown);
+      renderer.domElement.removeEventListener('pointermove', pointermove);
+      // renderer.domElement.removeEventListener('touchstart', touchstart, eventParams);
+      // renderer.domElement.removeEventListener('touchmove', touchmove, eventParams);
+      // renderer.domElement.removeEventListener('touchend', touchend, eventParams);
+      // renderer.domElement.removeEventListener('touchcancel', touchend, eventParams);
 
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement
@@ -144,7 +145,30 @@ export default function App(props) {
 
     }
 
+    function pointerdown({ clientX, clientY }) {
+      dragging = true;
+      window.addEventListener('pointermove', drag);
+      window.addEventListener('pointerup', pointerup);
+    }
+
     function drag({ clientX, clientY }) {
+      intersect(clientX, clientY);
+    }
+
+    function pointerup() {
+      dragging = false;
+      window.removeEventListener('pointermove', drag);
+      window.removeEventListener('pointerup', pointerup);
+    }
+
+    function pointermove({ clientX, clientY }) {
+      if (dragging) {
+        return;
+      }
+      intersect(clientX, clientY, 0.5);
+    }
+
+    function intersect(clientX, clientY, cap) {
 
       const width = window.innerWidth;
       const height = window.innerHeight;
@@ -163,12 +187,14 @@ export default function App(props) {
       }
 
       const sticker = top;
-      const distance = Math.max(cursor.position.length(), 0.5);
+      const dx = cursor.position.x - sticker.position.x;
+      const dy = cursor.position.y - sticker.position.y;
+      const angle = Math.atan2(dy, dx);
+      const distance = Math.max(cursor.position.distanceTo(sticker.position), cap || 0);
+      const p = sticker.material.uniforms.cursor.value;
 
-      sticker.material.uniforms.cursor.value
-        .copy(cursor.position)
-        .normalize()
-        .setLength(distance);
+      p.x = distance * Math.cos(angle);
+      p.y = distance * Math.sin(angle);
 
       sticker.material.uniforms.magnitude.value = 1;
       sticker.material.uniforms.magnitude.t = 0;
@@ -176,6 +202,8 @@ export default function App(props) {
     }
 
     function trigger() {
+
+      setTop(null);
 
       if (toAnimate.length <= 0) {
         // Switch directions
@@ -195,6 +223,8 @@ export default function App(props) {
         if (distance < 0.5) {
           toAnimate.splice(i, 1);
           queue.push(sticker);
+        } else if (!top || top.renderOrder < sticker.renderOrder) {
+          setTop(sticker);
         }
 
       }
@@ -297,6 +327,7 @@ export default function App(props) {
       }
 
       renderer.setSize(width, height);
+      renderer.setPixelRatio(window.devicePixelRatio);
 
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
@@ -380,6 +411,12 @@ function stop(sticker) {
 function show(sticker) {
   return () => sticker.visible = true;
 }
-function clamp(v, a, b) {
-  return Math.min(Math.max(v, a), b);
+function setTop(sticker) {
+  if (top) {
+    top.material.depthTest = false;
+  }
+  top = sticker;
+  if (top) {
+    top.material.depthTest = true;
+  }
 }
