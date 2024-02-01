@@ -26133,9 +26133,9 @@
       this.max.max(point);
       return this;
     }
-    expandByVector(vector) {
-      this.min.sub(vector);
-      this.max.add(vector);
+    expandByVector(vector2) {
+      this.min.sub(vector2);
+      this.max.add(vector2);
       return this;
     }
     expandByScalar(scalar) {
@@ -27858,13 +27858,13 @@
     translateZ(distance) {
       return this.translateOnAxis(_zAxis, distance);
     }
-    localToWorld(vector) {
+    localToWorld(vector2) {
       this.updateWorldMatrix(true, false);
-      return vector.applyMatrix4(this.matrixWorld);
+      return vector2.applyMatrix4(this.matrixWorld);
     }
-    worldToLocal(vector) {
+    worldToLocal(vector2) {
       this.updateWorldMatrix(true, false);
-      return vector.applyMatrix4(_m1$1.copy(this.matrixWorld).invert());
+      return vector2.applyMatrix4(_m1$1.copy(this.matrixWorld).invert());
     }
     lookAt(x, y, z) {
       if (x.isVector3) {
@@ -29796,8 +29796,8 @@
       this.applyMatrix4(_m1);
       return this;
     }
-    lookAt(vector) {
-      _obj.lookAt(vector);
+    lookAt(vector2) {
+      _obj.lookAt(vector2);
       _obj.updateMatrix();
       this.applyMatrix4(_obj.matrix);
       return this;
@@ -30519,19 +30519,19 @@
         const gridY1 = gridY + 1;
         let vertexCounter = 0;
         let groupCount = 0;
-        const vector = new Vector3();
+        const vector2 = new Vector3();
         for (let iy = 0; iy < gridY1; iy++) {
           const y = iy * segmentHeight - heightHalf;
           for (let ix = 0; ix < gridX1; ix++) {
             const x = ix * segmentWidth - widthHalf;
-            vector[u] = x * udir;
-            vector[v] = y * vdir;
-            vector[w] = depthHalf;
-            vertices.push(vector.x, vector.y, vector.z);
-            vector[u] = 0;
-            vector[v] = 0;
-            vector[w] = depth2 > 0 ? 1 : -1;
-            normals.push(vector.x, vector.y, vector.z);
+            vector2[u] = x * udir;
+            vector2[v] = y * vdir;
+            vector2[w] = depthHalf;
+            vertices.push(vector2.x, vector2.y, vector2.z);
+            vector2[u] = 0;
+            vector2[v] = 0;
+            vector2[w] = depth2 > 0 ? 1 : -1;
+            normals.push(vector2.x, vector2.y, vector2.z);
             uvs.push(ix / gridX);
             uvs.push(1 - iy / gridY);
             vertexCounter += 1;
@@ -43733,15 +43733,18 @@
 
   // src/stickers.js
   var TWO_PI = Math.PI * 2;
+  var vector = new Vector2();
   var top = null;
   var touch = null;
   var isMobile = window.navigator.maxTouchPoints > 0;
   var dragging = false;
   var animating = false;
-  var amount = 150;
+  var dim = 1 / 6;
+  var amount = 49;
   var cap = { value: 0.5, tween: null };
   var raycaster = new Raycaster();
   var mouse = new Vector2(-10, -10);
+  var eventParams = { passive: false };
   var stickers = new Group();
   var plane = new Mesh(
     new PlaneGeometry(50, 50, 1, 1),
@@ -43771,18 +43774,14 @@
       Sticker.Texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
       scene.add(cursor, plane, stickers);
       camera.position.z = 2.25;
-      for (let i = 0; i < amount; i++) {
+      for (let i = 0; i < amount + 1; i++) {
         const sticker = new Sticker();
-        const isLast = i >= amount - 1;
+        const isLast = i >= amount;
         const rotation = TWO_PI * Math.random();
         sticker.rotation.z = isLast ? 0 : rotation;
-        sticker.userData.position = new Vector2();
-        sticker.renderOrder = i;
+        sticker.renderOrder = isLast ? amount + 2 : 1 + Math.random() * amount;
         sticker.material.uniforms.is3D.value = 1;
         sticker.material.uniforms.hasShadows.value = 1;
-        const cx = 1.2 * (Math.random() - 0.5);
-        const cy = 0.8 * (Math.random() - 0.5);
-        sticker.material.uniforms.cursor.value = new Vector2(cx, cy);
         stickers.add(sticker);
         if (isLast) {
           setTop(sticker);
@@ -43794,6 +43793,10 @@
       window.addEventListener("resize", resize);
       renderer.domElement.addEventListener("pointerdown", pointerdown);
       renderer.domElement.addEventListener("pointermove", pointermove);
+      renderer.domElement.addEventListener("touchstart", touchstart, eventParams);
+      renderer.domElement.addEventListener("touchmove", touchmove, eventParams);
+      renderer.domElement.addEventListener("touchend", touchend, eventParams);
+      renderer.domElement.addEventListener("touchcancel", touchend, eventParams);
       renderer.render(scene, camera);
       resize();
       document.body.style.opacity = 1;
@@ -43803,6 +43806,10 @@
         window.addEventListener("resize", resize);
         renderer.domElement.addEventListener("pointerdown", pointerdown);
         renderer.domElement.removeEventListener("pointermove", pointermove);
+        renderer.domElement.removeEventListener("touchstart", touchstart, eventParams);
+        renderer.domElement.removeEventListener("touchmove", touchmove, eventParams);
+        renderer.domElement.removeEventListener("touchend", touchend, eventParams);
+        renderer.domElement.removeEventListener("touchcancel", touchend, eventParams);
         if (renderer.domElement.parentElement) {
           renderer.domElement.parentElement.removeChild(renderer.domElement);
         }
@@ -43822,9 +43829,11 @@
       }
       function touchend(e) {
         e.preventDefault();
-        trigger();
       }
       function pointerdown({ clientX, clientY }) {
+        if (animating) {
+          return;
+        }
         dragging = true;
         if (cap.tween) {
           cap.tween.stop();
@@ -43839,7 +43848,7 @@
         const height = window.innerHeight;
         mouse.x = clientX / width * 2 - 1;
         mouse.y = -(clientY / height) * 2 + 1;
-        mouse.needsUpdate = true;
+        updateCursor();
       }
       function pointerup({ clientX, clientY }) {
         dragging = false;
@@ -43852,15 +43861,41 @@
           const height = window.innerHeight;
           mouse.x = clientX / width * 2 - 1;
           mouse.y = -(clientY / height) * 2 + 1;
-          mouse.needsUpdate = true;
           raycaster.setFromCamera(mouse, camera);
           const intersections = raycaster.intersectObject(top);
           if (intersections.length > 0) {
             peel(top);
           }
+        } else {
         }
         window.removeEventListener("pointermove", drag);
         window.removeEventListener("pointerup", pointerup);
+      }
+      function batch() {
+        let index = 0;
+        const per = Math.floor(amount * dim);
+        animating = true;
+        peel(getTop()).then(f);
+        function f() {
+          if (top && index < per) {
+            const sticker = top;
+            vector.set(
+              sticker.position.x + (Math.random() - 0.5),
+              sticker.position.y + (Math.random() - 0.5) * Sticker.aspect
+            );
+            vector.rotateAround(sticker.position, sticker.rotation.z);
+            updateCursor({
+              x: vector.x,
+              y: vector.y,
+              z: sticker.position.z
+            });
+            peel(sticker).then(f);
+            index++;
+          } else {
+            mouse.set(-10, -10);
+            animating = false;
+          }
+        }
       }
       function peel(sticker) {
         animating = true;
@@ -43873,17 +43908,20 @@
           );
           let x = rad * Math.cos(angle);
           let y = rad * Math.sin(angle);
-          const tCursor = new Tween(sticker.material.uniforms.cursor.value).to({ x, y }, duration).easing(Easing.Circular.In).onComplete(() => {
-            setTop(getTop());
+          const tween = new Tween(sticker.material.uniforms.cursor.value).to({ x, y }, duration).easing(Easing.Circular.In).onUpdate(() => console.log("update")).onComplete(() => {
+            tween.stop();
             sticker.visible = false;
-            tCursor.stop();
+            setTop(getTop());
             animating = false;
             resolve();
           }).start();
           if (cap.tween) {
             cap.tween.stop();
           }
-          cap.tween = new Tween(cap).to({ value: 0.25 }, duration).easing(Easing.Circular.In).onComplete(() => cap.tween.stop()).start();
+          cap.tween = new Tween(cap).to({ value: 0.25 }, duration).easing(Easing.Circular.In).onComplete(() => {
+            cap.tween.stop();
+            cap.value = 0.5;
+          }).start();
         });
       }
       function pointermove({ clientX, clientY }) {
@@ -43894,19 +43932,20 @@
         const height = window.innerHeight;
         mouse.x = clientX / width * 2 - 1;
         mouse.y = -(clientY / height) * 2 + 1;
-        mouse.needsUpdate = true;
+        updateCursor();
       }
-      function intersect() {
-        if (mouse.needsUpdate) {
-          raycaster.setFromCamera(mouse, camera);
-          const intersections = raycaster.intersectObject(plane);
-          if (intersections.length > 0) {
-            cursor.position.copy(intersections[0].point);
-          } else {
-            cursor.position.set(-10, -10, 0);
-          }
-          mouse.needsUpdate = false;
+      function updateCursor(position) {
+        raycaster.setFromCamera(mouse, camera);
+        const intersections = raycaster.intersectObject(plane);
+        if (position) {
+          cursor.position.copy(position);
+        } else if (intersections.length > 0) {
+          cursor.position.copy(intersections[0].point);
+        } else {
+          cursor.position.set(-10, -10, 0);
         }
+      }
+      function fold() {
         if (!top) {
           return;
         }
@@ -43919,7 +43958,6 @@
         p.x = distance * Math.cos(angle);
         p.y = distance * Math.sin(angle);
         sticker.material.uniforms.magnitude.value = 1;
-        sticker.material.uniforms.magnitude.t = 0;
       }
       function resize() {
         let width = window.innerWidth;
@@ -43941,23 +43979,25 @@
         } else {
           camera.rotation.z = 0;
         }
+        const sqrt = Math.sqrt(amount);
         const size = getMaxDimensionInWorldSpace(camera, plane);
+        const cols = size.width > size.height ? camera.aspect * sqrt : sqrt;
+        const rows = size.height > size.width ? sqrt : sqrt / camera.aspect;
         stickers.children.forEach((sticker, i) => {
-          const isLast = i >= amount - 1;
-          let x = Math.random() * size.width - size.width / 2;
-          let y = Math.random() * size.height - size.height / 2;
-          if (isMobile) {
-            x = Math.random() * size.height - size.height / 2;
-            y = Math.random() * size.width - size.width / 2;
-          }
+          const isLast = i === amount;
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          const xpct = (col + 0.5) / cols;
+          const ypct = (row + 0.5) / rows;
+          const x = size.width * (xpct - 0.5);
+          const y = size.height * (ypct - 0.5);
           sticker.position.x = isLast ? 0 : x;
           sticker.position.y = isLast ? 0 : y;
-          sticker.userData.position.copy(sticker.position);
         });
       }
       function update2() {
         update();
-        intersect();
+        fold();
         renderer.render(scene, camera);
       }
     }
@@ -43978,6 +44018,7 @@
   function setTop(sticker) {
     if (top) {
       top.material.depthTest = false;
+      top.material.uniforms.magnitude.value = 0;
     }
     top = sticker;
     if (top) {

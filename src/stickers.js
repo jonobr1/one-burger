@@ -4,6 +4,7 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { Sticker } from "./sticker.js";
 
 const TWO_PI = Math.PI * 2;
+const vector = new THREE.Vector2();
 
 let top = null;
 let touch = null;
@@ -11,7 +12,8 @@ let isMobile = window.navigator.maxTouchPoints > 0;
 let dragging = false;
 let animating = false;
 
-const amount = 150;
+const dim = 1 / 6; // How many clicks to clear
+const amount = 49;  // PoT
 const cap = { value: 0.5, tween: null };
 
 const raycaster = new THREE.Raycaster();
@@ -56,22 +58,17 @@ export default function App(props) {
     scene.add(cursor, plane, stickers);
     camera.position.z = 2.25;
 
-    for (let i = 0; i < amount; i++) {
+    for (let i = 0; i < amount + 1; i++) {
 
       const sticker = new Sticker();
-      const isLast = i >= amount - 1;
+      const isLast = i >= amount;
       const rotation = TWO_PI * Math.random();
 
       sticker.rotation.z = isLast ? 0 : rotation;
-      sticker.userData.position = new THREE.Vector2();
 
-      sticker.renderOrder = i;
+      sticker.renderOrder = isLast ? (amount + 2) : (1 + Math.random() * amount);
       sticker.material.uniforms.is3D.value = 1;
       sticker.material.uniforms.hasShadows.value = 1;
-
-      const cx = 1.20 * (Math.random() - 0.5);
-      const cy = 0.80 * (Math.random() - 0.5);
-      sticker.material.uniforms.cursor.value = new THREE.Vector2(cx, cy);
 
       stickers.add(sticker);
 
@@ -82,19 +79,17 @@ export default function App(props) {
     }
 
     renderer.setClearAlpha(0);
-
     domElement.current.appendChild(renderer.domElement);
-    renderer.setAnimationLoop(update);
 
+    renderer.setAnimationLoop(update);
     window.addEventListener('resize', resize);
+    
     renderer.domElement.addEventListener('pointerdown', pointerdown);
     renderer.domElement.addEventListener('pointermove', pointermove);
-
-    // renderer.domElement.addEventListener('touchstart', touchstart, eventParams);
-    // renderer.domElement.addEventListener('touchmove', touchmove, eventParams);
-    // renderer.domElement.addEventListener('touchend', touchend, eventParams);
-    // renderer.domElement.addEventListener('touchcancel', touchend, eventParams);
-    // renderer.domElement.addEventListener('click', trigger);
+    renderer.domElement.addEventListener('touchstart', touchstart, eventParams);
+    renderer.domElement.addEventListener('touchmove', touchmove, eventParams);
+    renderer.domElement.addEventListener('touchend', touchend, eventParams);
+    renderer.domElement.addEventListener('touchcancel', touchend, eventParams);
     
     renderer.render(scene, camera);
     resize();
@@ -109,11 +104,10 @@ export default function App(props) {
 
       renderer.domElement.addEventListener('pointerdown', pointerdown);
       renderer.domElement.removeEventListener('pointermove', pointermove);
-      // renderer.domElement.removeEventListener('touchstart', touchstart, eventParams);
-      // renderer.domElement.removeEventListener('touchmove', touchmove, eventParams);
-      // renderer.domElement.removeEventListener('touchend', touchend, eventParams);
-      // renderer.domElement.removeEventListener('touchcancel', touchend, eventParams);
-      // renderer.domElement.removeEventListener('click', trigger);
+      renderer.domElement.removeEventListener('touchstart', touchstart, eventParams);
+      renderer.domElement.removeEventListener('touchmove', touchmove, eventParams);
+      renderer.domElement.removeEventListener('touchend', touchend, eventParams);
+      renderer.domElement.removeEventListener('touchcancel', touchend, eventParams);
 
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement
@@ -140,11 +134,14 @@ export default function App(props) {
     function touchend(e) {
 
       e.preventDefault();
-      trigger();
 
     }
 
     function pointerdown({ clientX, clientY }) {
+
+      if (animating) {
+        return;
+      }
 
       dragging = true;
 
@@ -166,11 +163,15 @@ export default function App(props) {
     }
 
     function drag({ clientX, clientY }) {
+
       const width = window.innerWidth;
       const height = window.innerHeight;
+
       mouse.x = (clientX / width) * 2 - 1;
       mouse.y = - (clientY / height) * 2 + 1;
-      mouse.needsUpdate = true;
+
+      updateCursor();
+
     }
 
     function pointerup({ clientX, clientY }) {
@@ -194,19 +195,59 @@ export default function App(props) {
   
         mouse.x = (clientX / width) * 2 - 1;
         mouse.y = - (clientY / height) * 2 + 1;
-        mouse.needsUpdate = true;
-  
+
         raycaster.setFromCamera(mouse, camera);
-  
+
         const intersections = raycaster.intersectObject(top);
         if (intersections.length > 0) {
           peel(top);
         }
 
+      } else {
+
+        // Add all stickers back in
+
       }
 
       window.removeEventListener('pointermove', drag);
       window.removeEventListener('pointerup', pointerup);
+
+    }
+
+    function batch() {
+
+      let index = 0;
+      const per = Math.floor(amount * dim);
+
+      animating = true;
+      peel(getTop()).then(f);
+
+      function f() {
+
+        if (top && index < per) {
+
+          const sticker = top;
+          vector.set(
+            sticker.position.x + (Math.random() - 0.5),
+            sticker.position.y + (Math.random() - 0.5) * Sticker.aspect
+          );
+          vector.rotateAround(sticker.position, sticker.rotation.z);
+
+          updateCursor({
+            x: vector.x,
+            y: vector.y,
+            z: sticker.position.z
+          });
+
+          peel(sticker).then(f);
+          index++;
+
+        } else {
+          mouse.set(-10, -10);
+          animating = false;
+        }
+
+      }
 
     }
 
@@ -226,13 +267,14 @@ export default function App(props) {
         let x = rad * Math.cos(angle);
         let y = rad * Math.sin(angle);
 
-        const tCursor = new TWEEN.Tween(sticker.material.uniforms.cursor.value)
+        const tween = new TWEEN.Tween(sticker.material.uniforms.cursor.value)
           .to({ x, y }, duration)
           .easing(TWEEN.Easing.Circular.In)
+          .onUpdate(() => console.log('update'))
           .onComplete(() => {
-            setTop(getTop());
+            tween.stop();
             sticker.visible = false;
-            tCursor.stop();
+            setTop(getTop());
             animating = false;
             resolve();
           })
@@ -245,7 +287,10 @@ export default function App(props) {
         cap.tween = new TWEEN.Tween(cap)
           .to({ value: 0.25 }, duration)
           .easing(TWEEN.Easing.Circular.In)
-          .onComplete(() => cap.tween.stop())
+          .onComplete(() => {
+            cap.tween.stop();
+            cap.value = 0.5;
+          })
           .start();
 
       });
@@ -253,33 +298,37 @@ export default function App(props) {
     }
 
     function pointermove({ clientX, clientY }) {
+
       if (dragging || animating) {
         return;
       }
+
       const width = window.innerWidth;
       const height = window.innerHeight;
+
       mouse.x = (clientX / width) * 2 - 1;
       mouse.y = - (clientY / height) * 2 + 1;
-      mouse.needsUpdate = true;
+
+      updateCursor();
+
     }
 
-    function intersect() {
+    function updateCursor(position) {
 
-      if (mouse.needsUpdate) {
+      raycaster.setFromCamera(mouse, camera);
+      const intersections = raycaster.intersectObject(plane);
 
-        raycaster.setFromCamera(mouse, camera);
-
-        const intersections = raycaster.intersectObject(plane);
-  
-        if (intersections.length > 0) {
-          cursor.position.copy(intersections[0].point);
-        } else {
-          cursor.position.set(-10, -10, 0);
-        }
-
-        mouse.needsUpdate = false;
-
+      if (position) {
+        cursor.position.copy(position);
+      } else if (intersections.length > 0) {
+        cursor.position.copy(intersections[0].point);
+      } else {
+        cursor.position.set(-10, -10, 0);
       }
+
+    }
+
+    function fold() {
 
       if (!top) {
         return;
@@ -297,7 +346,6 @@ export default function App(props) {
       p.y = distance * Math.sin(angle);
 
       sticker.material.uniforms.magnitude.value = 1;
-      sticker.material.uniforms.magnitude.t = 0;
 
     }
 
@@ -330,22 +378,25 @@ export default function App(props) {
         camera.rotation.z = 0;
       }
 
+      const sqrt = Math.sqrt(amount);
       const size = getMaxDimensionInWorldSpace(camera, plane);
+      const cols = size.width > size.height ? (camera.aspect * sqrt) : sqrt;
+      const rows = size.height > size.width ? sqrt : (sqrt / camera.aspect);
       stickers.children.forEach((sticker, i) => {
 
-        const isLast = i >= amount - 1;
+        const isLast = i === amount;
   
-        let x = Math.random() * size.width - size.width / 2;
-        let y = Math.random() * size.height - size.height / 2;
+        const col = i % cols;
+        const row = Math.floor(i / cols);
 
-        if (isMobile) {
-          x = Math.random() * size.height - size.height / 2;
-          y = Math.random() * size.width - size.width / 2;
-        }
+        const xpct = (col + 0.5) / cols;
+        const ypct = (row + 0.5) / rows;
+
+        const x = size.width * (xpct - 0.5);
+        const y = size.height * (ypct - 0.5);
   
         sticker.position.x = isLast ? 0 : x;
         sticker.position.y = isLast ? 0 : y;
-        sticker.userData.position.copy(sticker.position)
 
       });
     }
@@ -354,7 +405,7 @@ export default function App(props) {
 
       TWEEN.update();
 
-      intersect();
+      fold();
       renderer.render(scene, camera);
 
     }
@@ -397,6 +448,7 @@ function getMaxDimensionInWorldSpace(camera, plane) {
 function setTop(sticker) {
   if (top) {
     top.material.depthTest = false;
+    top.material.uniforms.magnitude.value = 0;
   }
   top = sticker;
   if (top) {
