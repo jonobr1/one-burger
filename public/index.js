@@ -43908,7 +43908,7 @@
           );
           let x = rad * Math.cos(angle);
           let y = rad * Math.sin(angle);
-          const tween = new Tween(sticker.material.uniforms.cursor.value).to({ x, y }, duration).easing(Easing.Circular.In).onUpdate(() => console.log("update")).onComplete(() => {
+          const tween = new Tween(sticker.material.uniforms.cursor.value).to({ x, y }, duration).easing(Easing.Circular.In).onComplete(() => {
             tween.stop();
             sticker.visible = false;
             setTop(getTop());
@@ -43981,16 +43981,16 @@
         }
         const sqrt = Math.sqrt(amount);
         const size = getMaxDimensionInWorldSpace(camera, plane);
-        const cols = size.width > size.height ? camera.aspect * sqrt : sqrt;
-        const rows = size.height > size.width ? sqrt : sqrt / camera.aspect;
+        const cols = sqrt;
+        const rows = sqrt;
         stickers.children.forEach((sticker, i) => {
           const isLast = i === amount;
           const col = i % cols;
           const row = Math.floor(i / cols);
           const xpct = (col + 0.5) / cols;
           const ypct = (row + 0.5) / rows;
-          const x = size.width * (xpct - 0.5);
-          const y = size.height * (ypct - 0.5);
+          let x = size.width * (xpct - 0.5);
+          let y = size.height * (ypct - 0.5);
           sticker.position.x = isLast ? 0 : x;
           sticker.position.y = isLast ? 0 : y;
         });
