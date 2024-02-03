@@ -16,7 +16,7 @@ export class Sticker extends THREE.Mesh {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         map: { value: texture },
-        magnitude: { value: 0 },
+        magnitude: { value: 1 },
         // A vec2 of where the cursor is in relation
         // to the center of the object.
         cursor: { value: new THREE.Vector2(-10, -10) },
@@ -118,10 +118,37 @@ export class Sticker extends THREE.Mesh {
       `,
       side: THREE.DoubleSide,
       transparent: true,
-      depthTest: false
+      depthTest: true
     });
 
     super(geometry, material);
+
+    this.userData.cursor = new THREE.Vector2(-10, -10);
+    this.userData.folding = false;
+    this.userData.cap = { value: 1 };
+
+  }
+
+  fold() {
+  
+    const folding = this.material.depthTest;
+
+    if (!folding || !this.visible) {
+      return;
+    }
+
+    const { cap, cursor } = this.userData;
+    const dx = cursor.x - this.position.x;
+    const dy = cursor.y - this.position.y;
+    const angle = Math.atan2(dy, dx);
+
+    const distance = Math.max(cursor.distanceTo(this.position), cap.value);
+    const p = this.material.uniforms.cursor.value;
+
+    p.x = distance * Math.cos(angle);
+    p.y = distance * Math.sin(angle);
+
+    return this;
 
   }
 

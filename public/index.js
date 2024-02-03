@@ -10815,7 +10815,7 @@
               current: defaultValue
             };
           }
-          function pop(cursor2, fiber) {
+          function pop(cursor, fiber) {
             if (index < 0) {
               {
                 error("Unexpected pop.");
@@ -10827,20 +10827,20 @@
                 error("Unexpected Fiber popped.");
               }
             }
-            cursor2.current = valueStack[index];
+            cursor.current = valueStack[index];
             valueStack[index] = null;
             {
               fiberStack[index] = null;
             }
             index--;
           }
-          function push(cursor2, value, fiber) {
+          function push(cursor, value, fiber) {
             index++;
-            valueStack[index] = cursor2.current;
+            valueStack[index] = cursor.current;
             {
               fiberStack[index] = fiber;
             }
-            cursor2.current = value;
+            cursor.current = value;
           }
           var warnedAboutMissingGetChildContext;
           {
@@ -26133,9 +26133,9 @@
       this.max.max(point);
       return this;
     }
-    expandByVector(vector2) {
-      this.min.sub(vector2);
-      this.max.add(vector2);
+    expandByVector(vector) {
+      this.min.sub(vector);
+      this.max.add(vector);
       return this;
     }
     expandByScalar(scalar) {
@@ -27401,12 +27401,12 @@
       scale.z = sz;
       return this;
     }
-    makePerspective(left, right, top2, bottom, near, far, coordinateSystem = WebGLCoordinateSystem) {
+    makePerspective(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem) {
       const te = this.elements;
       const x = 2 * near / (right - left);
-      const y = 2 * near / (top2 - bottom);
+      const y = 2 * near / (top - bottom);
       const a = (right + left) / (right - left);
-      const b = (top2 + bottom) / (top2 - bottom);
+      const b = (top + bottom) / (top - bottom);
       let c, d;
       if (coordinateSystem === WebGLCoordinateSystem) {
         c = -(far + near) / (far - near);
@@ -27435,13 +27435,13 @@
       te[15] = 0;
       return this;
     }
-    makeOrthographic(left, right, top2, bottom, near, far, coordinateSystem = WebGLCoordinateSystem) {
+    makeOrthographic(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem) {
       const te = this.elements;
       const w = 1 / (right - left);
-      const h = 1 / (top2 - bottom);
+      const h = 1 / (top - bottom);
       const p = 1 / (far - near);
       const x = (right + left) * w;
-      const y = (top2 + bottom) * h;
+      const y = (top + bottom) * h;
       let z, zInv;
       if (coordinateSystem === WebGLCoordinateSystem) {
         z = (far + near) * p;
@@ -27858,13 +27858,13 @@
     translateZ(distance) {
       return this.translateOnAxis(_zAxis, distance);
     }
-    localToWorld(vector2) {
+    localToWorld(vector) {
       this.updateWorldMatrix(true, false);
-      return vector2.applyMatrix4(this.matrixWorld);
+      return vector.applyMatrix4(this.matrixWorld);
     }
-    worldToLocal(vector2) {
+    worldToLocal(vector) {
       this.updateWorldMatrix(true, false);
-      return vector2.applyMatrix4(_m1$1.copy(this.matrixWorld).invert());
+      return vector.applyMatrix4(_m1$1.copy(this.matrixWorld).invert());
     }
     lookAt(x, y, z) {
       if (x.isVector3) {
@@ -29796,8 +29796,8 @@
       this.applyMatrix4(_m1);
       return this;
     }
-    lookAt(vector2) {
-      _obj.lookAt(vector2);
+    lookAt(vector) {
+      _obj.lookAt(vector);
       _obj.updateMatrix();
       this.applyMatrix4(_obj.matrix);
       return this;
@@ -30519,19 +30519,19 @@
         const gridY1 = gridY + 1;
         let vertexCounter = 0;
         let groupCount = 0;
-        const vector2 = new Vector3();
+        const vector = new Vector3();
         for (let iy = 0; iy < gridY1; iy++) {
           const y = iy * segmentHeight - heightHalf;
           for (let ix = 0; ix < gridX1; ix++) {
             const x = ix * segmentWidth - widthHalf;
-            vector2[u] = x * udir;
-            vector2[v] = y * vdir;
-            vector2[w] = depthHalf;
-            vertices.push(vector2.x, vector2.y, vector2.z);
-            vector2[u] = 0;
-            vector2[v] = 0;
-            vector2[w] = depth2 > 0 ? 1 : -1;
-            normals.push(vector2.x, vector2.y, vector2.z);
+            vector[u] = x * udir;
+            vector[v] = y * vdir;
+            vector[w] = depthHalf;
+            vertices.push(vector.x, vector.y, vector.z);
+            vector[u] = 0;
+            vector[v] = 0;
+            vector[w] = depth2 > 0 ? 1 : -1;
+            normals.push(vector.x, vector.y, vector.z);
             uvs.push(ix / gridX);
             uvs.push(1 - iy / gridY);
             vertexCounter += 1;
@@ -30889,22 +30889,22 @@
     }
     updateProjectionMatrix() {
       const near = this.near;
-      let top2 = near * Math.tan(DEG2RAD * 0.5 * this.fov) / this.zoom;
-      let height = 2 * top2;
+      let top = near * Math.tan(DEG2RAD * 0.5 * this.fov) / this.zoom;
+      let height = 2 * top;
       let width = this.aspect * height;
       let left = -0.5 * width;
       const view = this.view;
       if (this.view !== null && this.view.enabled) {
         const fullWidth = view.fullWidth, fullHeight = view.fullHeight;
         left += view.offsetX * width / fullWidth;
-        top2 -= view.offsetY * height / fullHeight;
+        top -= view.offsetY * height / fullHeight;
         width *= view.width / fullWidth;
         height *= view.height / fullHeight;
       }
       const skew = this.filmOffset;
       if (skew !== 0)
         left += near * skew / this.getFilmWidth();
-      this.projectionMatrix.makePerspective(left, left + width, top2, top2 - height, near, this.far, this.coordinateSystem);
+      this.projectionMatrix.makePerspective(left, left + width, top, top - height, near, this.far, this.coordinateSystem);
       this.projectionMatrixInverse.copy(this.projectionMatrix).invert();
     }
     toJSON(meta) {
@@ -33037,7 +33037,7 @@
     };
   }
   var OrthographicCamera = class extends Camera {
-    constructor(left = -1, right = 1, top2 = 1, bottom = -1, near = 0.1, far = 2e3) {
+    constructor(left = -1, right = 1, top = 1, bottom = -1, near = 0.1, far = 2e3) {
       super();
       this.isOrthographicCamera = true;
       this.type = "OrthographicCamera";
@@ -33045,7 +33045,7 @@
       this.view = null;
       this.left = left;
       this.right = right;
-      this.top = top2;
+      this.top = top;
       this.bottom = bottom;
       this.near = near;
       this.far = far;
@@ -33097,17 +33097,17 @@
       const cy = (this.top + this.bottom) / 2;
       let left = cx - dx;
       let right = cx + dx;
-      let top2 = cy + dy;
+      let top = cy + dy;
       let bottom = cy - dy;
       if (this.view !== null && this.view.enabled) {
         const scaleW = (this.right - this.left) / this.view.fullWidth / this.zoom;
         const scaleH = (this.top - this.bottom) / this.view.fullHeight / this.zoom;
         left += scaleW * this.view.offsetX;
         right = left + scaleW * this.view.width;
-        top2 -= scaleH * this.view.offsetY;
-        bottom = top2 - scaleH * this.view.height;
+        top -= scaleH * this.view.offsetY;
+        bottom = top - scaleH * this.view.height;
       }
-      this.projectionMatrix.makeOrthographic(left, right, top2, bottom, this.near, this.far, this.coordinateSystem);
+      this.projectionMatrix.makeOrthographic(left, right, top, bottom, this.near, this.far, this.coordinateSystem);
       this.projectionMatrixInverse.copy(this.projectionMatrix).invert();
     }
     toJSON(meta) {
@@ -41625,78 +41625,6 @@
       return data;
     }
   };
-  var SphereGeometry = class _SphereGeometry extends BufferGeometry {
-    constructor(radius = 1, widthSegments = 32, heightSegments = 16, phiStart = 0, phiLength = Math.PI * 2, thetaStart = 0, thetaLength = Math.PI) {
-      super();
-      this.type = "SphereGeometry";
-      this.parameters = {
-        radius,
-        widthSegments,
-        heightSegments,
-        phiStart,
-        phiLength,
-        thetaStart,
-        thetaLength
-      };
-      widthSegments = Math.max(3, Math.floor(widthSegments));
-      heightSegments = Math.max(2, Math.floor(heightSegments));
-      const thetaEnd = Math.min(thetaStart + thetaLength, Math.PI);
-      let index = 0;
-      const grid = [];
-      const vertex2 = new Vector3();
-      const normal = new Vector3();
-      const indices = [];
-      const vertices = [];
-      const normals = [];
-      const uvs = [];
-      for (let iy = 0; iy <= heightSegments; iy++) {
-        const verticesRow = [];
-        const v = iy / heightSegments;
-        let uOffset = 0;
-        if (iy === 0 && thetaStart === 0) {
-          uOffset = 0.5 / widthSegments;
-        } else if (iy === heightSegments && thetaEnd === Math.PI) {
-          uOffset = -0.5 / widthSegments;
-        }
-        for (let ix = 0; ix <= widthSegments; ix++) {
-          const u = ix / widthSegments;
-          vertex2.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-          vertex2.y = radius * Math.cos(thetaStart + v * thetaLength);
-          vertex2.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-          vertices.push(vertex2.x, vertex2.y, vertex2.z);
-          normal.copy(vertex2).normalize();
-          normals.push(normal.x, normal.y, normal.z);
-          uvs.push(u + uOffset, 1 - v);
-          verticesRow.push(index++);
-        }
-        grid.push(verticesRow);
-      }
-      for (let iy = 0; iy < heightSegments; iy++) {
-        for (let ix = 0; ix < widthSegments; ix++) {
-          const a = grid[iy][ix + 1];
-          const b = grid[iy][ix];
-          const c = grid[iy + 1][ix];
-          const d = grid[iy + 1][ix + 1];
-          if (iy !== 0 || thetaStart > 0)
-            indices.push(a, b, d);
-          if (iy !== heightSegments - 1 || thetaEnd < Math.PI)
-            indices.push(b, c, d);
-        }
-      }
-      this.setIndex(indices);
-      this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
-      this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
-      this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
-    }
-    copy(source) {
-      super.copy(source);
-      this.parameters = Object.assign({}, source.parameters);
-      return this;
-    }
-    static fromJSON(data) {
-      return new _SphereGeometry(data.radius, data.widthSegments, data.heightSegments, data.phiStart, data.phiLength, data.thetaStart, data.thetaLength);
-    }
-  };
   function convertArray(array, type, forceClone) {
     if (!array || // let 'undefined' and 'null' pass
     !forceClone && array.constructor === type)
@@ -43621,7 +43549,7 @@
       const material = new ShaderMaterial({
         uniforms: {
           map: { value: texture },
-          magnitude: { value: 0 },
+          magnitude: { value: 1 },
           // A vec2 of where the cursor is in relation
           // to the center of the object.
           cursor: { value: new Vector2(-10, -10) },
@@ -43723,9 +43651,27 @@
       `,
         side: DoubleSide,
         transparent: true,
-        depthTest: false
+        depthTest: true
       });
       super(geometry, material);
+      this.userData.cursor = new Vector2(-10, -10);
+      this.userData.folding = false;
+      this.userData.cap = { value: 1 };
+    }
+    fold() {
+      const folding = this.material.depthTest;
+      if (!folding || !this.visible) {
+        return;
+      }
+      const { cap, cursor } = this.userData;
+      const dx = cursor.x - this.position.x;
+      const dy = cursor.y - this.position.y;
+      const angle = Math.atan2(dy, dx);
+      const distance = Math.max(cursor.distanceTo(this.position), cap.value);
+      const p = this.material.uniforms.cursor.value;
+      p.x = distance * Math.cos(angle);
+      p.y = distance * Math.sin(angle);
+      return this;
     }
     static width = STICKER_WIDTH;
     static height = STICKER_HEIGHT;
@@ -43735,16 +43681,15 @@
 
   // src/stickers.js
   var TWO_PI = Math.PI * 2;
-  var vector = new Vector2();
   var duration = 500;
-  var top = null;
   var touch = null;
   var isMobile = window.navigator.maxTouchPoints > 0;
   var dragging = false;
   var animating = false;
+  var sorted = null;
+  var foreground = null;
   var dim = 1 / 6;
   var amount = 49;
-  var cap = { value: 0.5, tween: null };
   var raycaster = new Raycaster();
   var mouse = new Vector2(-10, -10);
   var eventParams = { passive: false };
@@ -43758,38 +43703,28 @@
       transparent: true
     })
   );
-  var cursor = new Mesh(
-    new SphereGeometry(1, 1, 1, 1),
-    new MeshBasicMaterial({
-      color: "green"
-    })
-  );
-  cursor.position.set(-10, -10, 0);
-  cursor.visible = false;
-  cursor.scale.set(0.05, 0.05, 0.05);
   function App(props) {
     const domElement2 = (0, import_react.useRef)();
     (0, import_react.useEffect)(mount, []);
     function mount() {
       const renderer = new WebGLRenderer({ antialias: true });
       const scene = new Scene();
-      const camera = new PerspectiveCamera();
+      const camera = new OrthographicCamera(-1, 1, -1, 1, 0.1, amount * 10);
       Sticker.Texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-      scene.add(cursor, plane, stickers);
-      camera.position.z = 2.25;
+      scene.add(plane, stickers);
+      camera.position.z = amount * 2;
       for (let i = 0; i < amount + 1; i++) {
         const sticker = new Sticker();
         const isLast = i >= amount;
         const rotation = TWO_PI * Math.random();
         sticker.rotation.z = isLast ? 0 : rotation;
-        sticker.renderOrder = isLast ? amount + 2 : 1 + Math.random() * amount;
+        sticker.position.z = isLast ? (amount + 1) * 1.5 : Math.random() * amount * 1.5;
         sticker.material.uniforms.is3D.value = 1;
         sticker.material.uniforms.hasShadows.value = 1;
         stickers.add(sticker);
-        if (isLast) {
-          setTop(sticker);
-        }
       }
+      sorted = getSorted();
+      setForeground();
       renderer.setClearAlpha(0);
       domElement2.current.appendChild(renderer.domElement);
       renderer.setAnimationLoop(update2);
@@ -43838,10 +43773,13 @@
           return;
         }
         dragging = true;
-        if (cap.tween) {
-          cap.tween.stop();
-        }
-        cap.tween = new Tween(cap).to({ value: 0.4 }, duration).easing(Easing.Back.Out).onComplete(() => cap.tween.stop()).start();
+        foreground.forEach((sticker) => {
+          const cap = sticker.userData.cap;
+          if (cap.tween) {
+            cap.tween.stop();
+          }
+          cap.tween = new Tween(cap).to({ value: 0.4 }, duration).easing(Easing.Back.Out).onComplete(() => cap.tween.stop()).start();
+        });
         drag({ clientX, clientY });
         window.addEventListener("pointermove", drag);
         window.addEventListener("pointerup", pointerup);
@@ -43851,57 +43789,64 @@
         const height = window.innerHeight;
         mouse.x = clientX / width * 2 - 1;
         mouse.y = -(clientY / height) * 2 + 1;
-        updateCursor();
+        foreground.forEach(updateCursor);
       }
       function pointerup({ clientX, clientY }) {
         dragging = false;
-        if (cap.tween) {
-          cap.tween.stop();
-        }
-        cap.tween = new Tween(cap).to({ value: 0.5 }, duration).easing(Easing.Back.Out).onComplete(() => cap.tween.stop()).start();
-        if (top) {
+        foreground.forEach((sticker) => {
+          const cap = sticker.userData.cap;
+          if (cap.tween) {
+            cap.tween.stop();
+          }
+          cap.tween = new Tween(cap).to({ value: 0.5 }, duration).easing(Easing.Back.Out).onComplete(() => cap.tween.stop()).start();
+        });
+        if (foreground.length > 0) {
           const width = window.innerWidth;
           const height = window.innerHeight;
           mouse.x = clientX / width * 2 - 1;
           mouse.y = -(clientY / height) * 2 + 1;
           raycaster.setFromCamera(mouse, camera);
-          const intersections = raycaster.intersectObject(top);
+          const intersections = raycaster.intersectObjects(foreground);
           if (intersections.length > 0) {
-            peel(top);
+            batch(intersections[0].object);
           }
         } else {
         }
         window.removeEventListener("pointermove", drag);
         window.removeEventListener("pointerup", pointerup);
       }
-      function batch() {
-        let index = 0;
+      function batch(sticker) {
+        if (animating) {
+          return;
+        }
+        let isFirst = true;
         const per = Math.floor(amount * dim);
-        animating = true;
-        peel(getTop()).then(f);
-        function f() {
-          if (top && index < per) {
-            const sticker = top;
-            vector.set(
-              sticker.position.x + (Math.random() - 0.5),
-              sticker.position.y + (Math.random() - 0.5) * Sticker.aspect
+        const eligible = [sticker].concat(
+          sorted.filter((s) => s.visible && s.uuid !== sticker.uuid).slice(0, per)
+        );
+        return Promise.all(
+          eligible.map((sticker2, i) => {
+            const delay = duration * i * 0.7;
+            return f(sticker2, delay);
+          })
+        ).then(setForeground);
+        function f(sticker2, delay) {
+          const angle = Math.random() * TWO_PI;
+          const rad = 0.25;
+          if (!isFirst) {
+            sticker2.userData.cap.value = 1;
+            const projection = new Vector2(
+              rad * Math.cos(angle),
+              rad * Math.sin(angle) * Sticker.aspect
             );
-            vector.rotateAround(sticker.position, sticker.rotation.z);
-            updateCursor({
-              x: vector.x,
-              y: vector.y,
-              z: sticker.position.z
-            });
-            peel(sticker).then(f);
-            index++;
-          } else {
-            mouse.set(-10, -10);
-            animating = false;
+            sticker2.userData.cursor.copy(sticker2.position).add(projection).rotateAround(sticker2.position, -sticker2.rotation.z);
           }
+          isFirst = false;
+          return peel(sticker2, delay);
         }
       }
-      function peel(sticker) {
-        animating = true;
+      function peel(sticker, delay) {
+        const cap = sticker.userData.cap;
         const rad = 1e-3;
         const angle = Math.atan2(
           sticker.material.uniforms.cursor.value.y,
@@ -43909,10 +43854,12 @@
         );
         let x = rad * Math.cos(angle);
         let y = rad * Math.sin(angle);
-        return Promise.all([fold2(), curl()]).then(fade).then(rest);
-        function fold2() {
+        delay = delay || 0;
+        animating = true;
+        return Promise.all([fold(), curl()]).then(fade).then(rest);
+        function fold() {
           return new Promise((resolve) => {
-            const tween = new Tween(sticker.material.uniforms.cursor.value).to({ x, y }, duration).easing(Easing.Sinusoidal.Out).onComplete(() => {
+            const tween = new Tween(sticker.material.uniforms.cursor.value).to({ x, y }, duration).easing(Easing.Sinusoidal.Out).delay(delay).onComplete(() => {
               tween.stop();
               resolve();
             }).start();
@@ -43923,7 +43870,7 @@
             if (cap.tween) {
               cap.tween.stop();
             }
-            cap.tween = new Tween(cap).to({ value: 0.25 }, duration).easing(Easing.Sinusoidal.Out).onComplete(() => {
+            cap.tween = new Tween(cap).to({ value: 0.3 }, duration).easing(Easing.Sinusoidal.Out).delay(delay).onComplete(() => {
               cap.tween.stop();
               resolve();
             }).start();
@@ -43931,7 +43878,7 @@
         }
         function fade() {
           return new Promise((resolve) => {
-            const tween = new Tween(sticker.material.uniforms.opacity).to({ value: 0 }, duration * 0.25).easing(Easing.Circular.Out).onComplete(() => {
+            const tween = new Tween(sticker.material.uniforms.opacity).to({ value: 0 }, duration * 0.5).easing(Easing.Circular.Out).onComplete(() => {
               tween.stop();
               resolve();
             }).start();
@@ -43939,9 +43886,7 @@
         }
         function rest() {
           sticker.visible = false;
-          setTop(getTop());
           animating = false;
-          cap.value = 0.5;
         }
       }
       function pointermove({ clientX, clientY }) {
@@ -43952,32 +43897,30 @@
         const height = window.innerHeight;
         mouse.x = clientX / width * 2 - 1;
         mouse.y = -(clientY / height) * 2 + 1;
-        updateCursor();
+        foreground.forEach(updateCursor);
       }
-      function updateCursor(position) {
+      function updateCursor(sticker, position) {
         raycaster.setFromCamera(mouse, camera);
         const intersections = raycaster.intersectObject(plane);
-        if (position) {
-          cursor.position.copy(position);
+        const cursor = sticker.userData.cursor;
+        if (position && typeof position === "object") {
+          cursor.copy(position);
         } else if (intersections.length > 0) {
-          cursor.position.copy(intersections[0].point);
+          cursor.copy(intersections[0].point);
         } else {
-          cursor.position.set(-10, -10, 0);
+          cursor.set(-10, -10);
         }
       }
-      function fold() {
-        if (!top) {
-          return;
+      function setForeground() {
+        for (let i = 0; i < stickers.children.length; i++) {
+          const sticker = stickers.children[i];
+          sticker.userData.cap.value = 1;
         }
-        const sticker = top;
-        const dx = cursor.position.x - sticker.position.x;
-        const dy = cursor.position.y - sticker.position.y;
-        const angle = Math.atan2(dy, dx);
-        const distance = Math.max(cursor.position.distanceTo(sticker.position), cap.value);
-        const p = sticker.material.uniforms.cursor.value;
-        p.x = distance * Math.cos(angle);
-        p.y = distance * Math.sin(angle);
-        sticker.material.uniforms.magnitude.value = 1;
+        foreground = sorted.filter((s) => s.visible).slice(0, amount);
+        foreground.forEach((s) => {
+          s.userData.cap.value = 0.5;
+        });
+        return foreground;
       }
       function resize() {
         let width = window.innerWidth;
@@ -43992,7 +43935,10 @@
         }
         renderer.setSize(width, height);
         renderer.setPixelRatio(window.devicePixelRatio);
-        camera.aspect = width / height;
+        camera.top = -1;
+        camera.left = -width / height;
+        camera.right = width / height;
+        camera.bottom = 1;
         camera.updateProjectionMatrix();
         if (isMobile) {
           camera.rotation.z = Math.PI / 2;
@@ -44017,7 +43963,10 @@
       }
       function update2() {
         update();
-        fold();
+        for (let i = 0; i < stickers.children.length; i++) {
+          const sticker = stickers.children[i];
+          sticker.fold();
+        }
         renderer.render(scene, camera);
       }
     }
@@ -44035,30 +43984,10 @@
     const height = Math.max(bottomRight.y - topLeft.y, topLeft.y - bottomRight.y);
     return { width, height };
   }
-  function setTop(sticker) {
-    if (top) {
-      top.material.depthTest = false;
-      top.material.uniforms.magnitude.value = 0;
-    }
-    top = sticker;
-    if (top) {
-      top.material.depthTest = true;
-    }
-  }
-  function getTop() {
-    let renderOrder = -1;
-    let index = -1;
-    for (let i = 0; i < stickers.children.length; i++) {
-      const sticker = stickers.children[i];
-      if (sticker.visible && sticker.renderOrder > renderOrder) {
-        renderOrder = sticker.renderOrder;
-        index = i;
-      }
-    }
-    if (index < 0) {
-      return null;
-    }
-    return stickers.children[index];
+  function getSorted() {
+    const result = stickers.children.slice(0);
+    result.sort((a, b) => b.position.z - a.position.z);
+    return result;
   }
 
   // src/index.js

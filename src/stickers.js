@@ -4,18 +4,18 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { Sticker } from "./sticker.js";
 
 const TWO_PI = Math.PI * 2;
-const vector = new THREE.Vector2();
 const duration = 500;
 
-let top = null;
 let touch = null;
 let isMobile = window.navigator.maxTouchPoints > 0;
 let dragging = false;
 let animating = false;
 
-const dim = 1 / 6; // How many clicks to clear
+let sorted = null;
+let foreground = null;
+
+const dim = 1 / 6;  // How many clicks to clear
 const amount = 49;  // PoT
-const cap = { value: 0.5, tween: null };
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2(-10, -10);
@@ -33,16 +33,6 @@ const plane = new THREE.Mesh(
   })
 );
 
-const cursor = new THREE.Mesh(
-  new THREE.SphereGeometry(1, 1, 1, 1),
-  new THREE.MeshBasicMaterial({
-    color: 'green'
-  })
-);
-cursor.position.set(-10, -10, 0);
-cursor.visible = false;
-cursor.scale.set(0.05, 0.05, 0.05);
-
 export default function App(props) {
 
   const domElement = useRef();
@@ -53,11 +43,11 @@ export default function App(props) {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera();
+    const camera = new THREE.OrthographicCamera(-1, 1, -1, 1, 0.1, amount * 10);
 
     Sticker.Texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    scene.add(cursor, plane, stickers);
-    camera.position.z = 2.25;
+    scene.add(plane, stickers);
+    camera.position.z = amount * 2;
 
     for (let i = 0; i < amount + 1; i++) {
 
@@ -66,18 +56,18 @@ export default function App(props) {
       const rotation = TWO_PI * Math.random();
 
       sticker.rotation.z = isLast ? 0 : rotation;
+      sticker.position.z = isLast ? (amount + 1) * 1.5
+        : (Math.random() * amount) * 1.5;
 
-      sticker.renderOrder = isLast ? (amount + 2) : (1 + Math.random() * amount);
       sticker.material.uniforms.is3D.value = 1;
       sticker.material.uniforms.hasShadows.value = 1;
 
       stickers.add(sticker);
 
-      if (isLast) {
-        setTop(sticker);
-      }
-
     }
+
+    sorted = getSorted();
+    setForeground();
 
     renderer.setClearAlpha(0);
     domElement.current.appendChild(renderer.domElement);
@@ -124,14 +114,12 @@ export default function App(props) {
         drag(touch);
       }
     }
-
     function touchmove(e) {
       e.preventDefault();
       if (e.touches.length > 0) {
         drag(e.touches[0])
       }
     }
-
     function touchend(e) {
 
       e.preventDefault();
@@ -146,15 +134,21 @@ export default function App(props) {
 
       dragging = true;
 
-      if (cap.tween) {
-        cap.tween.stop();
-      }
+      foreground.forEach((sticker) => {
 
-      cap.tween = new TWEEN.Tween(cap)
-        .to({ value: 0.4 }, duration)
-        .easing(TWEEN.Easing.Back.Out)
-        .onComplete(() => cap.tween.stop())
-        .start();
+        const cap = sticker.userData.cap;
+
+        if (cap.tween) {
+          cap.tween.stop();
+        }
+  
+        cap.tween = new TWEEN.Tween(cap)
+          .to({ value: 0.4 }, duration)
+          .easing(TWEEN.Easing.Back.Out)
+          .onComplete(() => cap.tween.stop())
+          .start();
+
+      });
 
       drag({ clientX, clientY });
 
@@ -162,7 +156,6 @@ export default function App(props) {
       window.addEventListener('pointerup', pointerup);
 
     }
-
     function drag({ clientX, clientY }) {
 
       const width = window.innerWidth;
@@ -171,25 +164,30 @@ export default function App(props) {
       mouse.x = (clientX / width) * 2 - 1;
       mouse.y = - (clientY / height) * 2 + 1;
 
-      updateCursor();
+      foreground.forEach(updateCursor);
 
     }
-
     function pointerup({ clientX, clientY }) {
 
       dragging = false;
 
-      if (cap.tween) {
-        cap.tween.stop();
-      }
+      foreground.forEach((sticker) => {
 
-      cap.tween = new TWEEN.Tween(cap)
-        .to({ value: 0.5 }, duration)
-        .easing(TWEEN.Easing.Back.Out)
-        .onComplete(() => cap.tween.stop())
-        .start();
+        const cap = sticker.userData.cap;
 
-      if (top) {
+        if (cap.tween) {
+          cap.tween.stop();
+        }
+  
+        cap.tween = new TWEEN.Tween(cap)
+          .to({ value: 0.5 }, duration)
+          .easing(TWEEN.Easing.Back.Out)
+          .onComplete(() => cap.tween.stop())
+          .start();
+
+      });
+
+      if (foreground.length > 0) {
 
         const width = window.innerWidth;
         const height = window.innerHeight;
@@ -199,9 +197,9 @@ export default function App(props) {
 
         raycaster.setFromCamera(mouse, camera);
 
-        const intersections = raycaster.intersectObject(top);
+        const intersections = raycaster.intersectObjects(foreground);
         if (intersections.length > 0) {
-          peel(top);
+          batch(intersections[0].object);
         }
 
       } else {
@@ -215,47 +213,61 @@ export default function App(props) {
 
     }
 
-    function batch() {
+    function batch(sticker) {
 
-      let index = 0;
+      if (animating) {
+        return;
+      }
+
+      let isFirst = true;
       const per = Math.floor(amount * dim);
 
-      animating = true;
-      peel(getTop()).then(f);
+      const eligible = [sticker].concat(
+        sorted
+          .filter((s) => s.visible && s.uuid !== sticker.uuid)
+          .slice(0, per)
+      );
 
-      function f() {
+      return Promise
+        .all(
+          eligible.map((sticker, i) => {
+            const delay = duration * i * 0.7;
+            return f(sticker, delay);
+          })
+        )
+        .then(setForeground);
 
-        if (top && index < per) {
+      function f(sticker, delay) {
 
-          const sticker = top;
-          vector.set(
-            sticker.position.x + (Math.random() - 0.5),
-            sticker.position.y + (Math.random() - 0.5) * Sticker.aspect
+        const angle = Math.random() * TWO_PI;
+        const rad = 0.25;
+
+        if (!isFirst) {
+
+          sticker.userData.cap.value = 1;
+
+          const projection = new THREE.Vector2(
+            rad * Math.cos(angle),
+            rad * Math.sin(angle) * Sticker.aspect
           );
-          vector.rotateAround(sticker.position, sticker.rotation.z);
 
-          updateCursor({
-            x: vector.x,
-            y: vector.y,
-            z: sticker.position.z
-          });
+          sticker.userData.cursor
+            .copy(sticker.position)
+            .add(projection)
+            .rotateAround(sticker.position, - sticker.rotation.z);
 
-          peel(sticker).then(f);
-          index++;
-
-        } else {
-          mouse.set(-10, -10);
-          animating = false;
         }
+
+        isFirst = false;
+
+        return peel(sticker, delay);
 
       }
 
     }
+    function peel(sticker, delay) {
 
-    function peel(sticker) {
-
-      animating = true;
-
+      const cap = sticker.userData.cap;
       const rad = 0.001;
       const angle = Math.atan2(
         sticker.material.uniforms.cursor.value.y,
@@ -264,6 +276,9 @@ export default function App(props) {
 
       let x = rad * Math.cos(angle);
       let y = rad * Math.sin(angle);
+
+      delay = delay || 0;
+      animating = true;
 
       return Promise
         .all([fold(), curl()])
@@ -275,6 +290,7 @@ export default function App(props) {
           const tween = new TWEEN.Tween(sticker.material.uniforms.cursor.value)
           .to({ x, y }, duration)
           .easing(TWEEN.Easing.Sinusoidal.Out)
+          .delay(delay)
           .onComplete(() => {
             tween.stop();
             resolve();
@@ -289,8 +305,9 @@ export default function App(props) {
             cap.tween.stop();
           }
           cap.tween = new TWEEN.Tween(cap)
-            .to({ value: 0.25 }, duration)
+            .to({ value: 0.3 }, duration)
             .easing(TWEEN.Easing.Sinusoidal.Out)
+            .delay(delay)
             .onComplete(() => {
               cap.tween.stop();
               resolve();
@@ -302,7 +319,7 @@ export default function App(props) {
       function fade() {
         return new Promise((resolve) => {
           const tween = new TWEEN.Tween(sticker.material.uniforms.opacity)
-            .to({ value: 0 }, duration * 0.25)
+            .to({ value: 0 }, duration * 0.5)
             .easing(TWEEN.Easing.Circular.Out)
             .onComplete(() => {
               tween.stop();
@@ -314,9 +331,7 @@ export default function App(props) {
 
       function rest() {
         sticker.visible = false;
-        setTop(getTop());
         animating = false;
-        cap.value = 0.5;
       }
 
     }
@@ -333,44 +348,37 @@ export default function App(props) {
       mouse.x = (clientX / width) * 2 - 1;
       mouse.y = - (clientY / height) * 2 + 1;
 
-      updateCursor();
+      foreground.forEach(updateCursor);
 
     }
 
-    function updateCursor(position) {
+    function updateCursor(sticker, position) {
 
       raycaster.setFromCamera(mouse, camera);
-      const intersections = raycaster.intersectObject(plane);
 
-      if (position) {
-        cursor.position.copy(position);
+      const intersections = raycaster.intersectObject(plane);
+      const cursor = sticker.userData.cursor;
+
+      if (position && typeof position === 'object') {
+        cursor.copy(position);
       } else if (intersections.length > 0) {
-        cursor.position.copy(intersections[0].point);
+        cursor.copy(intersections[0].point);
       } else {
-        cursor.position.set(-10, -10, 0);
+        cursor.set(-10, -10);
       }
 
     }
 
-    function fold() {
-
-      if (!top) {
-        return;
+    function setForeground() {
+      for (let i = 0; i < stickers.children.length; i++) {
+        const sticker = stickers.children[i];
+        sticker.userData.cap.value = 1;
       }
-
-      const sticker = top;
-      const dx = cursor.position.x - sticker.position.x;
-      const dy = cursor.position.y - sticker.position.y;
-      const angle = Math.atan2(dy, dx);
-
-      const distance = Math.max(cursor.position.distanceTo(sticker.position), cap.value);
-      const p = sticker.material.uniforms.cursor.value;
-
-      p.x = distance * Math.cos(angle);
-      p.y = distance * Math.sin(angle);
-
-      sticker.material.uniforms.magnitude.value = 1;
-
+      foreground = sorted.filter((s) => s.visible).slice(0, amount);
+      foreground.forEach((s) => {
+        s.userData.cap.value = 0.5;
+      });
+      return foreground;
     }
 
     function resize() {
@@ -393,7 +401,10 @@ export default function App(props) {
       renderer.setSize(width, height);
       renderer.setPixelRatio(window.devicePixelRatio);
 
-      camera.aspect = width / height;
+      camera.top = - 1;
+      camera.left = - width / height;
+      camera.right = width / height;
+      camera.bottom = 1;
       camera.updateProjectionMatrix();
 
       if (isMobile) {
@@ -429,7 +440,10 @@ export default function App(props) {
 
       TWEEN.update();
 
-      fold();
+      for (let i = 0; i < stickers.children.length; i++) {
+        const sticker = stickers.children[i];
+        sticker.fold();
+      }
       renderer.render(scene, camera);
 
     }
@@ -469,29 +483,8 @@ function getMaxDimensionInWorldSpace(camera, plane) {
 
 }
 
-function setTop(sticker) {
-  if (top) {
-    top.material.depthTest = false;
-    top.material.uniforms.magnitude.value = 0;
-  }
-  top = sticker;
-  if (top) {
-    top.material.depthTest = true;
-  }
-}
-
-function getTop() {
-  let renderOrder = -1;
-  let index = -1;
-  for (let i = 0; i < stickers.children.length; i++) {
-    const sticker = stickers.children[i];
-    if (sticker.visible && sticker.renderOrder > renderOrder) {
-      renderOrder = sticker.renderOrder;
-      index = i;
-    }
-  }
-  if (index < 0) {
-    return null;
-  }
-  return stickers.children[index];
+function getSorted() {
+  const result = stickers.children.slice(0);
+  result.sort((a, b) => b.position.z - a.position.z);
+  return result;
 }
