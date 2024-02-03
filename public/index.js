@@ -43736,7 +43736,7 @@
       renderer.domElement.addEventListener("touchcancel", touchend, eventParams);
       renderer.render(scene, camera);
       resize();
-      document.body.style.opacity = 1;
+      Sticker.Texture.onUpdate = () => document.body.style.opacity = 1;
       return unmount;
       function unmount() {
         renderer.setAnimationLoop(null);
@@ -43832,7 +43832,6 @@
           const angle = Math.random() * TWO_PI;
           const rad = 1;
           if (!isFirst) {
-            sticker2.userData.cap.value = 0.75;
             const projection = new Vector2(
               rad * Math.cos(angle),
               rad * Math.sin(angle)
@@ -43860,7 +43859,7 @@
         return Promise.all([fold(), curl()]).then(rest);
         function fold() {
           return new Promise((resolve) => {
-            const tween = new Tween(sticker.userData.cursor).to({ x, y }, duration).delay(delay).easing(Easing.Quadratic.In).onComplete(() => {
+            const tween = new Tween(sticker.userData.cursor).to({ x, y }, duration).delay(delay).easing(Easing.Quadratic.InOut).onComplete(() => {
               tween.stop();
               resolve();
             }).start();
@@ -43871,7 +43870,7 @@
             if (cap.tween) {
               cap.tween.stop();
             }
-            cap.tween = new Tween(cap).to({ value: 0.3 }, duration).delay(delay).easing(Easing.Quadratic.In).onComplete(() => {
+            cap.tween = new Tween(cap).to({ value: 0.3 }, duration).delay(delay).easing(Easing.Quadratic.InOut).onComplete(() => {
               cap.tween.stop();
               resolve();
             }).start();

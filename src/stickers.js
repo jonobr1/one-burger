@@ -81,7 +81,7 @@ export default function App(props) {
     
     renderer.render(scene, camera);
     resize();
-    document.body.style.opacity = 1;
+    Sticker.Texture.onUpdate = () => document.body.style.opacity = 1;
 
     return unmount;
 
@@ -235,7 +235,7 @@ export default function App(props) {
 
         if (!isFirst) {
 
-          sticker.userData.cap.value = 0.75;
+          // sticker.userData.cap.value = 0.75;
 
           const projection = new THREE.Vector2(
             rad * Math.cos(angle),
@@ -285,7 +285,7 @@ export default function App(props) {
           const tween = new TWEEN.Tween(sticker.userData.cursor)
           .to({ x, y }, duration)
           .delay(delay)
-          .easing(TWEEN.Easing.Quadratic.In)
+          .easing(TWEEN.Easing.Quadratic.InOut)
           .onComplete(() => {
             tween.stop();
             resolve();
@@ -302,7 +302,7 @@ export default function App(props) {
           cap.tween = new TWEEN.Tween(cap)
             .to({ value: 0.3 }, duration)
             .delay(delay)
-            .easing(TWEEN.Easing.Quadratic.In)
+            .easing(TWEEN.Easing.Quadratic.InOut)
             .onComplete(() => {
               cap.tween.stop();
               resolve();
