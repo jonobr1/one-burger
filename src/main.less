@@ -15,6 +15,7 @@
 * {
   margin: 0;
   padding: 0;
+  cursor: url(images/cursor.png?f234qr2325), pointer;
 }
 
 body {
@@ -22,27 +23,30 @@ body {
   font-family: "Helvetica Neue Condensed Bold", sans-serif;
   text-transform: uppercase;
   transition: opacity 0.35s ease-in-out;
-  cursor: url(images/cursor.png?f234qr2325), pointer;
 
   div.seo {
 
     @aspect: 0.14;
     position: absolute;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
     text-align: center;
     font-size: 2vw;
     line-height: 150%;
 
     h1 {
+      @min-width: (30px / @aspect);
       background: url(images/wordmark.svg) center center;
       background-size: cover;
-      width: 70vw;
-      height: 70vw * @aspect;
+      width: 19vw;
+      height: 19vw * @aspect;
+      min-width: @min-width;
+      min-height: 30px;
       overflow: hidden;
       text-indent: -100vw;
-      margin-bottom: 1.5vw;
+      margin: 0 auto 0.5vw;
     }
 
     span.globe {
@@ -55,7 +59,7 @@ body {
       width: 2.25vw * @aspect;
       height: 2.25vw;
       margin-left: 0.25vw;
-      margin-right: -0.5vw;
+      margin-right: -0.6vw;
     }
 
     &.mobile {
@@ -94,13 +98,14 @@ body {
 
   div#contact {
     position: fixed;
-    bottom: 30px;
+    bottom: 40px;
     left: 0;
     right: 0;
-    @size: 20px;
+    @size: 17px;
     text-align: center;
     pointer-events: none;
     a {
+      display: inline-block;
       font-family: "Diatype Mono Bold", sans-serif;
       color: black;
       text-decoration: none;
@@ -108,10 +113,10 @@ body {
       font-size: @size;
       font-weight: 100;
       letter-spacing: 1px;
-      line-height: 100%;
-      padding: 0.5 * @size @size;
+      line-height: 40px;
       background: white;
       pointer-events: all;
+      min-width: 200px;
     }
     span.mail {
       @aspect: 1.5;
@@ -126,3 +131,23 @@ body {
   }
 }
 
+@media screen and (max-width: 450px) {
+
+  body {
+    div.seo {
+      font-size: 2.5vh;
+      h1,
+      span.globe {
+        text-indent: -100vh;
+      }
+      span.globe {
+        @aspect: 1.25;
+        width: 3vh * @aspect;
+        height: 3vh;
+        margin-left: 0.25vh;
+        margin-right: -0.75vh;
+      }
+    }
+  }
+
+}

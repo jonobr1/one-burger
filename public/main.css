@@ -10,18 +10,19 @@
 * {
   margin: 0;
   padding: 0;
+  cursor: url(images/cursor.png?f234qr2325), pointer;
 }
 body {
   font-family: "Helvetica Neue Condensed Bold", sans-serif;
   text-transform: uppercase;
   transition: opacity 0.35s ease-in-out;
-  cursor: url(images/cursor.png?f234qr2325), pointer;
 }
 body div.seo {
   position: absolute;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
   text-align: center;
   font-size: 2vw;
   line-height: 150%;
@@ -29,11 +30,13 @@ body div.seo {
 body div.seo h1 {
   background: url(images/wordmark.svg) center center;
   background-size: cover;
-  width: 70vw;
-  height: 9.8vw;
+  width: 19vw;
+  height: 2.66vw;
+  min-width: 214.28571429px;
+  min-height: 30px;
   overflow: hidden;
   text-indent: -100vw;
-  margin-bottom: 1.5vw;
+  margin: 0 auto 0.5vw;
 }
 body div.seo span.globe {
   display: inline-block;
@@ -44,7 +47,7 @@ body div.seo span.globe {
   width: 2.8125vw;
   height: 2.25vw;
   margin-left: 0.25vw;
-  margin-right: -0.5vw;
+  margin-right: -0.6vw;
 }
 body div.seo.mobile {
   position: static;
@@ -76,32 +79,48 @@ body canvas {
 }
 body div#contact {
   position: fixed;
-  bottom: 30px;
+  bottom: 40px;
   left: 0;
   right: 0;
   text-align: center;
   pointer-events: none;
 }
 body div#contact a {
+  display: inline-block;
   font-family: "Diatype Mono Bold", sans-serif;
   color: black;
   text-decoration: none;
   border: 1px solid black;
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 100;
   letter-spacing: 1px;
-  line-height: 100%;
-  padding: 10px 20px;
+  line-height: 40px;
   background: white;
   pointer-events: all;
+  min-width: 200px;
 }
 body div#contact span.mail {
   display: inline-block;
-  width: 30px;
-  height: 20px;
+  width: 25.5px;
+  height: 17px;
   background: url(images/mail.svg) center bottom;
   background-repeat: no-repeat;
   background-size: contain;
   content: "";
+}
+@media screen and (max-width: 450px) {
+  body div.seo {
+    font-size: 2.5vh;
+  }
+  body div.seo h1,
+  body div.seo span.globe {
+    text-indent: -100vh;
+  }
+  body div.seo span.globe {
+    width: 3.75vh;
+    height: 3vh;
+    margin-left: 0.25vh;
+    margin-right: -0.75vh;
+  }
 }
 /*# sourceMappingURL=main.css.map */
