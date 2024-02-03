@@ -43219,22 +43219,22 @@
       Tween2.prototype.isPaused = function() {
         return this._isPaused;
       };
-      Tween2.prototype.to = function(target, duration) {
-        if (duration === void 0) {
-          duration = 1e3;
+      Tween2.prototype.to = function(target, duration2) {
+        if (duration2 === void 0) {
+          duration2 = 1e3;
         }
         if (this._isPlaying)
           throw new Error("Can not call Tween.to() while Tween is already started or paused. Stop the Tween first.");
         this._valuesEnd = target;
         this._propertiesAreSetUp = false;
-        this._duration = duration;
+        this._duration = duration2;
         return this;
       };
-      Tween2.prototype.duration = function(duration) {
-        if (duration === void 0) {
-          duration = 1e3;
+      Tween2.prototype.duration = function(duration2) {
+        if (duration2 === void 0) {
+          duration2 = 1e3;
         }
-        this._duration = duration;
+        this._duration = duration2;
         return this;
       };
       Tween2.prototype.dynamic = function(dynamic) {
@@ -43627,7 +43627,8 @@
           cursor: { value: new Vector2(-10, -10) },
           origin: { value: new Vector2(0, 0) },
           is3D: { value: false },
-          hasShadows: { value: false }
+          hasShadows: { value: false },
+          opacity: { value: 1 }
         },
         vertexShader: `
         const float PI = ${Math.PI.toFixed(3)};
@@ -43704,6 +43705,7 @@
         uniform sampler2D map;
         uniform float magnitude;
         uniform float hasShadows;
+        uniform float opacity;
     
         varying vec2 vUv;
         varying float vShadow;
@@ -43714,8 +43716,8 @@
           vec4 black = vec4( vec3( 0.0 ), 1.0 );
           vec4 texel = texture2D( map, vUv );
     
-          gl_FragColor = mix( texel, black,
-            0.33 * magnitude * vIsFrontSide * vShadow * hasShadows );
+          gl_FragColor = vec4( mix( texel.rgb, black.rgb,
+            0.33 * magnitude * vIsFrontSide * vShadow * hasShadows ), opacity );
 
         }
       `,
@@ -43734,6 +43736,7 @@
   // src/stickers.js
   var TWO_PI = Math.PI * 2;
   var vector = new Vector2();
+  var duration = 500;
   var top = null;
   var touch = null;
   var isMobile = window.navigator.maxTouchPoints > 0;
@@ -43838,7 +43841,7 @@
         if (cap.tween) {
           cap.tween.stop();
         }
-        cap.tween = new Tween(cap).to({ value: 0.4 }, 350).easing(Easing.Back.Out).onComplete(() => cap.tween.stop()).start();
+        cap.tween = new Tween(cap).to({ value: 0.4 }, duration).easing(Easing.Back.Out).onComplete(() => cap.tween.stop()).start();
         drag({ clientX, clientY });
         window.addEventListener("pointermove", drag);
         window.addEventListener("pointerup", pointerup);
@@ -43855,7 +43858,7 @@
         if (cap.tween) {
           cap.tween.stop();
         }
-        cap.tween = new Tween(cap).to({ value: 0.5 }, 350).easing(Easing.Back.Out).onComplete(() => cap.tween.stop()).start();
+        cap.tween = new Tween(cap).to({ value: 0.5 }, duration).easing(Easing.Back.Out).onComplete(() => cap.tween.stop()).start();
         if (top) {
           const width = window.innerWidth;
           const height = window.innerHeight;
@@ -43899,30 +43902,47 @@
       }
       function peel(sticker) {
         animating = true;
-        return new Promise((resolve) => {
-          const duration = 350;
-          const rad = 1e-3;
-          const angle = Math.atan2(
-            sticker.material.uniforms.cursor.value.y,
-            sticker.material.uniforms.cursor.value.x
-          );
-          let x = rad * Math.cos(angle);
-          let y = rad * Math.sin(angle);
-          const tween = new Tween(sticker.material.uniforms.cursor.value).to({ x, y }, duration).easing(Easing.Circular.In).onComplete(() => {
-            tween.stop();
-            sticker.visible = false;
-            setTop(getTop());
-            animating = false;
-            resolve();
-          }).start();
-          if (cap.tween) {
-            cap.tween.stop();
-          }
-          cap.tween = new Tween(cap).to({ value: 0.25 }, duration).easing(Easing.Circular.In).onComplete(() => {
-            cap.tween.stop();
-            cap.value = 0.5;
-          }).start();
-        });
+        const rad = 1e-3;
+        const angle = Math.atan2(
+          sticker.material.uniforms.cursor.value.y,
+          sticker.material.uniforms.cursor.value.x
+        );
+        let x = rad * Math.cos(angle);
+        let y = rad * Math.sin(angle);
+        return Promise.all([fold2(), curl()]).then(fade).then(rest);
+        function fold2() {
+          return new Promise((resolve) => {
+            const tween = new Tween(sticker.material.uniforms.cursor.value).to({ x, y }, duration).easing(Easing.Sinusoidal.Out).onComplete(() => {
+              tween.stop();
+              resolve();
+            }).start();
+          });
+        }
+        function curl() {
+          return new Promise((resolve) => {
+            if (cap.tween) {
+              cap.tween.stop();
+            }
+            cap.tween = new Tween(cap).to({ value: 0.25 }, duration).easing(Easing.Sinusoidal.Out).onComplete(() => {
+              cap.tween.stop();
+              resolve();
+            }).start();
+          });
+        }
+        function fade() {
+          return new Promise((resolve) => {
+            const tween = new Tween(sticker.material.uniforms.opacity).to({ value: 0 }, duration * 0.25).easing(Easing.Circular.Out).onComplete(() => {
+              tween.stop();
+              resolve();
+            }).start();
+          });
+        }
+        function rest() {
+          sticker.visible = false;
+          setTop(getTop());
+          animating = false;
+          cap.value = 0.5;
+        }
       }
       function pointermove({ clientX, clientY }) {
         if (dragging || animating) {

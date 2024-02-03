@@ -42839,7 +42839,8 @@
           cursor: { value: new Vector2(-10, -10) },
           origin: { value: new Vector2(0, 0) },
           is3D: { value: false },
-          hasShadows: { value: false }
+          hasShadows: { value: false },
+          opacity: { value: 1 }
         },
         vertexShader: `
         const float PI = ${Math.PI.toFixed(3)};
@@ -42916,6 +42917,7 @@
         uniform sampler2D map;
         uniform float magnitude;
         uniform float hasShadows;
+        uniform float opacity;
     
         varying vec2 vUv;
         varying float vShadow;
@@ -42926,8 +42928,8 @@
           vec4 black = vec4( vec3( 0.0 ), 1.0 );
           vec4 texel = texture2D( map, vUv );
     
-          gl_FragColor = mix( texel, black,
-            0.33 * magnitude * vIsFrontSide * vShadow * hasShadows );
+          gl_FragColor = vec4( mix( texel.rgb, black.rgb,
+            0.33 * magnitude * vIsFrontSide * vShadow * hasShadows ), opacity );
 
         }
       `,

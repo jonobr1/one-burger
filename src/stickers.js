@@ -5,6 +5,7 @@ import { Sticker } from "./sticker.js";
 
 const TWO_PI = Math.PI * 2;
 const vector = new THREE.Vector2();
+const duration = 500;
 
 let top = null;
 let touch = null;
@@ -150,7 +151,7 @@ export default function App(props) {
       }
 
       cap.tween = new TWEEN.Tween(cap)
-        .to({ value: 0.4 }, 350)
+        .to({ value: 0.4 }, duration)
         .easing(TWEEN.Easing.Back.Out)
         .onComplete(() => cap.tween.stop())
         .start();
@@ -183,7 +184,7 @@ export default function App(props) {
       }
 
       cap.tween = new TWEEN.Tween(cap)
-        .to({ value: 0.5 }, 350)
+        .to({ value: 0.5 }, duration)
         .easing(TWEEN.Easing.Back.Out)
         .onComplete(() => cap.tween.stop())
         .start();
@@ -255,44 +256,68 @@ export default function App(props) {
 
       animating = true;
 
-      return new Promise((resolve) => {
+      const rad = 0.001;
+      const angle = Math.atan2(
+        sticker.material.uniforms.cursor.value.y,
+        sticker.material.uniforms.cursor.value.x
+      );
 
-        const duration = 350;
-        const rad = 0.001;
-        const angle = Math.atan2(
-          sticker.material.uniforms.cursor.value.y,
-          sticker.material.uniforms.cursor.value.x
-        );
+      let x = rad * Math.cos(angle);
+      let y = rad * Math.sin(angle);
 
-        let x = rad * Math.cos(angle);
-        let y = rad * Math.sin(angle);
+      return Promise
+        .all([fold(), curl()])
+        .then(fade)
+        .then(rest);
 
-        const tween = new TWEEN.Tween(sticker.material.uniforms.cursor.value)
+      function fold() {
+        return new Promise((resolve) => {
+          const tween = new TWEEN.Tween(sticker.material.uniforms.cursor.value)
           .to({ x, y }, duration)
-          .easing(TWEEN.Easing.Circular.In)
+          .easing(TWEEN.Easing.Sinusoidal.Out)
           .onComplete(() => {
             tween.stop();
-            sticker.visible = false;
-            setTop(getTop());
-            animating = false;
             resolve();
           })
           .start();
+        });
+      }
 
-        if (cap.tween) {
-          cap.tween.stop();
-        }
-
-        cap.tween = new TWEEN.Tween(cap)
-          .to({ value: 0.25 }, duration)
-          .easing(TWEEN.Easing.Circular.In)
-          .onComplete(() => {
+      function curl() {
+        return new Promise((resolve) => {
+          if (cap.tween) {
             cap.tween.stop();
-            cap.value = 0.5;
-          })
-          .start();
+          }
+          cap.tween = new TWEEN.Tween(cap)
+            .to({ value: 0.25 }, duration)
+            .easing(TWEEN.Easing.Sinusoidal.Out)
+            .onComplete(() => {
+              cap.tween.stop();
+              resolve();
+            })
+            .start();
+        });
+      }
 
-      });
+      function fade() {
+        return new Promise((resolve) => {
+          const tween = new TWEEN.Tween(sticker.material.uniforms.opacity)
+            .to({ value: 0 }, duration * 0.25)
+            .easing(TWEEN.Easing.Circular.Out)
+            .onComplete(() => {
+              tween.stop();
+              resolve();
+            })
+            .start();
+        });
+      }
+
+      function rest() {
+        sticker.visible = false;
+        setTop(getTop());
+        animating = false;
+        cap.value = 0.5;
+      }
 
     }
 
