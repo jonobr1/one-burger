@@ -43864,7 +43864,7 @@
           raycaster.setFromCamera(mouse, camera);
           const intersections = raycaster.intersectObject(top);
           if (intersections.length > 0) {
-            peel(top);
+            batch();
           }
         } else {
         }

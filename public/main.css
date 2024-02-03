@@ -15,6 +15,7 @@ body {
   font-family: "Helvetica Neue Condensed Bold", sans-serif;
   text-transform: uppercase;
   transition: opacity 0.35s ease-in-out;
+  cursor: url(images/cursor.png?f234qr2325), pointer;
 }
 body div.seo {
   position: absolute;
@@ -72,7 +73,6 @@ body canvas {
   display: block;
   top: 0;
   left: 0;
-  cursor: pointer;
 }
 body div#contact {
   position: fixed;
@@ -93,7 +93,6 @@ body div#contact a {
   line-height: 100%;
   padding: 10px 20px;
   background: white;
-  cursor: pointer;
   pointer-events: all;
 }
 body div#contact span.mail {
