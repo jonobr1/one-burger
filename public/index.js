@@ -43796,7 +43796,7 @@
           if (cap.tween) {
             cap.tween.stop();
           }
-          cap.tween = new Tween(cap).to({ value: 0.6 }, duration * 0.35).easing(Easing.Back.Out).onComplete(() => cap.tween.stop()).start();
+          cap.tween = new Tween(cap).to({ value: 0.5 }, duration * 0.35).easing(Easing.Back.Out).onComplete(() => cap.tween.stop()).start();
         });
         if (foreground.length > 0) {
           const width = window.innerWidth;

@@ -173,7 +173,7 @@ export default function App(props) {
         }
   
         cap.tween = new TWEEN.Tween(cap)
-          .to({ value: 0.6 }, duration * 0.35)
+          .to({ value: 0.5 }, duration * 0.35)
           .easing(TWEEN.Easing.Back.Out)
           .onComplete(() => cap.tween.stop())
           .start();
