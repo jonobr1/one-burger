@@ -43657,6 +43657,7 @@
       super(geometry, material);
       this.userData.cursor = new Vector2(-10, -10);
       this.userData.folding = false;
+      this.userData.animating = false;
       this.userData.cap = { value: 1 };
     }
     fold() {
@@ -43685,7 +43686,6 @@
   var duration = 1e3;
   var isMobile = window.navigator.maxTouchPoints > 0;
   var dragging = false;
-  var animating = false;
   var sorted = null;
   var foreground = null;
   var amount = 49;
@@ -43770,9 +43770,6 @@
         }
       }
       function pointerdown({ clientX, clientY }) {
-        if (animating) {
-          return;
-        }
         dragging = true;
         foreground.forEach((sticker) => {
           const cap = sticker.userData.cap;
@@ -43818,24 +43815,19 @@
         window.removeEventListener("pointerup", pointerup);
       }
       function batch(sticker) {
-        if (animating) {
-          return;
-        }
-        animating = true;
         let isFirst = true;
         const per = 4;
         const eligible = [sticker].concat(
           sorted.filter((s) => s.visible && s.uuid !== sticker.uuid).slice(0, per)
         );
-        return Promise.all(
+        const resp = Promise.all(
           eligible.map((sticker2, i) => {
             const delay = duration * i * 0.2;
             return f(sticker2, delay);
           })
-        ).then(() => {
-          animating = false;
-          setForeground();
-        });
+        );
+        setForeground();
+        return resp;
         function f(sticker2, delay) {
           const angle = Math.random() * TWO_PI;
           const rad = 1;
@@ -43852,12 +43844,16 @@
         }
       }
       function peel(sticker, delay) {
+        if (sticker.userData.animating) {
+          return;
+        }
         const cap = sticker.userData.cap;
         const rad = 0.05;
         const angle = Math.atan2(
           sticker.userData.cursor.y - sticker.position.y,
           sticker.userData.cursor.x - sticker.position.x
         );
+        sticker.userData.animating = true;
         let x = rad * Math.cos(angle) + sticker.position.x;
         let y = rad * Math.sin(angle) + sticker.position.y;
         delay = delay || 0;
@@ -43883,16 +43879,20 @@
         }
         function rest() {
           sticker.visible = false;
+          sticker.userData.animating = false;
         }
       }
       function stick() {
         const eligible = sorted.filter((s) => !s.visible).slice(0).reverse();
-        animating = true;
         return Promise.all(
           eligible.map((s, i) => {
+            if (s.userData.animating) {
+              return;
+            }
             const delay = i * duration * 0.1;
             s.userData.cap.value = 1;
             s.scale.set(1.1, 1.1, 1.1);
+            s.userData.animating = true;
             return Promise.all([
               place()
             ]).then(rest);
@@ -43905,16 +43905,14 @@
               });
             }
             function rest() {
+              s.userData.animating = false;
               updateCursor(s);
             }
           })
-        ).then(() => {
-          animating = false;
-          setForeground();
-        });
+        ).then(setForeground);
       }
       function pointermove({ clientX, clientY }) {
-        if (dragging || animating) {
+        if (dragging) {
           return;
         }
         const width = window.innerWidth;
@@ -43924,6 +43922,9 @@
         foreground.forEach(updateCursor);
       }
       function updateCursor(sticker, position) {
+        if (sticker.userData.animating) {
+          return;
+        }
         raycaster.setFromCamera(mouse, camera);
         const intersections = raycaster.intersectObject(plane);
         const cursor = sticker.userData.cursor;
@@ -43940,7 +43941,7 @@
           const sticker = stickers.children[i];
           sticker.userData.cap.value = 1;
         }
-        foreground = sorted.filter((s) => s.visible).slice(0, 12);
+        foreground = sorted.filter((s) => s.visible && !s.userData.animating).slice(0, 12);
         foreground.forEach((s) => {
           s.userData.cap.value = 0.5;
         });

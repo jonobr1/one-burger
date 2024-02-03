@@ -126,6 +126,7 @@ export class Sticker extends THREE.Mesh {
 
     this.userData.cursor = new THREE.Vector2(-10, -10);
     this.userData.folding = false;
+    this.userData.animating = false;
     this.userData.cap = { value: 1 };
 
   }

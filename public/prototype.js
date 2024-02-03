@@ -42941,6 +42941,7 @@
       super(geometry, material);
       this.userData.cursor = new Vector2(-10, -10);
       this.userData.folding = false;
+      this.userData.animating = false;
       this.userData.cap = { value: 1 };
     }
     fold() {

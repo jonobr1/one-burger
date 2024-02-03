@@ -8,7 +8,6 @@ const duration = 1000;
 
 let isMobile = window.navigator.maxTouchPoints > 0;
 let dragging = false;
-let animating = false;
 
 let sorted = null;
 let foreground = null;
@@ -126,10 +125,6 @@ export default function App(props) {
 
     function pointerdown({ clientX, clientY }) {
 
-      if (animating) {
-        return;
-      }
-
       dragging = true;
 
       foreground.forEach((sticker) => {
@@ -213,12 +208,6 @@ export default function App(props) {
 
     function batch(sticker) {
 
-      if (animating) {
-        return;
-      }
-
-      animating = true;
-
       let isFirst = true;
       const per = 4;
 
@@ -228,17 +217,16 @@ export default function App(props) {
           .slice(0, per)
       );
 
-      return Promise
-        .all(
-          eligible.map((sticker, i) => {
-            const delay = duration * i * 0.2;
-            return f(sticker, delay);
-          })
-        )
-        .then(() => {
-          animating = false;
-          setForeground()
-        });
+      const resp = Promise.all(
+        eligible.map((sticker, i) => {
+          const delay = duration * i * 0.2;
+          return f(sticker, delay);
+        })
+      );
+
+      setForeground();
+
+      return resp;
 
       function f(sticker, delay) {
 
@@ -270,12 +258,18 @@ export default function App(props) {
     }
     function peel(sticker, delay) {
 
+      if (sticker.userData.animating) {
+        return;
+      }
+
       const cap = sticker.userData.cap;
       const rad = 0.05;
       const angle = Math.atan2(
         sticker.userData.cursor.y - sticker.position.y,
         sticker.userData.cursor.x - sticker.position.x
       );
+
+      sticker.userData.animating = true;
 
       let x = rad * Math.cos(angle) + sticker.position.x;
       let y = rad * Math.sin(angle) + sticker.position.y;
@@ -319,21 +313,26 @@ export default function App(props) {
 
       function rest() {
         sticker.visible = false;
+        sticker.userData.animating = false;
       }
 
     }
     function stick() {
 
       const eligible = sorted.filter((s) => !s.visible).slice(0).reverse();
-      animating = true;
 
       return Promise.all(
         eligible.map((s, i) => {
+
+          if (s.userData.animating) {
+            return;
+          }
 
           const delay = i * duration * 0.1;
 
           s.userData.cap.value = 1;
           s.scale.set(1.1, 1.1, 1.1);
+          s.userData.animating = true;
 
           return Promise.all([
             place()
@@ -355,20 +354,18 @@ export default function App(props) {
           }
 
           function rest() {
+            s.userData.animating = false;
             updateCursor(s);
           }
   
         })
-      ).then(() => {
-        animating = false;
-        setForeground();
-      });
+      ).then(setForeground);
 
     }
 
     function pointermove({ clientX, clientY }) {
 
-      if (dragging || animating) {
+      if (dragging) {
         return;
       }
 
@@ -383,6 +380,10 @@ export default function App(props) {
     }
 
     function updateCursor(sticker, position) {
+
+      if (sticker.userData.animating) {
+        return;
+      }
 
       raycaster.setFromCamera(mouse, camera);
 
@@ -404,7 +405,7 @@ export default function App(props) {
         const sticker = stickers.children[i];
         sticker.userData.cap.value = 1;
       }
-      foreground = sorted.filter((s) => s.visible).slice(0, 12);
+      foreground = sorted.filter((s) => (s.visible && !s.userData.animating)).slice(0, 12);
       foreground.forEach((s) => {
         s.userData.cap.value = 0.5;
       });
