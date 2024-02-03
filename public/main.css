@@ -10,7 +10,7 @@
 * {
   margin: 0;
   padding: 0;
-  cursor: url(images/cursor.png?f234qr2325), pointer;
+  cursor: url(images/cursor.png), pointer;
 }
 body {
   font-family: "Helvetica Neue Condensed Bold", sans-serif;
