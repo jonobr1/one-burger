@@ -2027,12 +2027,12 @@
           var localClearTimeout = typeof clearTimeout === "function" ? clearTimeout : null;
           var localSetImmediate = typeof setImmediate !== "undefined" ? setImmediate : null;
           var isInputPending = typeof navigator !== "undefined" && navigator.scheduling !== void 0 && navigator.scheduling.isInputPending !== void 0 ? navigator.scheduling.isInputPending.bind(navigator.scheduling) : null;
-          function advanceTimers(currentTime) {
+          function advanceTimers(currentTime2) {
             var timer = peek(timerQueue);
             while (timer !== null) {
               if (timer.callback === null) {
                 pop(timerQueue);
-              } else if (timer.startTime <= currentTime) {
+              } else if (timer.startTime <= currentTime2) {
                 pop(timerQueue);
                 timer.sortIndex = timer.expirationTime;
                 push(taskQueue, timer);
@@ -2042,9 +2042,9 @@
               timer = peek(timerQueue);
             }
           }
-          function handleTimeout(currentTime) {
+          function handleTimeout(currentTime2) {
             isHostTimeoutScheduled = false;
-            advanceTimers(currentTime);
+            advanceTimers(currentTime2);
             if (!isHostCallbackScheduled) {
               if (peek(taskQueue) !== null) {
                 isHostCallbackScheduled = true;
@@ -2052,7 +2052,7 @@
               } else {
                 var firstTimer = peek(timerQueue);
                 if (firstTimer !== null) {
-                  requestHostTimeout(handleTimeout, firstTimer.startTime - currentTime);
+                  requestHostTimeout(handleTimeout, firstTimer.startTime - currentTime2);
                 }
               }
             }
@@ -2071,8 +2071,8 @@
                   return workLoop(hasTimeRemaining, initialTime2);
                 } catch (error) {
                   if (currentTask !== null) {
-                    var currentTime = exports.unstable_now();
-                    markTaskErrored(currentTask, currentTime);
+                    var currentTime2 = exports.unstable_now();
+                    markTaskErrored(currentTask, currentTime2);
                     currentTask.isQueued = false;
                   }
                   throw error;
@@ -2087,20 +2087,20 @@
             }
           }
           function workLoop(hasTimeRemaining, initialTime2) {
-            var currentTime = initialTime2;
-            advanceTimers(currentTime);
+            var currentTime2 = initialTime2;
+            advanceTimers(currentTime2);
             currentTask = peek(taskQueue);
             while (currentTask !== null && !enableSchedulerDebugging) {
-              if (currentTask.expirationTime > currentTime && (!hasTimeRemaining || shouldYieldToHost())) {
+              if (currentTask.expirationTime > currentTime2 && (!hasTimeRemaining || shouldYieldToHost())) {
                 break;
               }
               var callback = currentTask.callback;
               if (typeof callback === "function") {
                 currentTask.callback = null;
                 currentPriorityLevel = currentTask.priorityLevel;
-                var didUserCallbackTimeout = currentTask.expirationTime <= currentTime;
+                var didUserCallbackTimeout = currentTask.expirationTime <= currentTime2;
                 var continuationCallback = callback(didUserCallbackTimeout);
-                currentTime = exports.unstable_now();
+                currentTime2 = exports.unstable_now();
                 if (typeof continuationCallback === "function") {
                   currentTask.callback = continuationCallback;
                 } else {
@@ -2108,7 +2108,7 @@
                     pop(taskQueue);
                   }
                 }
-                advanceTimers(currentTime);
+                advanceTimers(currentTime2);
               } else {
                 pop(taskQueue);
               }
@@ -2119,7 +2119,7 @@
             } else {
               var firstTimer = peek(timerQueue);
               if (firstTimer !== null) {
-                requestHostTimeout(handleTimeout, firstTimer.startTime - currentTime);
+                requestHostTimeout(handleTimeout, firstTimer.startTime - currentTime2);
               }
               return false;
             }
@@ -2176,17 +2176,17 @@
             };
           }
           function unstable_scheduleCallback(priorityLevel, callback, options) {
-            var currentTime = exports.unstable_now();
+            var currentTime2 = exports.unstable_now();
             var startTime2;
             if (typeof options === "object" && options !== null) {
               var delay = options.delay;
               if (typeof delay === "number" && delay > 0) {
-                startTime2 = currentTime + delay;
+                startTime2 = currentTime2 + delay;
               } else {
-                startTime2 = currentTime;
+                startTime2 = currentTime2;
               }
             } else {
-              startTime2 = currentTime;
+              startTime2 = currentTime2;
             }
             var timeout;
             switch (priorityLevel) {
@@ -2216,7 +2216,7 @@
               expirationTime,
               sortIndex: -1
             };
-            if (startTime2 > currentTime) {
+            if (startTime2 > currentTime2) {
               newTask.sortIndex = startTime2;
               push(timerQueue, newTask);
               if (peek(taskQueue) === null && newTask === peek(timerQueue)) {
@@ -2225,7 +2225,7 @@
                 } else {
                   isHostTimeoutScheduled = true;
                 }
-                requestHostTimeout(handleTimeout, startTime2 - currentTime);
+                requestHostTimeout(handleTimeout, startTime2 - currentTime2);
               }
             } else {
               newTask.sortIndex = expirationTime;
@@ -2281,12 +2281,12 @@
           }
           var performWorkUntilDeadline = function() {
             if (scheduledHostCallback !== null) {
-              var currentTime = exports.unstable_now();
-              startTime = currentTime;
+              var currentTime2 = exports.unstable_now();
+              startTime = currentTime2;
               var hasTimeRemaining = true;
               var hasMoreWork = true;
               try {
-                hasMoreWork = scheduledHostCallback(hasTimeRemaining, currentTime);
+                hasMoreWork = scheduledHostCallback(hasTimeRemaining, currentTime2);
               } finally {
                 if (hasMoreWork) {
                   schedulePerformWorkUntilDeadline();
@@ -6673,12 +6673,12 @@
             }
             return mostRecentEventTime;
           }
-          function computeExpirationTime(lane, currentTime) {
+          function computeExpirationTime(lane, currentTime2) {
             switch (lane) {
               case SyncLane:
               case InputContinuousHydrationLane:
               case InputContinuousLane:
-                return currentTime + 250;
+                return currentTime2 + 250;
               case DefaultHydrationLane:
               case DefaultLane:
               case TransitionHydrationLane:
@@ -6698,7 +6698,7 @@
               case TransitionLane14:
               case TransitionLane15:
               case TransitionLane16:
-                return currentTime + 5e3;
+                return currentTime2 + 5e3;
               case RetryLane1:
               case RetryLane2:
               case RetryLane3:
@@ -6717,7 +6717,7 @@
                 return NoTimestamp;
             }
           }
-          function markStarvedLanesAsExpired(root3, currentTime) {
+          function markStarvedLanesAsExpired(root3, currentTime2) {
             var pendingLanes = root3.pendingLanes;
             var suspendedLanes = root3.suspendedLanes;
             var pingedLanes = root3.pingedLanes;
@@ -6729,9 +6729,9 @@
               var expirationTime = expirationTimes[index2];
               if (expirationTime === NoTimestamp) {
                 if ((lane & suspendedLanes) === NoLanes || (lane & pingedLanes) !== NoLanes) {
-                  expirationTimes[index2] = computeExpirationTime(lane, currentTime);
+                  expirationTimes[index2] = computeExpirationTime(lane, currentTime2);
                 }
-              } else if (expirationTime <= currentTime) {
+              } else if (expirationTime <= currentTime2) {
                 root3.expiredLanes |= lane;
               }
               lanes &= ~lane;
@@ -20481,9 +20481,9 @@
               (executionContext & RenderContext) !== NoContext
             );
           }
-          function ensureRootIsScheduled(root3, currentTime) {
+          function ensureRootIsScheduled(root3, currentTime2) {
             var existingCallbackNode = root3.callbackNode;
-            markStarvedLanesAsExpired(root3, currentTime);
+            markStarvedLanesAsExpired(root3, currentTime2);
             var nextLanes = getNextLanes(root3, root3 === workInProgressRoot ? workInProgressRootRenderLanes : NoLanes);
             if (nextLanes === NoLanes) {
               if (existingCallbackNode !== null) {
@@ -43683,6 +43683,7 @@
   // src/stickers.js
   var TWO_PI = Math.PI * 2;
   var duration = 1e3;
+  var currentTime = 0;
   var isMobile = window.navigator.maxTouchPoints > 0;
   var dragging = false;
   var animating = false;
@@ -43864,10 +43865,10 @@
         return Promise.all([fold(), curl()]).then(rest);
         function fold() {
           return new Promise((resolve) => {
-            const tween = new Tween(sticker.material.uniforms.cursor.value).to({ x, y }, duration + delay).easing(Easing.Sinusoidal.In).onComplete(() => {
+            const tween = new Tween(sticker.material.uniforms.cursor.value).to({ x, y }, duration).easing(Easing.Sinusoidal.In).onComplete(() => {
               tween.stop();
               resolve();
-            }).start();
+            }).start(currentTime + delay);
           });
         }
         function curl() {
@@ -43875,10 +43876,10 @@
             if (cap.tween) {
               cap.tween.stop();
             }
-            cap.tween = new Tween(cap).to({ value: 0.3 }, duration + delay).easing(Easing.Sinusoidal.In).onComplete(() => {
+            cap.tween = new Tween(cap).to({ value: 0.3 }, duration).easing(Easing.Sinusoidal.In).onComplete(() => {
               cap.tween.stop();
               resolve();
-            }).start();
+            }).start(currentTime + delay);
           });
         }
         function rest() {
@@ -43898,10 +43899,10 @@
             ]).then(rest);
             function place() {
               return new Promise((resolve) => {
-                const tween = new Tween(s.scale).to({ x: 1, y: 1, z: 1 }, duration * 0.15).delay(delay).onStart(() => s.visible = true).easing(Easing.Back.Out).onComplete(() => {
+                const tween = new Tween(s.scale).to({ x: 1, y: 1, z: 1 }, duration * 0.15).onStart(() => s.visible = true).easing(Easing.Back.Out).onComplete(() => {
                   tween.stop();
                   resolve();
-                }).start();
+                }).start(currentTime + delay);
               });
             }
             function rest() {
@@ -44000,8 +44001,9 @@
           sticker.position.y = y;
         });
       }
-      function update2() {
-        update();
+      function update2(elapsed) {
+        currentTime = elapsed;
+        update(elapsed);
         for (let i = 0; i < stickers.children.length; i++) {
           const sticker = stickers.children[i];
           sticker.fold();

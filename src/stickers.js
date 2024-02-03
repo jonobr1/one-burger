@@ -6,7 +6,6 @@ import { Sticker } from "./sticker.js";
 const TWO_PI = Math.PI * 2;
 const duration = 1000;
 
-let touch = null;
 let isMobile = window.navigator.maxTouchPoints > 0;
 let dragging = false;
 let animating = false;
@@ -485,9 +484,9 @@ export default function App(props) {
       });
     }
 
-    function update() {
+    function update(elapsed) {
 
-      TWEEN.update();
+      TWEEN.update(elapsed);
 
       for (let i = 0; i < stickers.children.length; i++) {
         const sticker = stickers.children[i];
