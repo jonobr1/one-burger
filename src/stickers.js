@@ -141,7 +141,7 @@ export default function App(props) {
         }
   
         cap.tween = new TWEEN.Tween(cap)
-          .to({ value: 0.4 }, duration)
+          .to({ value: 0.4 }, duration * 0.35)
           .easing(TWEEN.Easing.Back.Out)
           .onComplete(() => cap.tween.stop())
           .start();
@@ -178,7 +178,7 @@ export default function App(props) {
         }
   
         cap.tween = new TWEEN.Tween(cap)
-          .to({ value: 0.5 }, duration)
+          .to({ value: 0.6 }, duration * 0.35)
           .easing(TWEEN.Easing.Back.Out)
           .onComplete(() => cap.tween.stop())
           .start();
@@ -243,15 +243,15 @@ export default function App(props) {
       function f(sticker, delay) {
 
         const angle = Math.random() * TWO_PI;
-        const rad = 0.25;
+        const rad = 1;
 
         if (!isFirst) {
 
-          sticker.userData.cap.value = 1;
+          sticker.userData.cap.value = 0.75;
 
           const projection = new THREE.Vector2(
             rad * Math.cos(angle),
-            rad * Math.sin(angle) * Sticker.aspect
+            rad * Math.sin(angle)
           );
 
           sticker.userData.cursor
@@ -271,14 +271,14 @@ export default function App(props) {
     function peel(sticker, delay) {
 
       const cap = sticker.userData.cap;
-      const rad = 0.001;
+      const rad = 0.05;
       const angle = Math.atan2(
-        sticker.material.uniforms.cursor.value.y,
-        sticker.material.uniforms.cursor.value.x
+        sticker.userData.cursor.y - sticker.position.y,
+        sticker.userData.cursor.x - sticker.position.x
       );
 
-      let x = rad * Math.cos(angle);
-      let y = rad * Math.sin(angle);
+      let x = rad * Math.cos(angle) + sticker.position.x;
+      let y = rad * Math.sin(angle) + sticker.position.y;
 
       delay = delay || 0;
 
@@ -288,9 +288,10 @@ export default function App(props) {
 
       function fold() {
         return new Promise((resolve) => {
-          const tween = new TWEEN.Tween(sticker.material.uniforms.cursor.value)
-          .to({ x, y }, duration + delay)
-          .easing(TWEEN.Easing.Sinusoidal.In)
+          const tween = new TWEEN.Tween(sticker.userData.cursor)
+          .to({ x, y }, duration)
+          .delay(delay)
+          .easing(TWEEN.Easing.Quadratic.In)
           .onComplete(() => {
             tween.stop();
             resolve();
@@ -305,8 +306,9 @@ export default function App(props) {
             cap.tween.stop();
           }
           cap.tween = new TWEEN.Tween(cap)
-            .to({ value: 0.3 }, duration + delay)
-            .easing(TWEEN.Easing.Sinusoidal.In)
+            .to({ value: 0.3 }, duration)
+            .delay(delay)
+            .easing(TWEEN.Easing.Quadratic.In)
             .onComplete(() => {
               cap.tween.stop();
               resolve();
