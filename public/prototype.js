@@ -42828,6 +42828,7 @@
   var texture = new TextureLoader().load("images/texture.jpg");
   var geometry = new PlaneGeometry(1, aspect2, 32, 32);
   texture.wrapS = texture.wrapT = ClampToEdgeWrapping;
+  texture.flipY = false;
   var Sticker = class extends Mesh {
     constructor() {
       const material = new ShaderMaterial({

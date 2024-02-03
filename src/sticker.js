@@ -8,6 +8,7 @@ const texture = new THREE.TextureLoader().load('images/texture.jpg');
 const geometry = new THREE.PlaneGeometry(1, aspect, 32, 32);
 
 texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+texture.flipY = false;
 
 export class Sticker extends THREE.Mesh {
 

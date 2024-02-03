@@ -4,7 +4,7 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { Sticker } from "./sticker.js";
 
 const TWO_PI = Math.PI * 2;
-const duration = 500;
+const duration = 1000;
 
 let touch = null;
 let isMobile = window.navigator.maxTouchPoints > 0;
@@ -14,7 +14,6 @@ let animating = false;
 let sorted = null;
 let foreground = null;
 
-const dim = 1 / 6;  // How many clicks to clear
 const amount = 49;  // PoT
 
 const raycaster = new THREE.Raycaster();
@@ -110,8 +109,7 @@ export default function App(props) {
     function touchstart(e) {
       e.preventDefault();
       if (e.touches.length > 0) {
-        touch = e.touches[0];
-        drag(touch);
+        pointerdown(e.touches[0])
       }
     }
     function touchmove(e) {
@@ -121,9 +119,10 @@ export default function App(props) {
       }
     }
     function touchend(e) {
-
       e.preventDefault();
-
+      if (e.touches.length > 0) {
+        pointerup(e.touches[0]);
+      }
     }
 
     function pointerdown({ clientX, clientY }) {
@@ -204,7 +203,7 @@ export default function App(props) {
 
       } else {
 
-        // Add all stickers back in
+        stick();
 
       }
 
@@ -219,8 +218,10 @@ export default function App(props) {
         return;
       }
 
+      animating = true;
+
       let isFirst = true;
-      const per = Math.floor(amount * dim);
+      const per = 4;
 
       const eligible = [sticker].concat(
         sorted
@@ -231,11 +232,14 @@ export default function App(props) {
       return Promise
         .all(
           eligible.map((sticker, i) => {
-            const delay = duration * i * 0.7;
+            const delay = duration * i * 0.2;
             return f(sticker, delay);
           })
         )
-        .then(setForeground);
+        .then(() => {
+          animating = false;
+          setForeground()
+        });
 
       function f(sticker, delay) {
 
@@ -278,19 +282,16 @@ export default function App(props) {
       let y = rad * Math.sin(angle);
 
       delay = delay || 0;
-      animating = true;
 
       return Promise
         .all([fold(), curl()])
-        .then(fade)
         .then(rest);
 
       function fold() {
         return new Promise((resolve) => {
           const tween = new TWEEN.Tween(sticker.material.uniforms.cursor.value)
-          .to({ x, y }, duration)
-          .easing(TWEEN.Easing.Sinusoidal.Out)
-          .delay(delay)
+          .to({ x, y }, duration + delay)
+          .easing(TWEEN.Easing.Sinusoidal.In)
           .onComplete(() => {
             tween.stop();
             resolve();
@@ -305,9 +306,8 @@ export default function App(props) {
             cap.tween.stop();
           }
           cap.tween = new TWEEN.Tween(cap)
-            .to({ value: 0.3 }, duration)
-            .easing(TWEEN.Easing.Sinusoidal.Out)
-            .delay(delay)
+            .to({ value: 0.3 }, duration + delay)
+            .easing(TWEEN.Easing.Sinusoidal.In)
             .onComplete(() => {
               cap.tween.stop();
               resolve();
@@ -316,23 +316,52 @@ export default function App(props) {
         });
       }
 
-      function fade() {
-        return new Promise((resolve) => {
-          const tween = new TWEEN.Tween(sticker.material.uniforms.opacity)
-            .to({ value: 0 }, duration * 0.5)
-            .easing(TWEEN.Easing.Circular.Out)
-            .onComplete(() => {
-              tween.stop();
-              resolve();
-            })
-            .start();
-        });
-      }
-
       function rest() {
         sticker.visible = false;
-        animating = false;
       }
+
+    }
+    function stick() {
+
+      const eligible = sorted.filter((s) => !s.visible).slice(0).reverse();
+      animating = true;
+
+      return Promise.all(
+        eligible.map((s, i) => {
+
+          const delay = i * duration * 0.1;
+
+          s.userData.cap.value = 1;
+          s.scale.set(1.1, 1.1, 1.1);
+
+          return Promise.all([
+            place()
+          ]).then(rest);
+
+          function place() {
+            return new Promise((resolve) => {
+              const tween = new TWEEN.Tween(s.scale)
+                .to({ x: 1, y: 1, z: 1 }, duration * 0.15)
+                .delay(delay)
+                .onStart(() => s.visible = true)
+                .easing(TWEEN.Easing.Back.Out)
+                .onComplete(() => {
+                  tween.stop();
+                  resolve();
+                })
+                .start();
+            })
+          }
+
+          function rest() {
+            updateCursor(s);
+          }
+  
+        })
+      ).then(() => {
+        animating = false;
+        setForeground();
+      });
 
     }
 
@@ -374,7 +403,7 @@ export default function App(props) {
         const sticker = stickers.children[i];
         sticker.userData.cap.value = 1;
       }
-      foreground = sorted.filter((s) => s.visible).slice(0, amount);
+      foreground = sorted.filter((s) => s.visible).slice(0, 12);
       foreground.forEach((s) => {
         s.userData.cap.value = 0.5;
       });
@@ -407,16 +436,26 @@ export default function App(props) {
       camera.bottom = 1;
       camera.updateProjectionMatrix();
 
+      const sqrt = Math.sqrt(amount);
+      const size = getMaxDimensionInWorldSpace(camera, plane);
+
       if (isMobile) {
         camera.rotation.z = Math.PI / 2;
       } else {
         camera.rotation.z = 0;
       }
 
-      const sqrt = Math.sqrt(amount);
-      const size = getMaxDimensionInWorldSpace(camera, plane);
-      const cols = sqrt;
-      const rows = sqrt;
+      let cols = sqrt;
+      let rows = sqrt;
+
+      if (width / height > 2) {
+        rows = 3;
+        cols = Math.ceil(amount / rows);
+      } else if (height / width > 2) {
+        cols = 3;
+        rows = Math.ceil(amount / cols);
+      }
+
       stickers.children.forEach((sticker, i) => {
 
         const isLast = i === amount;
@@ -430,8 +469,18 @@ export default function App(props) {
         let x = size.width * (xpct - 0.5);
         let y = size.height * (ypct - 0.5);
 
-        sticker.position.x = isLast ? 0 : x;
-        sticker.position.y = isLast ? 0 : y;
+        if (isMobile) {
+          x = size.height * (ypct - 0.5);
+          y = size.width * (xpct - 0.5);
+        }
+
+        if (isLast) {
+          x = 0;
+          y = 0;
+        }
+
+        sticker.position.x = x;
+        sticker.position.y = y;
 
       });
     }
