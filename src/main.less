@@ -35,15 +35,16 @@ body {
     text-align: center;
     font-size: 2vw;
     line-height: 150%;
+    letter-spacing: -2.5px;
 
     h1 {
-      @min-width: (30px / @aspect);
+      // @min-width: (30px / @aspect);
       background: url(images/wordmark.svg) center center;
-      background-size: cover;
+      background-size: contain;
       width: 19vw;
       height: 19vw * @aspect;
-      min-width: @min-width;
-      min-height: 30px;
+      // min-width: @min-width;
+      // min-height: 30px;
       overflow: hidden;
       text-indent: -100vw;
       margin: 0 auto 0.5vw;
@@ -110,9 +111,16 @@ body {
   body {
     div.seo {
       font-size: 2.5vh;
+      letter-spacing: -2px;
       h1,
       span.globe {
         text-indent: -100vh;
+      }
+      h1 {
+        @aspect: 0.14;
+        width: 19vh;
+        height: 19vh * @aspect;
+        margin: 0 auto 0.5vh;
       }
       span.globe {
         @aspect: 1.25;

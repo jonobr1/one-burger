@@ -26,14 +26,13 @@ body div.seo {
   text-align: center;
   font-size: 2vw;
   line-height: 150%;
+  letter-spacing: -2.5px;
 }
 body div.seo h1 {
   background: url(images/wordmark.svg) center center;
-  background-size: cover;
+  background-size: contain;
   width: 19vw;
   height: 2.66vw;
-  min-width: 214.28571429px;
-  min-height: 30px;
   overflow: hidden;
   text-indent: -100vw;
   margin: 0 auto 0.5vw;
@@ -89,10 +88,16 @@ body div#contact span.mail {
 @media screen and (max-width: 450px) {
   body div.seo {
     font-size: 2.5vh;
+    letter-spacing: -2px;
   }
   body div.seo h1,
   body div.seo span.globe {
     text-indent: -100vh;
+  }
+  body div.seo h1 {
+    width: 19vh;
+    height: 2.66vh;
+    margin: 0 auto 0.5vh;
   }
   body div.seo span.globe {
     width: 3.75vh;
