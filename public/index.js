@@ -43683,7 +43683,7 @@
 
   // src/stickers.js
   var TWO_PI = Math.PI * 2;
-  var duration = 1e3;
+  var duration = 500;
   var isMobile = window.navigator.maxTouchPoints > 0;
   var dragging = false;
   var sorted = null;
@@ -43816,7 +43816,7 @@
       }
       function batch(sticker) {
         let isFirst = true;
-        const per = 4;
+        const per = 10;
         const eligible = [sticker].concat(
           sorted.filter((s) => s.visible && s.uuid !== sticker.uuid).slice(0, per)
         );

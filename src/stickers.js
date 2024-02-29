@@ -4,7 +4,7 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { Sticker } from "./sticker.js";
 
 const TWO_PI = Math.PI * 2;
-const duration = 1000;
+const duration = 500;
 
 let isMobile = window.navigator.maxTouchPoints > 0;
 let dragging = false;
@@ -209,7 +209,7 @@ export default function App(props) {
     function batch(sticker) {
 
       let isFirst = true;
-      const per = 4;
+      const per = 10;
 
       const eligible = [sticker].concat(
         sorted
