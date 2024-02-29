@@ -39,7 +39,7 @@ body div.seo h1 {
 }
 body div.seo span.globe {
   display: inline-block;
-  background: url(images/GLOBE-Logo_SPIN.gif) center center;
+  background: url(images/GLOBE-Logo_SPIN.gif) center center no-repeat;
   background-size: 300%;
   overflow: hidden;
   text-indent: -100vw;
@@ -83,7 +83,7 @@ body div#contact span.mail {
   display: inline-block;
   width: 25.5px;
   height: 17px;
-  background: url(images/mail.svg) center bottom;
+  background: url(images/mail.svg) center bottom no-repeat;
   background-repeat: no-repeat;
   background-size: contain;
   content: "";
