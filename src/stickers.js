@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import * as TWEEN from "@tweenjs/tween.js";
 import { Sticker } from "./sticker.js";
@@ -30,9 +30,10 @@ const plane = new THREE.Mesh(
   })
 );
 
-export default function App(props) {
+export default function App() {
 
   const domElement = useRef();
+  const [isEmpty, setIsEmpty] = useState(false);
 
   useEffect(mount, []);
 
@@ -78,6 +79,7 @@ export default function App(props) {
     renderer.domElement.addEventListener('touchmove', touchmove, eventParams);
     renderer.domElement.addEventListener('touchend', touchend, eventParams);
     renderer.domElement.addEventListener('touchcancel', touchend, eventParams);
+    document.body.querySelector('#globe').addEventListener('click', stick);
     
     renderer.render(scene, camera);
     resize();
@@ -136,7 +138,7 @@ export default function App(props) {
         }
   
         cap.tween = new TWEEN.Tween(cap)
-          .to({ value: 0.4 }, duration * 0.35)
+          .to({ value: 0.4 }, duration * 0.7)
           .easing(TWEEN.Easing.Quadratic.InOut)
           .onComplete(() => cap.tween.stop())
           .start();
@@ -173,7 +175,7 @@ export default function App(props) {
         }
   
         cap.tween = new TWEEN.Tween(cap)
-          .to({ value: 0.5 }, duration * 0.35)
+          .to({ value: 0.5 }, duration * 0.7)
           .easing(TWEEN.Easing.Quadratic.Out)
           .onComplete(() => cap.tween.stop())
           .start();
@@ -195,10 +197,6 @@ export default function App(props) {
           batch(intersections[0].object);
         }
 
-      } else {
-
-        stick();
-
       }
 
       window.removeEventListener('pointermove', drag);
@@ -219,7 +217,7 @@ export default function App(props) {
 
       const resp = Promise.all(
         eligible.map((sticker, i) => {
-          const delay = duration * i * 0.2;
+          const delay = duration * i * 0.4;
           return f(sticker, delay);
         })
       );
@@ -328,7 +326,7 @@ export default function App(props) {
             return;
           }
 
-          const delay = i * duration * 0.1;
+          const delay = i * duration * 0.2;
 
           s.userData.cap.value = 1;
           s.scale.set(1.1, 1.1, 1.1);
@@ -341,7 +339,7 @@ export default function App(props) {
           function place() {
             return new Promise((resolve) => {
               const tween = new TWEEN.Tween(s.scale)
-                .to({ x: 1, y: 1, z: 1 }, duration * 0.15)
+                .to({ x: 1, y: 1, z: 1 }, duration * 0.3)
                 .delay(delay)
                 .onStart(() => s.visible = true)
                 .easing(TWEEN.Easing.Back.Out)
@@ -409,6 +407,8 @@ export default function App(props) {
       foreground.forEach((s) => {
         s.userData.cap.value = 0.5;
       });
+      console.log(foreground.length);
+      setIsEmpty(foreground.length <= 0);
       return foreground;
     }
 
@@ -501,8 +501,13 @@ export default function App(props) {
 
   }
 
+  const className = ['react'];
+  if (isEmpty) {
+    className.push('empty');
+  }
+
   return (
-    <div className="react">
+    <div className={ className.join(' ') }>
       <div ref={ domElement } />
       <div id="contact">
         <a href="mailto:buns@oneburger.com">

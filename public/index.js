@@ -1084,7 +1084,7 @@
             }
             return dispatcher.useContext(Context);
           }
-          function useState(initialState) {
+          function useState2(initialState) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useState(initialState);
           }
@@ -1886,7 +1886,7 @@
           exports.useMemo = useMemo;
           exports.useReducer = useReducer;
           exports.useRef = useRef2;
-          exports.useState = useState;
+          exports.useState = useState2;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
           exports.version = ReactVersion;
@@ -43702,8 +43702,9 @@
       transparent: true
     })
   );
-  function App(props) {
+  function App() {
     const domElement2 = (0, import_react.useRef)();
+    const [isEmpty, setIsEmpty] = (0, import_react.useState)(false);
     (0, import_react.useEffect)(mount, []);
     function mount() {
       const renderer = new WebGLRenderer({ antialias: true });
@@ -43734,6 +43735,7 @@
       renderer.domElement.addEventListener("touchmove", touchmove, eventParams);
       renderer.domElement.addEventListener("touchend", touchend, eventParams);
       renderer.domElement.addEventListener("touchcancel", touchend, eventParams);
+      document.body.querySelector("#globe").addEventListener("click", stick);
       renderer.render(scene, camera);
       resize();
       Sticker.Texture.onUpdate = () => document.body.style.opacity = 1;
@@ -43776,7 +43778,7 @@
           if (cap.tween) {
             cap.tween.stop();
           }
-          cap.tween = new Tween(cap).to({ value: 0.4 }, duration * 0.35).easing(Easing.Quadratic.InOut).onComplete(() => cap.tween.stop()).start();
+          cap.tween = new Tween(cap).to({ value: 0.4 }, duration * 0.7).easing(Easing.Quadratic.InOut).onComplete(() => cap.tween.stop()).start();
         });
         drag({ clientX, clientY });
         window.addEventListener("pointermove", drag);
@@ -43796,7 +43798,7 @@
           if (cap.tween) {
             cap.tween.stop();
           }
-          cap.tween = new Tween(cap).to({ value: 0.5 }, duration * 0.35).easing(Easing.Quadratic.Out).onComplete(() => cap.tween.stop()).start();
+          cap.tween = new Tween(cap).to({ value: 0.5 }, duration * 0.7).easing(Easing.Quadratic.Out).onComplete(() => cap.tween.stop()).start();
         });
         if (foreground.length > 0) {
           const width = window.innerWidth;
@@ -43808,8 +43810,6 @@
           if (intersections.length > 0) {
             batch(intersections[0].object);
           }
-        } else {
-          stick();
         }
         window.removeEventListener("pointermove", drag);
         window.removeEventListener("pointerup", pointerup);
@@ -43822,7 +43822,7 @@
         );
         const resp = Promise.all(
           eligible.map((sticker2, i) => {
-            const delay = duration * i * 0.2;
+            const delay = duration * i * 0.4;
             return f(sticker2, delay);
           })
         );
@@ -43888,7 +43888,7 @@
             if (s.userData.animating) {
               return;
             }
-            const delay = i * duration * 0.1;
+            const delay = i * duration * 0.2;
             s.userData.cap.value = 1;
             s.scale.set(1.1, 1.1, 1.1);
             s.userData.animating = true;
@@ -43897,7 +43897,7 @@
             ]).then(rest);
             function place() {
               return new Promise((resolve) => {
-                const tween = new Tween(s.scale).to({ x: 1, y: 1, z: 1 }, duration * 0.15).delay(delay).onStart(() => s.visible = true).easing(Easing.Back.Out).onComplete(() => {
+                const tween = new Tween(s.scale).to({ x: 1, y: 1, z: 1 }, duration * 0.3).delay(delay).onStart(() => s.visible = true).easing(Easing.Back.Out).onComplete(() => {
                   tween.stop();
                   resolve();
                 }).start();
@@ -43944,6 +43944,8 @@
         foreground.forEach((s) => {
           s.userData.cap.value = 0.5;
         });
+        console.log(foreground.length);
+        setIsEmpty(foreground.length <= 0);
         return foreground;
       }
       function resize() {
@@ -44009,7 +44011,11 @@
         renderer.render(scene, camera);
       }
     }
-    return /* @__PURE__ */ import_react.default.createElement("div", { className: "react" }, /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 }), /* @__PURE__ */ import_react.default.createElement("div", { id: "contact" }, /* @__PURE__ */ import_react.default.createElement("a", { href: "mailto:buns@oneburger.com" }, "Contact \u2192 ", /* @__PURE__ */ import_react.default.createElement("span", { className: "mail" }))));
+    const className = ["react"];
+    if (isEmpty) {
+      className.push("empty");
+    }
+    return /* @__PURE__ */ import_react.default.createElement("div", { className: className.join(" ") }, /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 }), /* @__PURE__ */ import_react.default.createElement("div", { id: "contact" }, /* @__PURE__ */ import_react.default.createElement("a", { href: "mailto:buns@oneburger.com" }, "Contact \u2192 ", /* @__PURE__ */ import_react.default.createElement("span", { className: "mail" }))));
   }
   function getMaxDimensionInWorldSpace(camera, plane2) {
     let i;

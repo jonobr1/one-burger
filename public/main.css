@@ -29,7 +29,7 @@ body div.seo {
   letter-spacing: -2.5px;
 }
 body div.seo h1 {
-  background: url(images/wordmark.svg) center center;
+  background: url(images/wordmark.svg) center center no-repeat;
   background-size: contain;
   width: 19vw;
   height: 2.66vw;
@@ -48,11 +48,14 @@ body div.seo span.globe {
   margin-left: 0.25vw;
   margin-right: -0.6vw;
 }
-body canvas {
+body div.react canvas {
   position: absolute;
   display: block;
   top: 0;
   left: 0;
+}
+body div.react.empty canvas {
+  pointer-events: none;
 }
 body div#contact {
   position: fixed;

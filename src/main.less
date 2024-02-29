@@ -39,7 +39,7 @@ body {
 
     h1 {
       // @min-width: (30px / @aspect);
-      background: url(images/wordmark.svg) center center;
+      background: url(images/wordmark.svg) center center no-repeat;
       background-size: contain;
       width: 19vw;
       height: 19vw * @aspect;
@@ -64,11 +64,18 @@ body {
     }
   }
 
-  canvas {
-    position: absolute;
-    display: block;
-    top: 0;
-    left: 0;
+  div.react {
+    canvas {
+      position: absolute;
+      display: block;
+      top: 0;
+      left: 0;
+    }
+    &.empty {
+      canvas {
+        pointer-events: none;
+      }
+    }
   }
 
   div#contact {
