@@ -33,6 +33,8 @@ const plane = new THREE.Mesh(
 export default function App() {
 
   const domElement = useRef();
+
+  const [pointer, setPointer] = useState({ x: - 10, y: - 10 });
   const [isEmpty, setIsEmpty] = useState(false);
 
   useEffect(mount, []);
@@ -233,8 +235,6 @@ export default function App() {
 
         if (!isFirst) {
 
-          // sticker.userData.cap.value = 0.75;
-
           const projection = new THREE.Vector2(
             rad * Math.cos(angle),
             rad * Math.sin(angle)
@@ -364,6 +364,8 @@ export default function App() {
 
     function pointermove({ clientX, clientY }) {
 
+      setPointer({ x: clientX, y: clientY });
+
       if (dragging) {
         return;
       }
@@ -422,7 +424,7 @@ export default function App() {
       
       isMobile = hasTouch && isPortrait;
 
-      const domElement = document.querySelector('div.seo');
+      const domElement = document.body;
       const wasMobile = domElement.classList.contains('mobile');
 
       if (wasMobile !== isMobile) {
@@ -514,6 +516,7 @@ export default function App() {
           Contact → <span className="mail" />
         </a>
       </div>
+      <div id="cursor" style={ { top: pointer.y, left: pointer.x } } />
     </div>
   );
 

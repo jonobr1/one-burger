@@ -43704,6 +43704,7 @@
   );
   function App() {
     const domElement2 = (0, import_react.useRef)();
+    const [pointer, setPointer] = (0, import_react.useState)({ x: -10, y: -10 });
     const [isEmpty, setIsEmpty] = (0, import_react.useState)(false);
     (0, import_react.useEffect)(mount, []);
     function mount() {
@@ -43909,6 +43910,7 @@
         ).then(setForeground);
       }
       function pointermove({ clientX, clientY }) {
+        setPointer({ x: clientX, y: clientY });
         if (dragging) {
           return;
         }
@@ -43951,7 +43953,7 @@
         const hasTouch = window.navigator.maxTouchPoints > 0;
         const isPortrait = height > width;
         isMobile = hasTouch && isPortrait;
-        const domElement3 = document.querySelector("div.seo");
+        const domElement3 = document.body;
         const wasMobile = domElement3.classList.contains("mobile");
         if (wasMobile !== isMobile) {
           domElement3.classList[isMobile ? "add" : "remove"]("mobile");
@@ -44012,7 +44014,7 @@
     if (isEmpty) {
       className.push("empty");
     }
-    return /* @__PURE__ */ import_react.default.createElement("div", { className: className.join(" ") }, /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 }), /* @__PURE__ */ import_react.default.createElement("div", { id: "contact" }, /* @__PURE__ */ import_react.default.createElement("a", { href: "mailto:buns@oneburger.com" }, "Contact \u2192 ", /* @__PURE__ */ import_react.default.createElement("span", { className: "mail" }))));
+    return /* @__PURE__ */ import_react.default.createElement("div", { className: className.join(" ") }, /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 }), /* @__PURE__ */ import_react.default.createElement("div", { id: "contact" }, /* @__PURE__ */ import_react.default.createElement("a", { href: "mailto:buns@oneburger.com" }, "Contact \u2192 ", /* @__PURE__ */ import_react.default.createElement("span", { className: "mail" }))), /* @__PURE__ */ import_react.default.createElement("div", { id: "cursor", style: { top: pointer.y, left: pointer.x } }));
   }
   function getMaxDimensionInWorldSpace(camera, plane2) {
     let i;

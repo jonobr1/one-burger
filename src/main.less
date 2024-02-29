@@ -15,7 +15,7 @@
 * {
   margin: 0;
   padding: 0;
-  cursor: url(images/cursor.png), pointer;
+  cursor: none !important;
 }
 
 body {
@@ -109,6 +109,24 @@ body {
       background-repeat: no-repeat;
       background-size: contain;
       content: "";
+    }
+  }
+
+  div#cursor {
+    position: fixed;
+    top: -50px;
+    left: -50px;
+    width: 30px;
+    height: 32px;
+    background: url(images/cursor.png) center center no-repeat;
+    background-size: contain;
+    content: "";
+    pointer-events: none;
+  }
+
+  &.mobile {
+    div#cursor {
+      display: none;
     }
   }
 }

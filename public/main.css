@@ -10,7 +10,7 @@
 * {
   margin: 0;
   padding: 0;
-  cursor: url(images/cursor.png), pointer;
+  cursor: none !important;
 }
 body {
   font-family: "Helvetica Neue Condensed Bold", sans-serif;
@@ -87,6 +87,20 @@ body div#contact span.mail {
   background-repeat: no-repeat;
   background-size: contain;
   content: "";
+}
+body div#cursor {
+  position: fixed;
+  top: -50px;
+  left: -50px;
+  width: 30px;
+  height: 32px;
+  background: url(images/cursor.png) center center no-repeat;
+  background-size: contain;
+  content: "";
+  pointer-events: none;
+}
+body.mobile div#cursor {
+  display: none;
 }
 @media screen and (max-width: 450px) {
   body div.seo {
