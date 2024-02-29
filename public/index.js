@@ -43730,6 +43730,7 @@
       domElement2.current.appendChild(renderer.domElement);
       renderer.setAnimationLoop(update2);
       window.addEventListener("resize", resize);
+      window.addEventListener("pointermove", updatePointer);
       renderer.domElement.addEventListener("pointerdown", pointerdown);
       renderer.domElement.addEventListener("pointermove", pointermove);
       renderer.domElement.addEventListener("touchstart", touchstart, eventParams);
@@ -43743,8 +43744,9 @@
       return unmount;
       function unmount() {
         renderer.setAnimationLoop(null);
-        window.addEventListener("resize", resize);
-        renderer.domElement.addEventListener("pointerdown", pointerdown);
+        window.removeEventListener("resize", resize);
+        window.removeEventListener("pointermove", updatePointer);
+        renderer.domElement.removeEventListener("pointerdown", pointerdown);
         renderer.domElement.removeEventListener("pointermove", pointermove);
         renderer.domElement.removeEventListener("touchstart", touchstart, eventParams);
         renderer.domElement.removeEventListener("touchmove", touchmove, eventParams);
@@ -43771,6 +43773,9 @@
         if (e.touches.length > 0) {
           pointerup(e.touches[0]);
         }
+      }
+      function updatePointer({ clientX, clientY }) {
+        setPointer({ x: clientX, y: clientY });
       }
       function pointerdown({ clientX, clientY }) {
         dragging = true;
@@ -43910,7 +43915,6 @@
         ).then(setForeground);
       }
       function pointermove({ clientX, clientY }) {
-        setPointer({ x: clientX, y: clientY });
         if (dragging) {
           return;
         }

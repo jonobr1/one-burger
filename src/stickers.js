@@ -74,7 +74,8 @@ export default function App() {
 
     renderer.setAnimationLoop(update);
     window.addEventListener('resize', resize);
-    
+    window.addEventListener('pointermove', updatePointer);
+
     renderer.domElement.addEventListener('pointerdown', pointerdown);
     renderer.domElement.addEventListener('pointermove', pointermove);
     renderer.domElement.addEventListener('touchstart', touchstart, eventParams);
@@ -82,7 +83,7 @@ export default function App() {
     renderer.domElement.addEventListener('touchend', touchend, eventParams);
     renderer.domElement.addEventListener('touchcancel', touchend, eventParams);
     document.body.querySelector('#globe').addEventListener('click', stick);
-    
+
     renderer.render(scene, camera);
     resize();
     Sticker.Texture.onUpdate = () => document.body.style.opacity = 1;
@@ -92,9 +93,10 @@ export default function App() {
     function unmount() {
 
       renderer.setAnimationLoop(null);
-      window.addEventListener('resize', resize);
+      window.removeEventListener('resize', resize);
+      window.removeEventListener('pointermove', updatePointer);
 
-      renderer.domElement.addEventListener('pointerdown', pointerdown);
+      renderer.domElement.removeEventListener('pointerdown', pointerdown);
       renderer.domElement.removeEventListener('pointermove', pointermove);
       renderer.domElement.removeEventListener('touchstart', touchstart, eventParams);
       renderer.domElement.removeEventListener('touchmove', touchmove, eventParams);
@@ -125,6 +127,10 @@ export default function App() {
       if (e.touches.length > 0) {
         pointerup(e.touches[0]);
       }
+    }
+
+    function updatePointer({ clientX, clientY }) {
+      setPointer({ x: clientX, y: clientY });
     }
 
     function pointerdown({ clientX, clientY }) {
@@ -363,8 +369,6 @@ export default function App() {
     }
 
     function pointermove({ clientX, clientY }) {
-
-      setPointer({ x: clientX, y: clientY });
 
       if (dragging) {
         return;
