@@ -320,44 +320,45 @@ export default function App() {
       const eligible = sorted.filter((s) => !s.visible).slice(0).reverse();
 
       return Promise.all(
-        eligible.map((s, i) => {
+        eligible.map((sticker, i) => {
 
-          if (s.userData.animating) {
-            return;
-          }
+          const cap = sticker.userData.cap;
+          cap.value = 0.3;
 
-          const delay = i * duration * 0.2;
+          sticker.userData.animating = true;
 
-          s.userData.cap.value = 1;
-          s.scale.set(1.1, 1.1, 1.1);
-          s.userData.animating = true;
+          const delay = duration * i * 0.4;
 
-          return Promise.all([
-            place()
-          ]).then(rest);
+          return Promise
+            .all([curl()])
+            .then(rest);
 
-          function place() {
+          function curl() {
             return new Promise((resolve) => {
-              const tween = new TWEEN.Tween(s.scale)
-                .to({ x: 1, y: 1, z: 1 }, duration * 0.3)
+              if (cap.tween) {
+                cap.tween.stop();
+              }
+              cap.tween = new TWEEN.Tween(cap)
+                .to({ value: 1 }, duration)
+                .onStart(() => sticker.visible = true)
                 .delay(delay)
-                .onStart(() => s.visible = true)
-                .easing(TWEEN.Easing.Back.Out)
+                .easing(TWEEN.Easing.Quadratic.InOut)
                 .onComplete(() => {
-                  tween.stop();
+                  cap.tween.stop();
                   resolve();
                 })
                 .start();
-            })
+            });
           }
 
           function rest() {
-            s.userData.animating = false;
-            updateCursor(s);
+            sticker.userData.animating = false;
+            updateCursor(sticker);
           }
-  
+
         })
-      ).then(setForeground);
+      )
+      .then(setForeground);
 
     }
 
@@ -407,7 +408,6 @@ export default function App() {
       foreground.forEach((s) => {
         s.userData.cap.value = 0.5;
       });
-      console.log(foreground.length);
       setIsEmpty(foreground.length <= 0);
       return foreground;
     }

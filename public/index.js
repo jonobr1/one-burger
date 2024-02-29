@@ -43884,28 +43884,26 @@
       function stick() {
         const eligible = sorted.filter((s) => !s.visible).slice(0).reverse();
         return Promise.all(
-          eligible.map((s, i) => {
-            if (s.userData.animating) {
-              return;
-            }
-            const delay = i * duration * 0.2;
-            s.userData.cap.value = 1;
-            s.scale.set(1.1, 1.1, 1.1);
-            s.userData.animating = true;
-            return Promise.all([
-              place()
-            ]).then(rest);
-            function place() {
+          eligible.map((sticker, i) => {
+            const cap = sticker.userData.cap;
+            cap.value = 0.3;
+            sticker.userData.animating = true;
+            const delay = duration * i * 0.4;
+            return Promise.all([curl()]).then(rest);
+            function curl() {
               return new Promise((resolve) => {
-                const tween = new Tween(s.scale).to({ x: 1, y: 1, z: 1 }, duration * 0.3).delay(delay).onStart(() => s.visible = true).easing(Easing.Back.Out).onComplete(() => {
-                  tween.stop();
+                if (cap.tween) {
+                  cap.tween.stop();
+                }
+                cap.tween = new Tween(cap).to({ value: 1 }, duration).onStart(() => sticker.visible = true).delay(delay).easing(Easing.Quadratic.InOut).onComplete(() => {
+                  cap.tween.stop();
                   resolve();
                 }).start();
               });
             }
             function rest() {
-              s.userData.animating = false;
-              updateCursor(s);
+              sticker.userData.animating = false;
+              updateCursor(sticker);
             }
           })
         ).then(setForeground);
@@ -43944,7 +43942,6 @@
         foreground.forEach((s) => {
           s.userData.cap.value = 0.5;
         });
-        console.log(foreground.length);
         setIsEmpty(foreground.length <= 0);
         return foreground;
       }
