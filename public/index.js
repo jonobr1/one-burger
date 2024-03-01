@@ -44100,3 +44100,4 @@ three/build/three.module.js:
    * SPDX-License-Identifier: MIT
    *)
 */
+//# sourceMappingURL=index.js.map
