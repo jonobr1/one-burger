@@ -43828,7 +43828,7 @@
         );
         const resp = Promise.all(
           eligible.map((sticker2, i) => {
-            const delay = duration * i * 0.4;
+            const delay = duration * i * 0.1;
             return f(sticker2, delay);
           })
         );
@@ -43894,7 +43894,7 @@
             const cap = sticker.userData.cap;
             cap.value = 0.3;
             sticker.userData.animating = true;
-            const delay = duration * i * 0.4;
+            const delay = duration * i * 0.1;
             return Promise.all([curl()]).then(rest);
             function curl() {
               return new Promise((resolve) => {

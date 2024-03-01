@@ -225,7 +225,7 @@ export default function App() {
 
       const resp = Promise.all(
         eligible.map((sticker, i) => {
-          const delay = duration * i * 0.4;
+          const delay = duration * i * 0.1;
           return f(sticker, delay);
         })
       );
@@ -333,7 +333,7 @@ export default function App() {
 
           sticker.userData.animating = true;
 
-          const delay = duration * i * 0.4;
+          const delay = duration * i * 0.1;
 
           return Promise
             .all([curl()])
