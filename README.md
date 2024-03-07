@@ -2,8 +2,8 @@
 For one and all
 
 ## Local Development
-1. Install node.js
-2. Clone repository
+1. Install [node.js](https://nodejs.org/)
+2. Clone this repository
 3. `npm run dev`
 4. Visit `localhost:8080` in the browser of your choice
 
