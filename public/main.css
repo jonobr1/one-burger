@@ -10,11 +10,9 @@
 * {
   margin: 0;
   padding: 0;
-  cursor: none !important;
 }
 body {
   font-family: "Helvetica Neue Condensed Bold", sans-serif;
-  text-transform: uppercase;
   transition: opacity 0.35s ease-in-out;
 }
 body div.seo {
@@ -27,6 +25,7 @@ body div.seo {
   font-size: 2vw;
   line-height: 150%;
   letter-spacing: -2.5px;
+  text-transform: uppercase;
 }
 body div.seo h1 {
   background: url(images/wordmark.svg) center center no-repeat;
@@ -48,13 +47,14 @@ body div.seo span.globe {
   margin-left: 0.25vw;
   margin-right: -0.6vw;
 }
-body div.react canvas {
+body div.interactive canvas {
   position: absolute;
   display: block;
   top: 0;
   left: 0;
+  cursor: none !important;
 }
-body div.react.empty canvas {
+body div.interactive.empty canvas {
   pointer-events: none;
 }
 body div#contact {
@@ -64,6 +64,7 @@ body div#contact {
   right: 0;
   text-align: center;
   pointer-events: none;
+  text-transform: uppercase;
 }
 body div#contact a {
   display: inline-block;

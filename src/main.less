@@ -15,13 +15,11 @@
 * {
   margin: 0;
   padding: 0;
-  cursor: none !important;
 }
 
 body {
 
   font-family: "Helvetica Neue Condensed Bold", sans-serif;
-  text-transform: uppercase;
   transition: opacity 0.35s ease-in-out;
 
   div.seo {
@@ -36,6 +34,7 @@ body {
     font-size: 2vw;
     line-height: 150%;
     letter-spacing: -2.5px;
+    text-transform: uppercase;
 
     h1 {
       background: url(images/wordmark.svg) center center no-repeat;
@@ -61,12 +60,13 @@ body {
     }
   }
 
-  div.react {
+  div.interactive {
     canvas {
       position: absolute;
       display: block;
       top: 0;
       left: 0;
+      cursor: none !important;
     }
     &.empty {
       canvas {
@@ -83,6 +83,7 @@ body {
     @size: 17px;
     text-align: center;
     pointer-events: none;
+    text-transform: uppercase;
     a {
       display: inline-block;
       font-family: "Diatype Mono Bold", sans-serif;

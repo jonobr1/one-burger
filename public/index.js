@@ -2558,7 +2558,7 @@
             }
           }
           var RESERVED = 0;
-          var STRING = 1;
+          var STRING2 = 1;
           var BOOLEANISH_STRING = 2;
           var BOOLEAN = 3;
           var OVERLOADED_BOOLEAN = 4;
@@ -2691,7 +2691,7 @@
             var name = _ref[0], attributeName = _ref[1];
             properties[name] = new PropertyInfoRecord(
               name,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName,
@@ -2944,7 +2944,7 @@
             var name = attributeName.replace(CAMELIZE, capitalize);
             properties[name] = new PropertyInfoRecord(
               name,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName,
@@ -2969,7 +2969,7 @@
             var name = attributeName.replace(CAMELIZE, capitalize);
             properties[name] = new PropertyInfoRecord(
               name,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName,
@@ -2990,7 +2990,7 @@
             var name = attributeName.replace(CAMELIZE, capitalize);
             properties[name] = new PropertyInfoRecord(
               name,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName,
@@ -3003,7 +3003,7 @@
           ["tabIndex", "crossOrigin"].forEach(function(attributeName) {
             properties[attributeName] = new PropertyInfoRecord(
               attributeName,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName.toLowerCase(),
@@ -3018,7 +3018,7 @@
           var xlinkHref = "xlinkHref";
           properties[xlinkHref] = new PropertyInfoRecord(
             "xlinkHref",
-            STRING,
+            STRING2,
             false,
             // mustUseProperty
             "xlink:href",
@@ -3030,7 +3030,7 @@
           ["src", "href", "action", "formAction"].forEach(function(attributeName) {
             properties[attributeName] = new PropertyInfoRecord(
               attributeName,
-              STRING,
+              STRING2,
               false,
               // mustUseProperty
               attributeName.toLowerCase(),
@@ -5994,7 +5994,7 @@
           var cancelCallback = Scheduler.unstable_cancelCallback;
           var shouldYield = Scheduler.unstable_shouldYield;
           var requestPaint = Scheduler.unstable_requestPaint;
-          var now = Scheduler.unstable_now;
+          var now2 = Scheduler.unstable_now;
           var getCurrentPriorityLevel = Scheduler.unstable_getCurrentPriorityLevel;
           var ImmediatePriority = Scheduler.unstable_ImmediatePriority;
           var UserBlockingPriority = Scheduler.unstable_UserBlockingPriority;
@@ -11859,8 +11859,8 @@
                   if (dependency.context === context) {
                     if (fiber.tag === ClassComponent) {
                       var lane = pickArbitraryLane(renderLanes2);
-                      var update = createUpdate(NoTimestamp, lane);
-                      update.tag = ForceUpdate;
+                      var update2 = createUpdate(NoTimestamp, lane);
+                      update2.tag = ForceUpdate;
                       var updateQueue = fiber.updateQueue;
                       if (updateQueue === null)
                         ;
@@ -11868,12 +11868,12 @@
                         var sharedQueue = updateQueue.shared;
                         var pending = sharedQueue.pending;
                         if (pending === null) {
-                          update.next = update;
+                          update2.next = update2;
                         } else {
-                          update.next = pending.next;
-                          pending.next = update;
+                          update2.next = pending.next;
+                          pending.next = update2;
                         }
-                        sharedQueue.pending = update;
+                        sharedQueue.pending = update2;
                       }
                     }
                     fiber.lanes = mergeLanes(fiber.lanes, renderLanes2);
@@ -12000,39 +12000,39 @@
               concurrentQueues = null;
             }
           }
-          function enqueueConcurrentHookUpdate(fiber, queue, update, lane) {
+          function enqueueConcurrentHookUpdate(fiber, queue, update2, lane) {
             var interleaved = queue.interleaved;
             if (interleaved === null) {
-              update.next = update;
+              update2.next = update2;
               pushConcurrentUpdateQueue(queue);
             } else {
-              update.next = interleaved.next;
-              interleaved.next = update;
+              update2.next = interleaved.next;
+              interleaved.next = update2;
             }
-            queue.interleaved = update;
+            queue.interleaved = update2;
             return markUpdateLaneFromFiberToRoot(fiber, lane);
           }
-          function enqueueConcurrentHookUpdateAndEagerlyBailout(fiber, queue, update, lane) {
+          function enqueueConcurrentHookUpdateAndEagerlyBailout(fiber, queue, update2, lane) {
             var interleaved = queue.interleaved;
             if (interleaved === null) {
-              update.next = update;
+              update2.next = update2;
               pushConcurrentUpdateQueue(queue);
             } else {
-              update.next = interleaved.next;
-              interleaved.next = update;
+              update2.next = interleaved.next;
+              interleaved.next = update2;
             }
-            queue.interleaved = update;
+            queue.interleaved = update2;
           }
-          function enqueueConcurrentClassUpdate(fiber, queue, update, lane) {
+          function enqueueConcurrentClassUpdate(fiber, queue, update2, lane) {
             var interleaved = queue.interleaved;
             if (interleaved === null) {
-              update.next = update;
+              update2.next = update2;
               pushConcurrentUpdateQueue(queue);
             } else {
-              update.next = interleaved.next;
-              interleaved.next = update;
+              update2.next = interleaved.next;
+              interleaved.next = update2;
             }
-            queue.interleaved = update;
+            queue.interleaved = update2;
             return markUpdateLaneFromFiberToRoot(fiber, lane);
           }
           function enqueueConcurrentRenderForLane(fiber, lane) {
@@ -12114,7 +12114,7 @@
             }
           }
           function createUpdate(eventTime, lane) {
-            var update = {
+            var update2 = {
               eventTime,
               lane,
               tag: UpdateState,
@@ -12122,9 +12122,9 @@
               callback: null,
               next: null
             };
-            return update;
+            return update2;
           }
-          function enqueueUpdate(fiber, update, lane) {
+          function enqueueUpdate(fiber, update2, lane) {
             var updateQueue = fiber.updateQueue;
             if (updateQueue === null) {
               return null;
@@ -12139,15 +12139,15 @@
             if (isUnsafeClassRenderPhaseUpdate()) {
               var pending = sharedQueue.pending;
               if (pending === null) {
-                update.next = update;
+                update2.next = update2;
               } else {
-                update.next = pending.next;
-                pending.next = update;
+                update2.next = pending.next;
+                pending.next = update2;
               }
-              sharedQueue.pending = update;
+              sharedQueue.pending = update2;
               return unsafe_markUpdateLaneFromFiberToRoot(fiber, lane);
             } else {
-              return enqueueConcurrentClassUpdate(fiber, sharedQueue, update, lane);
+              return enqueueConcurrentClassUpdate(fiber, sharedQueue, update2, lane);
             }
           }
           function entangleTransitions(root4, fiber, lane) {
@@ -12174,14 +12174,14 @@
                 var newLast = null;
                 var firstBaseUpdate = queue.firstBaseUpdate;
                 if (firstBaseUpdate !== null) {
-                  var update = firstBaseUpdate;
+                  var update2 = firstBaseUpdate;
                   do {
                     var clone = {
-                      eventTime: update.eventTime,
-                      lane: update.lane,
-                      tag: update.tag,
-                      payload: update.payload,
-                      callback: update.callback,
+                      eventTime: update2.eventTime,
+                      lane: update2.lane,
+                      tag: update2.tag,
+                      payload: update2.payload,
+                      callback: update2.callback,
                       next: null
                     };
                     if (newLast === null) {
@@ -12190,8 +12190,8 @@
                       newLast.next = clone;
                       newLast = clone;
                     }
-                    update = update.next;
-                  } while (update !== null);
+                    update2 = update2.next;
+                  } while (update2 !== null);
                   if (newLast === null) {
                     newFirst = newLast = capturedUpdate;
                   } else {
@@ -12220,10 +12220,10 @@
             }
             queue.lastBaseUpdate = capturedUpdate;
           }
-          function getStateFromUpdate(workInProgress2, queue, update, prevState, nextProps, instance) {
-            switch (update.tag) {
+          function getStateFromUpdate(workInProgress2, queue, update2, prevState, nextProps, instance) {
+            switch (update2.tag) {
               case ReplaceState: {
-                var payload = update.payload;
+                var payload = update2.payload;
                 if (typeof payload === "function") {
                   {
                     enterDisallowedContextReadInDEV();
@@ -12248,7 +12248,7 @@
                 workInProgress2.flags = workInProgress2.flags & ~ShouldCapture | DidCapture;
               }
               case UpdateState: {
-                var _payload = update.payload;
+                var _payload = update2.payload;
                 var partialState;
                 if (typeof _payload === "function") {
                   {
@@ -12321,17 +12321,17 @@
               var newBaseState = null;
               var newFirstBaseUpdate = null;
               var newLastBaseUpdate = null;
-              var update = firstBaseUpdate;
+              var update2 = firstBaseUpdate;
               do {
-                var updateLane = update.lane;
-                var updateEventTime = update.eventTime;
+                var updateLane = update2.lane;
+                var updateEventTime = update2.eventTime;
                 if (!isSubsetOfLanes(renderLanes2, updateLane)) {
                   var clone = {
                     eventTime: updateEventTime,
                     lane: updateLane,
-                    tag: update.tag,
-                    payload: update.payload,
-                    callback: update.callback,
+                    tag: update2.tag,
+                    payload: update2.payload,
+                    callback: update2.callback,
                     next: null
                   };
                   if (newLastBaseUpdate === null) {
@@ -12349,29 +12349,29 @@
                       // it. Using NoLane works because 0 is a subset of all bitmasks, so
                       // this will never be skipped by the check above.
                       lane: NoLane,
-                      tag: update.tag,
-                      payload: update.payload,
-                      callback: update.callback,
+                      tag: update2.tag,
+                      payload: update2.payload,
+                      callback: update2.callback,
                       next: null
                     };
                     newLastBaseUpdate = newLastBaseUpdate.next = _clone;
                   }
-                  newState = getStateFromUpdate(workInProgress2, queue, update, newState, props, instance);
-                  var callback = update.callback;
+                  newState = getStateFromUpdate(workInProgress2, queue, update2, newState, props, instance);
+                  var callback = update2.callback;
                   if (callback !== null && // If the update was already committed, we should not queue its
                   // callback again.
-                  update.lane !== NoLane) {
+                  update2.lane !== NoLane) {
                     workInProgress2.flags |= Callback;
                     var effects = queue.effects;
                     if (effects === null) {
-                      queue.effects = [update];
+                      queue.effects = [update2];
                     } else {
-                      effects.push(update);
+                      effects.push(update2);
                     }
                   }
                 }
-                update = update.next;
-                if (update === null) {
+                update2 = update2.next;
+                if (update2 === null) {
                   pendingQueue = queue.shared.pending;
                   if (pendingQueue === null) {
                     break;
@@ -12379,7 +12379,7 @@
                     var _lastPendingUpdate = pendingQueue;
                     var _firstPendingUpdate = _lastPendingUpdate.next;
                     _lastPendingUpdate.next = null;
-                    update = _firstPendingUpdate;
+                    update2 = _firstPendingUpdate;
                     queue.lastBaseUpdate = _lastPendingUpdate;
                     queue.shared.pending = null;
                   }
@@ -12511,15 +12511,15 @@
               var fiber = get(inst);
               var eventTime = requestEventTime();
               var lane = requestUpdateLane(fiber);
-              var update = createUpdate(eventTime, lane);
-              update.payload = payload;
+              var update2 = createUpdate(eventTime, lane);
+              update2.payload = payload;
               if (callback !== void 0 && callback !== null) {
                 {
                   warnOnInvalidCallback(callback, "setState");
                 }
-                update.callback = callback;
+                update2.callback = callback;
               }
-              var root4 = enqueueUpdate(fiber, update, lane);
+              var root4 = enqueueUpdate(fiber, update2, lane);
               if (root4 !== null) {
                 scheduleUpdateOnFiber(root4, fiber, lane, eventTime);
                 entangleTransitions(root4, fiber, lane);
@@ -12532,16 +12532,16 @@
               var fiber = get(inst);
               var eventTime = requestEventTime();
               var lane = requestUpdateLane(fiber);
-              var update = createUpdate(eventTime, lane);
-              update.tag = ReplaceState;
-              update.payload = payload;
+              var update2 = createUpdate(eventTime, lane);
+              update2.tag = ReplaceState;
+              update2.payload = payload;
               if (callback !== void 0 && callback !== null) {
                 {
                   warnOnInvalidCallback(callback, "replaceState");
                 }
-                update.callback = callback;
+                update2.callback = callback;
               }
-              var root4 = enqueueUpdate(fiber, update, lane);
+              var root4 = enqueueUpdate(fiber, update2, lane);
               if (root4 !== null) {
                 scheduleUpdateOnFiber(root4, fiber, lane, eventTime);
                 entangleTransitions(root4, fiber, lane);
@@ -12554,15 +12554,15 @@
               var fiber = get(inst);
               var eventTime = requestEventTime();
               var lane = requestUpdateLane(fiber);
-              var update = createUpdate(eventTime, lane);
-              update.tag = ForceUpdate;
+              var update2 = createUpdate(eventTime, lane);
+              update2.tag = ForceUpdate;
               if (callback !== void 0 && callback !== null) {
                 {
                   warnOnInvalidCallback(callback, "forceUpdate");
                 }
-                update.callback = callback;
+                update2.callback = callback;
               }
-              var root4 = enqueueUpdate(fiber, update, lane);
+              var root4 = enqueueUpdate(fiber, update2, lane);
               if (root4 !== null) {
                 scheduleUpdateOnFiber(root4, fiber, lane, eventTime);
                 entangleTransitions(root4, fiber, lane);
@@ -14282,15 +14282,15 @@
               var newBaseState = null;
               var newBaseQueueFirst = null;
               var newBaseQueueLast = null;
-              var update = first;
+              var update2 = first;
               do {
-                var updateLane = update.lane;
+                var updateLane = update2.lane;
                 if (!isSubsetOfLanes(renderLanes, updateLane)) {
                   var clone = {
                     lane: updateLane,
-                    action: update.action,
-                    hasEagerState: update.hasEagerState,
-                    eagerState: update.eagerState,
+                    action: update2.action,
+                    hasEagerState: update2.hasEagerState,
+                    eagerState: update2.eagerState,
                     next: null
                   };
                   if (newBaseQueueLast === null) {
@@ -14308,22 +14308,22 @@
                       // it. Using NoLane works because 0 is a subset of all bitmasks, so
                       // this will never be skipped by the check above.
                       lane: NoLane,
-                      action: update.action,
-                      hasEagerState: update.hasEagerState,
-                      eagerState: update.eagerState,
+                      action: update2.action,
+                      hasEagerState: update2.hasEagerState,
+                      eagerState: update2.eagerState,
                       next: null
                     };
                     newBaseQueueLast = newBaseQueueLast.next = _clone;
                   }
-                  if (update.hasEagerState) {
-                    newState = update.eagerState;
+                  if (update2.hasEagerState) {
+                    newState = update2.eagerState;
                   } else {
-                    var action = update.action;
+                    var action = update2.action;
                     newState = reducer(newState, action);
                   }
                 }
-                update = update.next;
-              } while (update !== null && update !== first);
+                update2 = update2.next;
+              } while (update2 !== null && update2 !== first);
               if (newBaseQueueLast === null) {
                 newBaseState = newState;
               } else {
@@ -14365,12 +14365,12 @@
             if (lastRenderPhaseUpdate !== null) {
               queue.pending = null;
               var firstRenderPhaseUpdate = lastRenderPhaseUpdate.next;
-              var update = firstRenderPhaseUpdate;
+              var update2 = firstRenderPhaseUpdate;
               do {
-                var action = update.action;
+                var action = update2.action;
                 newState = reducer(newState, action);
-                update = update.next;
-              } while (update !== firstRenderPhaseUpdate);
+                update2 = update2.next;
+              } while (update2 !== firstRenderPhaseUpdate);
               if (!objectIs(newState, hook.memoizedState)) {
                 markWorkInProgressReceivedUpdate();
               }
@@ -14863,7 +14863,7 @@
               }
             }
             var lane = requestUpdateLane(fiber);
-            var update = {
+            var update2 = {
               lane,
               action,
               hasEagerState: false,
@@ -14871,9 +14871,9 @@
               next: null
             };
             if (isRenderPhaseUpdate(fiber)) {
-              enqueueRenderPhaseUpdate(queue, update);
+              enqueueRenderPhaseUpdate(queue, update2);
             } else {
-              var root4 = enqueueConcurrentHookUpdate(fiber, queue, update, lane);
+              var root4 = enqueueConcurrentHookUpdate(fiber, queue, update2, lane);
               if (root4 !== null) {
                 var eventTime = requestEventTime();
                 scheduleUpdateOnFiber(root4, fiber, lane, eventTime);
@@ -14889,7 +14889,7 @@
               }
             }
             var lane = requestUpdateLane(fiber);
-            var update = {
+            var update2 = {
               lane,
               action,
               hasEagerState: false,
@@ -14897,7 +14897,7 @@
               next: null
             };
             if (isRenderPhaseUpdate(fiber)) {
-              enqueueRenderPhaseUpdate(queue, update);
+              enqueueRenderPhaseUpdate(queue, update2);
             } else {
               var alternate = fiber.alternate;
               if (fiber.lanes === NoLanes && (alternate === null || alternate.lanes === NoLanes)) {
@@ -14911,10 +14911,10 @@
                   try {
                     var currentState = queue.lastRenderedState;
                     var eagerState = lastRenderedReducer(currentState, action);
-                    update.hasEagerState = true;
-                    update.eagerState = eagerState;
+                    update2.hasEagerState = true;
+                    update2.eagerState = eagerState;
                     if (objectIs(eagerState, currentState)) {
-                      enqueueConcurrentHookUpdateAndEagerlyBailout(fiber, queue, update, lane);
+                      enqueueConcurrentHookUpdateAndEagerlyBailout(fiber, queue, update2, lane);
                       return;
                     }
                   } catch (error2) {
@@ -14925,7 +14925,7 @@
                   }
                 }
               }
-              var root4 = enqueueConcurrentHookUpdate(fiber, queue, update, lane);
+              var root4 = enqueueConcurrentHookUpdate(fiber, queue, update2, lane);
               if (root4 !== null) {
                 var eventTime = requestEventTime();
                 scheduleUpdateOnFiber(root4, fiber, lane, eventTime);
@@ -14938,16 +14938,16 @@
             var alternate = fiber.alternate;
             return fiber === currentlyRenderingFiber$1 || alternate !== null && alternate === currentlyRenderingFiber$1;
           }
-          function enqueueRenderPhaseUpdate(queue, update) {
+          function enqueueRenderPhaseUpdate(queue, update2) {
             didScheduleRenderPhaseUpdateDuringThisPass = didScheduleRenderPhaseUpdate = true;
             var pending = queue.pending;
             if (pending === null) {
-              update.next = update;
+              update2.next = update2;
             } else {
-              update.next = pending.next;
-              pending.next = update;
+              update2.next = pending.next;
+              pending.next = update2;
             }
-            queue.pending = update;
+            queue.pending = update2;
           }
           function entangleTransitionUpdate(root4, queue, lane) {
             if (isTransitionLane(lane)) {
@@ -15950,28 +15950,28 @@
           }
           var PossiblyWeakMap$1 = typeof WeakMap === "function" ? WeakMap : Map;
           function createRootErrorUpdate(fiber, errorInfo, lane) {
-            var update = createUpdate(NoTimestamp, lane);
-            update.tag = CaptureUpdate;
-            update.payload = {
+            var update2 = createUpdate(NoTimestamp, lane);
+            update2.tag = CaptureUpdate;
+            update2.payload = {
               element: null
             };
             var error2 = errorInfo.value;
-            update.callback = function() {
+            update2.callback = function() {
               onUncaughtError(error2);
               logCapturedError(fiber, errorInfo);
             };
-            return update;
+            return update2;
           }
           function createClassErrorUpdate(fiber, errorInfo, lane) {
-            var update = createUpdate(NoTimestamp, lane);
-            update.tag = CaptureUpdate;
+            var update2 = createUpdate(NoTimestamp, lane);
+            update2.tag = CaptureUpdate;
             var getDerivedStateFromError = fiber.type.getDerivedStateFromError;
             if (typeof getDerivedStateFromError === "function") {
               var error$1 = errorInfo.value;
-              update.payload = function() {
+              update2.payload = function() {
                 return getDerivedStateFromError(error$1);
               };
-              update.callback = function() {
+              update2.callback = function() {
                 {
                   markFailedErrorBoundaryForHotReloading(fiber);
                 }
@@ -15980,7 +15980,7 @@
             }
             var inst = fiber.stateNode;
             if (inst !== null && typeof inst.componentDidCatch === "function") {
-              update.callback = function callback() {
+              update2.callback = function callback() {
                 {
                   markFailedErrorBoundaryForHotReloading(fiber);
                 }
@@ -16002,7 +16002,7 @@
                 }
               };
             }
-            return update;
+            return update2;
           }
           function attachPingListener(root4, wakeable, lanes) {
             var pingCache = root4.pingCache;
@@ -16076,9 +16076,9 @@
                   if (currentSourceFiber === null) {
                     sourceFiber.tag = IncompleteClassComponent;
                   } else {
-                    var update = createUpdate(NoTimestamp, SyncLane);
-                    update.tag = ForceUpdate;
-                    enqueueUpdate(sourceFiber, update, SyncLane);
+                    var update2 = createUpdate(NoTimestamp, SyncLane);
+                    update2.tag = ForceUpdate;
+                    enqueueUpdate(sourceFiber, update2, SyncLane);
                   }
                 }
                 sourceFiber.lanes = mergeLanes(sourceFiber.lanes, SyncLane);
@@ -16146,8 +16146,8 @@
                   workInProgress2.flags |= ShouldCapture;
                   var lane = pickArbitraryLane(rootRenderLanes);
                   workInProgress2.lanes = mergeLanes(workInProgress2.lanes, lane);
-                  var update = createRootErrorUpdate(workInProgress2, _errorInfo, lane);
-                  enqueueCapturedUpdate(workInProgress2, update);
+                  var update2 = createRootErrorUpdate(workInProgress2, _errorInfo, lane);
+                  enqueueCapturedUpdate(workInProgress2, update2);
                   return;
                 }
                 case ClassComponent:
@@ -16523,8 +16523,8 @@
                   var error$1 = new Error("Simulated error coming from DevTools");
                   var lane = pickArbitraryLane(renderLanes2);
                   workInProgress2.lanes = mergeLanes(workInProgress2.lanes, lane);
-                  var update = createClassErrorUpdate(workInProgress2, createCapturedValueAtFiber(error$1, workInProgress2), lane);
-                  enqueueCapturedUpdate(workInProgress2, update);
+                  var update2 = createClassErrorUpdate(workInProgress2, createCapturedValueAtFiber(error$1, workInProgress2), lane);
+                  enqueueCapturedUpdate(workInProgress2, update2);
                   break;
                 }
               }
@@ -18327,7 +18327,7 @@
                         row = row.sibling;
                       }
                     }
-                    if (renderState.tail !== null && now() > getRenderTargetTime()) {
+                    if (renderState.tail !== null && now2() > getRenderTargetTime()) {
                       workInProgress2.flags |= DidCapture;
                       didSuspendAlready = true;
                       cutOffTailIfNeeded(renderState, false);
@@ -18356,7 +18356,7 @@
                       // The time it took to render last row is greater than the remaining
                       // time we have to render. So rendering one more row would likely
                       // exceed it.
-                      now() * 2 - renderState.renderingStartTime > getRenderTargetTime() && renderLanes2 !== OffscreenLane
+                      now2() * 2 - renderState.renderingStartTime > getRenderTargetTime() && renderLanes2 !== OffscreenLane
                     ) {
                       workInProgress2.flags |= DidCapture;
                       didSuspendAlready = true;
@@ -18381,7 +18381,7 @@
                   var next = renderState.tail;
                   renderState.rendering = next;
                   renderState.tail = next.sibling;
-                  renderState.renderingStartTime = now();
+                  renderState.renderingStartTime = now2();
                   next.sibling = null;
                   var suspenseContext = suspenseStackCursor.current;
                   if (didSuspendAlready) {
@@ -20358,7 +20358,7 @@
           var RENDER_TIMEOUT_MS = 500;
           var workInProgressTransitions = null;
           function resetRenderTimer() {
-            workInProgressRootRenderTargetTime = now() + RENDER_TIMEOUT_MS;
+            workInProgressRootRenderTargetTime = now2() + RENDER_TIMEOUT_MS;
           }
           function getRenderTargetTime() {
             return workInProgressRootRenderTargetTime;
@@ -20387,12 +20387,12 @@
           }
           function requestEventTime() {
             if ((executionContext & (RenderContext | CommitContext)) !== NoContext) {
-              return now();
+              return now2();
             }
             if (currentEventTime !== NoTimestamp) {
               return currentEventTime;
             }
-            currentEventTime = now();
+            currentEventTime = now2();
             return currentEventTime;
           }
           function requestUpdateLane(fiber) {
@@ -20589,7 +20589,7 @@
                 var fatalError = workInProgressRootFatalError;
                 prepareFreshStack(root4, NoLanes);
                 markRootSuspended$1(root4, lanes);
-                ensureRootIsScheduled(root4, now());
+                ensureRootIsScheduled(root4, now2());
                 throw fatalError;
               }
               if (exitStatus === RootDidNotComplete) {
@@ -20610,7 +20610,7 @@
                     var _fatalError = workInProgressRootFatalError;
                     prepareFreshStack(root4, NoLanes);
                     markRootSuspended$1(root4, lanes);
-                    ensureRootIsScheduled(root4, now());
+                    ensureRootIsScheduled(root4, now2());
                     throw _fatalError;
                   }
                 }
@@ -20619,7 +20619,7 @@
                 finishConcurrentRender(root4, exitStatus, lanes);
               }
             }
-            ensureRootIsScheduled(root4, now());
+            ensureRootIsScheduled(root4, now2());
             if (root4.callbackNode === originalCallbackNode) {
               return performConcurrentWorkOnRoot.bind(null, root4);
             }
@@ -20665,7 +20665,7 @@
                 markRootSuspended$1(root4, lanes);
                 if (includesOnlyRetries(lanes) && // do not delay if we're inside an act() scope
                 !shouldForceFlushFallbacksInDEV()) {
-                  var msUntilTimeout = globalMostRecentFallbackTime + FALLBACK_THROTTLE_MS - now();
+                  var msUntilTimeout = globalMostRecentFallbackTime + FALLBACK_THROTTLE_MS - now2();
                   if (msUntilTimeout > 10) {
                     var nextLanes = getNextLanes(root4, NoLanes);
                     if (nextLanes !== NoLanes) {
@@ -20692,7 +20692,7 @@
                 if (!shouldForceFlushFallbacksInDEV()) {
                   var mostRecentEventTime = getMostRecentEventTime(root4, lanes);
                   var eventTimeMs = mostRecentEventTime;
-                  var timeElapsedMs = now() - eventTimeMs;
+                  var timeElapsedMs = now2() - eventTimeMs;
                   var _msUntilTimeout = jnd(timeElapsedMs) - timeElapsedMs;
                   if (_msUntilTimeout > 10) {
                     root4.timeoutHandle = scheduleTimeout(commitRoot.bind(null, root4, workInProgressRootRecoverableErrors, workInProgressTransitions), _msUntilTimeout);
@@ -20769,7 +20769,7 @@
             flushPassiveEffects();
             var lanes = getNextLanes(root4, NoLanes);
             if (!includesSomeLane(lanes, SyncLane)) {
-              ensureRootIsScheduled(root4, now());
+              ensureRootIsScheduled(root4, now2());
               return null;
             }
             var exitStatus = renderRootSync(root4, lanes);
@@ -20784,7 +20784,7 @@
               var fatalError = workInProgressRootFatalError;
               prepareFreshStack(root4, NoLanes);
               markRootSuspended$1(root4, lanes);
-              ensureRootIsScheduled(root4, now());
+              ensureRootIsScheduled(root4, now2());
               throw fatalError;
             }
             if (exitStatus === RootDidNotComplete) {
@@ -20794,13 +20794,13 @@
             root4.finishedWork = finishedWork;
             root4.finishedLanes = lanes;
             commitRoot(root4, workInProgressRootRecoverableErrors, workInProgressTransitions);
-            ensureRootIsScheduled(root4, now());
+            ensureRootIsScheduled(root4, now2());
             return null;
           }
           function flushRoot(root4, lanes) {
             if (lanes !== NoLanes) {
               markRootEntangled(root4, mergeLanes(lanes, SyncLane));
-              ensureRootIsScheduled(root4, now());
+              ensureRootIsScheduled(root4, now2());
               if ((executionContext & (RenderContext | CommitContext)) === NoContext) {
                 resetRenderTimer();
                 flushSyncCallbacks();
@@ -20960,7 +20960,7 @@
             ReactCurrentDispatcher$2.current = prevDispatcher;
           }
           function markCommitTimeOfFallback() {
-            globalMostRecentFallbackTime = now();
+            globalMostRecentFallbackTime = now2();
           }
           function markSkippedUpdateLanes(lane) {
             workInProgressRootSkippedLanes = mergeLanes(lane, workInProgressRootSkippedLanes);
@@ -21294,7 +21294,7 @@
             {
               onCommitRoot$1();
             }
-            ensureRootIsScheduled(root4, now());
+            ensureRootIsScheduled(root4, now2());
             if (recoverableErrors !== null) {
               var onRecoverableError = root4.onRecoverableError;
               for (var i = 0; i < recoverableErrors.length; i++) {
@@ -21446,8 +21446,8 @@
           var onUncaughtError = prepareToThrowUncaughtError;
           function captureCommitPhaseErrorOnRoot(rootFiber, sourceFiber, error2) {
             var errorInfo = createCapturedValueAtFiber(error2, sourceFiber);
-            var update = createRootErrorUpdate(rootFiber, errorInfo, SyncLane);
-            var root4 = enqueueUpdate(rootFiber, update, SyncLane);
+            var update2 = createRootErrorUpdate(rootFiber, errorInfo, SyncLane);
+            var root4 = enqueueUpdate(rootFiber, update2, SyncLane);
             var eventTime = requestEventTime();
             if (root4 !== null) {
               markRootUpdated(root4, SyncLane, eventTime);
@@ -21476,8 +21476,8 @@
                 var instance = fiber.stateNode;
                 if (typeof ctor.getDerivedStateFromError === "function" || typeof instance.componentDidCatch === "function" && !isAlreadyFailedLegacyErrorBoundary(instance)) {
                   var errorInfo = createCapturedValueAtFiber(error$1, sourceFiber);
-                  var update = createClassErrorUpdate(fiber, errorInfo, SyncLane);
-                  var root4 = enqueueUpdate(fiber, update, SyncLane);
+                  var update2 = createClassErrorUpdate(fiber, errorInfo, SyncLane);
+                  var root4 = enqueueUpdate(fiber, update2, SyncLane);
                   var eventTime = requestEventTime();
                   if (root4 !== null) {
                     markRootUpdated(root4, SyncLane, eventTime);
@@ -21501,7 +21501,7 @@
             markRootPinged(root4, pingedLanes);
             warnIfSuspenseResolutionNotWrappedWithActDEV(root4);
             if (workInProgressRoot === root4 && isSubsetOfLanes(workInProgressRootRenderLanes, pingedLanes)) {
-              if (workInProgressRootExitStatus === RootSuspendedWithDelay || workInProgressRootExitStatus === RootSuspended && includesOnlyRetries(workInProgressRootRenderLanes) && now() - globalMostRecentFallbackTime < FALLBACK_THROTTLE_MS) {
+              if (workInProgressRootExitStatus === RootSuspendedWithDelay || workInProgressRootExitStatus === RootSuspended && includesOnlyRetries(workInProgressRootRenderLanes) && now2() - globalMostRecentFallbackTime < FALLBACK_THROTTLE_MS) {
                 prepareFreshStack(root4, NoLanes);
               } else {
                 workInProgressRootPingedLanes = mergeLanes(workInProgressRootPingedLanes, pingedLanes);
@@ -21895,12 +21895,12 @@
               failedBoundaries.add(fiber);
             }
           }
-          var scheduleRefresh = function(root4, update) {
+          var scheduleRefresh = function(root4, update2) {
             {
               if (resolveFamily === null) {
                 return;
               }
-              var staleFamilies = update.staleFamilies, updatedFamilies = update.updatedFamilies;
+              var staleFamilies = update2.staleFamilies, updatedFamilies = update2.updatedFamilies;
               flushPassiveEffects();
               flushSync(function() {
                 scheduleFibersWithFamiliesRecursively(root4.current, updatedFamilies, staleFamilies);
@@ -22632,9 +22632,9 @@
             var current2 = root4.current;
             var eventTime = requestEventTime();
             var lane = requestUpdateLane(current2);
-            var update = createUpdate(eventTime, lane);
-            update.callback = callback !== void 0 && callback !== null ? callback : null;
-            enqueueUpdate(current2, update, lane);
+            var update2 = createUpdate(eventTime, lane);
+            update2.callback = callback !== void 0 && callback !== null ? callback : null;
+            enqueueUpdate(current2, update2, lane);
             scheduleInitialHydrationOnRoot(root4, lane, eventTime);
             return root4;
           }
@@ -22660,8 +22660,8 @@
                 error("Render methods should be a pure function of props and state; triggering nested component updates from render is not allowed. If necessary, trigger nested updates in componentDidUpdate.\n\nCheck the render method of %s.", getComponentNameFromFiber(current) || "Unknown");
               }
             }
-            var update = createUpdate(eventTime, lane);
-            update.payload = {
+            var update2 = createUpdate(eventTime, lane);
+            update2.payload = {
               element
             };
             callback = callback === void 0 ? null : callback;
@@ -22671,9 +22671,9 @@
                   error("render(...): Expected the last optional `callback` argument to be a function. Instead received: %s.", callback);
                 }
               }
-              update.callback = callback;
+              update2.callback = callback;
             }
-            var root4 = enqueueUpdate(current$1, update, lane);
+            var root4 = enqueueUpdate(current$1, update2, lane);
             if (root4 !== null) {
               scheduleUpdateOnFiber(root4, current$1, lane, eventTime);
               entangleTransitions(root4, current$1, lane);
@@ -28322,6 +28322,808 @@
   // src/papers.js
   var import_react = __toESM(require_react());
 
+  // node_modules/@tweenjs/tween.js/dist/tween.esm.js
+  var Easing = Object.freeze({
+    Linear: Object.freeze({
+      None: function(amount) {
+        return amount;
+      },
+      In: function(amount) {
+        return this.None(amount);
+      },
+      Out: function(amount) {
+        return this.None(amount);
+      },
+      InOut: function(amount) {
+        return this.None(amount);
+      }
+    }),
+    Quadratic: Object.freeze({
+      In: function(amount) {
+        return amount * amount;
+      },
+      Out: function(amount) {
+        return amount * (2 - amount);
+      },
+      InOut: function(amount) {
+        if ((amount *= 2) < 1) {
+          return 0.5 * amount * amount;
+        }
+        return -0.5 * (--amount * (amount - 2) - 1);
+      }
+    }),
+    Cubic: Object.freeze({
+      In: function(amount) {
+        return amount * amount * amount;
+      },
+      Out: function(amount) {
+        return --amount * amount * amount + 1;
+      },
+      InOut: function(amount) {
+        if ((amount *= 2) < 1) {
+          return 0.5 * amount * amount * amount;
+        }
+        return 0.5 * ((amount -= 2) * amount * amount + 2);
+      }
+    }),
+    Quartic: Object.freeze({
+      In: function(amount) {
+        return amount * amount * amount * amount;
+      },
+      Out: function(amount) {
+        return 1 - --amount * amount * amount * amount;
+      },
+      InOut: function(amount) {
+        if ((amount *= 2) < 1) {
+          return 0.5 * amount * amount * amount * amount;
+        }
+        return -0.5 * ((amount -= 2) * amount * amount * amount - 2);
+      }
+    }),
+    Quintic: Object.freeze({
+      In: function(amount) {
+        return amount * amount * amount * amount * amount;
+      },
+      Out: function(amount) {
+        return --amount * amount * amount * amount * amount + 1;
+      },
+      InOut: function(amount) {
+        if ((amount *= 2) < 1) {
+          return 0.5 * amount * amount * amount * amount * amount;
+        }
+        return 0.5 * ((amount -= 2) * amount * amount * amount * amount + 2);
+      }
+    }),
+    Sinusoidal: Object.freeze({
+      In: function(amount) {
+        return 1 - Math.sin((1 - amount) * Math.PI / 2);
+      },
+      Out: function(amount) {
+        return Math.sin(amount * Math.PI / 2);
+      },
+      InOut: function(amount) {
+        return 0.5 * (1 - Math.sin(Math.PI * (0.5 - amount)));
+      }
+    }),
+    Exponential: Object.freeze({
+      In: function(amount) {
+        return amount === 0 ? 0 : Math.pow(1024, amount - 1);
+      },
+      Out: function(amount) {
+        return amount === 1 ? 1 : 1 - Math.pow(2, -10 * amount);
+      },
+      InOut: function(amount) {
+        if (amount === 0) {
+          return 0;
+        }
+        if (amount === 1) {
+          return 1;
+        }
+        if ((amount *= 2) < 1) {
+          return 0.5 * Math.pow(1024, amount - 1);
+        }
+        return 0.5 * (-Math.pow(2, -10 * (amount - 1)) + 2);
+      }
+    }),
+    Circular: Object.freeze({
+      In: function(amount) {
+        return 1 - Math.sqrt(1 - amount * amount);
+      },
+      Out: function(amount) {
+        return Math.sqrt(1 - --amount * amount);
+      },
+      InOut: function(amount) {
+        if ((amount *= 2) < 1) {
+          return -0.5 * (Math.sqrt(1 - amount * amount) - 1);
+        }
+        return 0.5 * (Math.sqrt(1 - (amount -= 2) * amount) + 1);
+      }
+    }),
+    Elastic: Object.freeze({
+      In: function(amount) {
+        if (amount === 0) {
+          return 0;
+        }
+        if (amount === 1) {
+          return 1;
+        }
+        return -Math.pow(2, 10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI);
+      },
+      Out: function(amount) {
+        if (amount === 0) {
+          return 0;
+        }
+        if (amount === 1) {
+          return 1;
+        }
+        return Math.pow(2, -10 * amount) * Math.sin((amount - 0.1) * 5 * Math.PI) + 1;
+      },
+      InOut: function(amount) {
+        if (amount === 0) {
+          return 0;
+        }
+        if (amount === 1) {
+          return 1;
+        }
+        amount *= 2;
+        if (amount < 1) {
+          return -0.5 * Math.pow(2, 10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI);
+        }
+        return 0.5 * Math.pow(2, -10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI) + 1;
+      }
+    }),
+    Back: Object.freeze({
+      In: function(amount) {
+        var s = 1.70158;
+        return amount === 1 ? 1 : amount * amount * ((s + 1) * amount - s);
+      },
+      Out: function(amount) {
+        var s = 1.70158;
+        return amount === 0 ? 0 : --amount * amount * ((s + 1) * amount + s) + 1;
+      },
+      InOut: function(amount) {
+        var s = 1.70158 * 1.525;
+        if ((amount *= 2) < 1) {
+          return 0.5 * (amount * amount * ((s + 1) * amount - s));
+        }
+        return 0.5 * ((amount -= 2) * amount * ((s + 1) * amount + s) + 2);
+      }
+    }),
+    Bounce: Object.freeze({
+      In: function(amount) {
+        return 1 - Easing.Bounce.Out(1 - amount);
+      },
+      Out: function(amount) {
+        if (amount < 1 / 2.75) {
+          return 7.5625 * amount * amount;
+        } else if (amount < 2 / 2.75) {
+          return 7.5625 * (amount -= 1.5 / 2.75) * amount + 0.75;
+        } else if (amount < 2.5 / 2.75) {
+          return 7.5625 * (amount -= 2.25 / 2.75) * amount + 0.9375;
+        } else {
+          return 7.5625 * (amount -= 2.625 / 2.75) * amount + 0.984375;
+        }
+      },
+      InOut: function(amount) {
+        if (amount < 0.5) {
+          return Easing.Bounce.In(amount * 2) * 0.5;
+        }
+        return Easing.Bounce.Out(amount * 2 - 1) * 0.5 + 0.5;
+      }
+    }),
+    generatePow: function(power) {
+      if (power === void 0) {
+        power = 4;
+      }
+      power = power < Number.EPSILON ? Number.EPSILON : power;
+      power = power > 1e4 ? 1e4 : power;
+      return {
+        In: function(amount) {
+          return Math.pow(amount, power);
+        },
+        Out: function(amount) {
+          return 1 - Math.pow(1 - amount, power);
+        },
+        InOut: function(amount) {
+          if (amount < 0.5) {
+            return Math.pow(amount * 2, power) / 2;
+          }
+          return (1 - Math.pow(2 - amount * 2, power)) / 2 + 0.5;
+        }
+      };
+    }
+  });
+  var now = function() {
+    return performance.now();
+  };
+  var Group = (
+    /** @class */
+    function() {
+      function Group3() {
+        this._tweens = {};
+        this._tweensAddedDuringUpdate = {};
+      }
+      Group3.prototype.getAll = function() {
+        var _this = this;
+        return Object.keys(this._tweens).map(function(tweenId) {
+          return _this._tweens[tweenId];
+        });
+      };
+      Group3.prototype.removeAll = function() {
+        this._tweens = {};
+      };
+      Group3.prototype.add = function(tween) {
+        this._tweens[tween.getId()] = tween;
+        this._tweensAddedDuringUpdate[tween.getId()] = tween;
+      };
+      Group3.prototype.remove = function(tween) {
+        delete this._tweens[tween.getId()];
+        delete this._tweensAddedDuringUpdate[tween.getId()];
+      };
+      Group3.prototype.update = function(time, preserve) {
+        if (time === void 0) {
+          time = now();
+        }
+        if (preserve === void 0) {
+          preserve = false;
+        }
+        var tweenIds = Object.keys(this._tweens);
+        if (tweenIds.length === 0) {
+          return false;
+        }
+        while (tweenIds.length > 0) {
+          this._tweensAddedDuringUpdate = {};
+          for (var i = 0; i < tweenIds.length; i++) {
+            var tween = this._tweens[tweenIds[i]];
+            var autoStart = !preserve;
+            if (tween && tween.update(time, autoStart) === false && !preserve) {
+              delete this._tweens[tweenIds[i]];
+            }
+          }
+          tweenIds = Object.keys(this._tweensAddedDuringUpdate);
+        }
+        return true;
+      };
+      return Group3;
+    }()
+  );
+  var Interpolation = {
+    Linear: function(v, k) {
+      var m = v.length - 1;
+      var f = m * k;
+      var i = Math.floor(f);
+      var fn = Interpolation.Utils.Linear;
+      if (k < 0) {
+        return fn(v[0], v[1], f);
+      }
+      if (k > 1) {
+        return fn(v[m], v[m - 1], m - f);
+      }
+      return fn(v[i], v[i + 1 > m ? m : i + 1], f - i);
+    },
+    Bezier: function(v, k) {
+      var b = 0;
+      var n = v.length - 1;
+      var pw = Math.pow;
+      var bn = Interpolation.Utils.Bernstein;
+      for (var i = 0; i <= n; i++) {
+        b += pw(1 - k, n - i) * pw(k, i) * v[i] * bn(n, i);
+      }
+      return b;
+    },
+    CatmullRom: function(v, k) {
+      var m = v.length - 1;
+      var f = m * k;
+      var i = Math.floor(f);
+      var fn = Interpolation.Utils.CatmullRom;
+      if (v[0] === v[m]) {
+        if (k < 0) {
+          i = Math.floor(f = m * (1 + k));
+        }
+        return fn(v[(i - 1 + m) % m], v[i], v[(i + 1) % m], v[(i + 2) % m], f - i);
+      } else {
+        if (k < 0) {
+          return v[0] - (fn(v[0], v[0], v[1], v[1], -f) - v[0]);
+        }
+        if (k > 1) {
+          return v[m] - (fn(v[m], v[m], v[m - 1], v[m - 1], f - m) - v[m]);
+        }
+        return fn(v[i ? i - 1 : 0], v[i], v[m < i + 1 ? m : i + 1], v[m < i + 2 ? m : i + 2], f - i);
+      }
+    },
+    Utils: {
+      Linear: function(p0, p1, t) {
+        return (p1 - p0) * t + p0;
+      },
+      Bernstein: function(n, i) {
+        var fc = Interpolation.Utils.Factorial;
+        return fc(n) / fc(i) / fc(n - i);
+      },
+      Factorial: /* @__PURE__ */ function() {
+        var a = [1];
+        return function(n) {
+          var s = 1;
+          if (a[n]) {
+            return a[n];
+          }
+          for (var i = n; i > 1; i--) {
+            s *= i;
+          }
+          a[n] = s;
+          return s;
+        };
+      }(),
+      CatmullRom: function(p0, p1, p2, p3, t) {
+        var v0 = (p2 - p0) * 0.5;
+        var v1 = (p3 - p1) * 0.5;
+        var t2 = t * t;
+        var t3 = t * t2;
+        return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
+      }
+    }
+  };
+  var Sequence = (
+    /** @class */
+    function() {
+      function Sequence2() {
+      }
+      Sequence2.nextId = function() {
+        return Sequence2._nextId++;
+      };
+      Sequence2._nextId = 0;
+      return Sequence2;
+    }()
+  );
+  var mainGroup = new Group();
+  var Tween = (
+    /** @class */
+    function() {
+      function Tween2(_object, _group) {
+        if (_group === void 0) {
+          _group = mainGroup;
+        }
+        this._object = _object;
+        this._group = _group;
+        this._isPaused = false;
+        this._pauseStart = 0;
+        this._valuesStart = {};
+        this._valuesEnd = {};
+        this._valuesStartRepeat = {};
+        this._duration = 1e3;
+        this._isDynamic = false;
+        this._initialRepeat = 0;
+        this._repeat = 0;
+        this._yoyo = false;
+        this._isPlaying = false;
+        this._reversed = false;
+        this._delayTime = 0;
+        this._startTime = 0;
+        this._easingFunction = Easing.Linear.None;
+        this._interpolationFunction = Interpolation.Linear;
+        this._chainedTweens = [];
+        this._onStartCallbackFired = false;
+        this._onEveryStartCallbackFired = false;
+        this._id = Sequence.nextId();
+        this._isChainStopped = false;
+        this._propertiesAreSetUp = false;
+        this._goToEnd = false;
+      }
+      Tween2.prototype.getId = function() {
+        return this._id;
+      };
+      Tween2.prototype.isPlaying = function() {
+        return this._isPlaying;
+      };
+      Tween2.prototype.isPaused = function() {
+        return this._isPaused;
+      };
+      Tween2.prototype.getDuration = function() {
+        return this._duration;
+      };
+      Tween2.prototype.to = function(target, duration) {
+        if (duration === void 0) {
+          duration = 1e3;
+        }
+        if (this._isPlaying)
+          throw new Error("Can not call Tween.to() while Tween is already started or paused. Stop the Tween first.");
+        this._valuesEnd = target;
+        this._propertiesAreSetUp = false;
+        this._duration = duration < 0 ? 0 : duration;
+        return this;
+      };
+      Tween2.prototype.duration = function(duration) {
+        if (duration === void 0) {
+          duration = 1e3;
+        }
+        this._duration = duration < 0 ? 0 : duration;
+        return this;
+      };
+      Tween2.prototype.dynamic = function(dynamic) {
+        if (dynamic === void 0) {
+          dynamic = false;
+        }
+        this._isDynamic = dynamic;
+        return this;
+      };
+      Tween2.prototype.start = function(time, overrideStartingValues) {
+        if (time === void 0) {
+          time = now();
+        }
+        if (overrideStartingValues === void 0) {
+          overrideStartingValues = false;
+        }
+        if (this._isPlaying) {
+          return this;
+        }
+        this._group && this._group.add(this);
+        this._repeat = this._initialRepeat;
+        if (this._reversed) {
+          this._reversed = false;
+          for (var property in this._valuesStartRepeat) {
+            this._swapEndStartRepeatValues(property);
+            this._valuesStart[property] = this._valuesStartRepeat[property];
+          }
+        }
+        this._isPlaying = true;
+        this._isPaused = false;
+        this._onStartCallbackFired = false;
+        this._onEveryStartCallbackFired = false;
+        this._isChainStopped = false;
+        this._startTime = time;
+        this._startTime += this._delayTime;
+        if (!this._propertiesAreSetUp || overrideStartingValues) {
+          this._propertiesAreSetUp = true;
+          if (!this._isDynamic) {
+            var tmp = {};
+            for (var prop in this._valuesEnd)
+              tmp[prop] = this._valuesEnd[prop];
+            this._valuesEnd = tmp;
+          }
+          this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat, overrideStartingValues);
+        }
+        return this;
+      };
+      Tween2.prototype.startFromCurrentValues = function(time) {
+        return this.start(time, true);
+      };
+      Tween2.prototype._setupProperties = function(_object, _valuesStart, _valuesEnd, _valuesStartRepeat, overrideStartingValues) {
+        for (var property in _valuesEnd) {
+          var startValue = _object[property];
+          var startValueIsArray = Array.isArray(startValue);
+          var propType = startValueIsArray ? "array" : typeof startValue;
+          var isInterpolationList = !startValueIsArray && Array.isArray(_valuesEnd[property]);
+          if (propType === "undefined" || propType === "function") {
+            continue;
+          }
+          if (isInterpolationList) {
+            var endValues = _valuesEnd[property];
+            if (endValues.length === 0) {
+              continue;
+            }
+            var temp2 = [startValue];
+            for (var i = 0, l = endValues.length; i < l; i += 1) {
+              var value = this._handleRelativeValue(startValue, endValues[i]);
+              if (isNaN(value)) {
+                isInterpolationList = false;
+                console.warn("Found invalid interpolation list. Skipping.");
+                break;
+              }
+              temp2.push(value);
+            }
+            if (isInterpolationList) {
+              _valuesEnd[property] = temp2;
+            }
+          }
+          if ((propType === "object" || startValueIsArray) && startValue && !isInterpolationList) {
+            _valuesStart[property] = startValueIsArray ? [] : {};
+            var nestedObject = startValue;
+            for (var prop in nestedObject) {
+              _valuesStart[property][prop] = nestedObject[prop];
+            }
+            _valuesStartRepeat[property] = startValueIsArray ? [] : {};
+            var endValues = _valuesEnd[property];
+            if (!this._isDynamic) {
+              var tmp = {};
+              for (var prop in endValues)
+                tmp[prop] = endValues[prop];
+              _valuesEnd[property] = endValues = tmp;
+            }
+            this._setupProperties(nestedObject, _valuesStart[property], endValues, _valuesStartRepeat[property], overrideStartingValues);
+          } else {
+            if (typeof _valuesStart[property] === "undefined" || overrideStartingValues) {
+              _valuesStart[property] = startValue;
+            }
+            if (!startValueIsArray) {
+              _valuesStart[property] *= 1;
+            }
+            if (isInterpolationList) {
+              _valuesStartRepeat[property] = _valuesEnd[property].slice().reverse();
+            } else {
+              _valuesStartRepeat[property] = _valuesStart[property] || 0;
+            }
+          }
+        }
+      };
+      Tween2.prototype.stop = function() {
+        if (!this._isChainStopped) {
+          this._isChainStopped = true;
+          this.stopChainedTweens();
+        }
+        if (!this._isPlaying) {
+          return this;
+        }
+        this._group && this._group.remove(this);
+        this._isPlaying = false;
+        this._isPaused = false;
+        if (this._onStopCallback) {
+          this._onStopCallback(this._object);
+        }
+        return this;
+      };
+      Tween2.prototype.end = function() {
+        this._goToEnd = true;
+        this.update(Infinity);
+        return this;
+      };
+      Tween2.prototype.pause = function(time) {
+        if (time === void 0) {
+          time = now();
+        }
+        if (this._isPaused || !this._isPlaying) {
+          return this;
+        }
+        this._isPaused = true;
+        this._pauseStart = time;
+        this._group && this._group.remove(this);
+        return this;
+      };
+      Tween2.prototype.resume = function(time) {
+        if (time === void 0) {
+          time = now();
+        }
+        if (!this._isPaused || !this._isPlaying) {
+          return this;
+        }
+        this._isPaused = false;
+        this._startTime += time - this._pauseStart;
+        this._pauseStart = 0;
+        this._group && this._group.add(this);
+        return this;
+      };
+      Tween2.prototype.stopChainedTweens = function() {
+        for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
+          this._chainedTweens[i].stop();
+        }
+        return this;
+      };
+      Tween2.prototype.group = function(group) {
+        if (group === void 0) {
+          group = mainGroup;
+        }
+        this._group = group;
+        return this;
+      };
+      Tween2.prototype.delay = function(amount) {
+        if (amount === void 0) {
+          amount = 0;
+        }
+        this._delayTime = amount;
+        return this;
+      };
+      Tween2.prototype.repeat = function(times) {
+        if (times === void 0) {
+          times = 0;
+        }
+        this._initialRepeat = times;
+        this._repeat = times;
+        return this;
+      };
+      Tween2.prototype.repeatDelay = function(amount) {
+        this._repeatDelayTime = amount;
+        return this;
+      };
+      Tween2.prototype.yoyo = function(yoyo) {
+        if (yoyo === void 0) {
+          yoyo = false;
+        }
+        this._yoyo = yoyo;
+        return this;
+      };
+      Tween2.prototype.easing = function(easingFunction) {
+        if (easingFunction === void 0) {
+          easingFunction = Easing.Linear.None;
+        }
+        this._easingFunction = easingFunction;
+        return this;
+      };
+      Tween2.prototype.interpolation = function(interpolationFunction) {
+        if (interpolationFunction === void 0) {
+          interpolationFunction = Interpolation.Linear;
+        }
+        this._interpolationFunction = interpolationFunction;
+        return this;
+      };
+      Tween2.prototype.chain = function() {
+        var tweens = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+          tweens[_i] = arguments[_i];
+        }
+        this._chainedTweens = tweens;
+        return this;
+      };
+      Tween2.prototype.onStart = function(callback) {
+        this._onStartCallback = callback;
+        return this;
+      };
+      Tween2.prototype.onEveryStart = function(callback) {
+        this._onEveryStartCallback = callback;
+        return this;
+      };
+      Tween2.prototype.onUpdate = function(callback) {
+        this._onUpdateCallback = callback;
+        return this;
+      };
+      Tween2.prototype.onRepeat = function(callback) {
+        this._onRepeatCallback = callback;
+        return this;
+      };
+      Tween2.prototype.onComplete = function(callback) {
+        this._onCompleteCallback = callback;
+        return this;
+      };
+      Tween2.prototype.onStop = function(callback) {
+        this._onStopCallback = callback;
+        return this;
+      };
+      Tween2.prototype.update = function(time, autoStart) {
+        var _this = this;
+        var _a;
+        if (time === void 0) {
+          time = now();
+        }
+        if (autoStart === void 0) {
+          autoStart = true;
+        }
+        if (this._isPaused)
+          return true;
+        var property;
+        var endTime = this._startTime + this._duration;
+        if (!this._goToEnd && !this._isPlaying) {
+          if (time > endTime)
+            return false;
+          if (autoStart)
+            this.start(time, true);
+        }
+        this._goToEnd = false;
+        if (time < this._startTime) {
+          return true;
+        }
+        if (this._onStartCallbackFired === false) {
+          if (this._onStartCallback) {
+            this._onStartCallback(this._object);
+          }
+          this._onStartCallbackFired = true;
+        }
+        if (this._onEveryStartCallbackFired === false) {
+          if (this._onEveryStartCallback) {
+            this._onEveryStartCallback(this._object);
+          }
+          this._onEveryStartCallbackFired = true;
+        }
+        var elapsedTime = time - this._startTime;
+        var durationAndDelay = this._duration + ((_a = this._repeatDelayTime) !== null && _a !== void 0 ? _a : this._delayTime);
+        var totalTime = this._duration + this._repeat * durationAndDelay;
+        var calculateElapsedPortion = function() {
+          if (_this._duration === 0)
+            return 1;
+          if (elapsedTime > totalTime) {
+            return 1;
+          }
+          var timesRepeated = Math.trunc(elapsedTime / durationAndDelay);
+          var timeIntoCurrentRepeat = elapsedTime - timesRepeated * durationAndDelay;
+          var portion = Math.min(timeIntoCurrentRepeat / _this._duration, 1);
+          if (portion === 0 && elapsedTime === _this._duration) {
+            return 1;
+          }
+          return portion;
+        };
+        var elapsed = calculateElapsedPortion();
+        var value = this._easingFunction(elapsed);
+        this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value);
+        if (this._onUpdateCallback) {
+          this._onUpdateCallback(this._object, elapsed);
+        }
+        if (this._duration === 0 || elapsedTime >= this._duration) {
+          if (this._repeat > 0) {
+            var completeCount = Math.min(Math.trunc((elapsedTime - this._duration) / durationAndDelay) + 1, this._repeat);
+            if (isFinite(this._repeat)) {
+              this._repeat -= completeCount;
+            }
+            for (property in this._valuesStartRepeat) {
+              if (!this._yoyo && typeof this._valuesEnd[property] === "string") {
+                this._valuesStartRepeat[property] = // eslint-disable-next-line
+                // @ts-ignore FIXME?
+                this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
+              }
+              if (this._yoyo) {
+                this._swapEndStartRepeatValues(property);
+              }
+              this._valuesStart[property] = this._valuesStartRepeat[property];
+            }
+            if (this._yoyo) {
+              this._reversed = !this._reversed;
+            }
+            this._startTime += durationAndDelay * completeCount;
+            if (this._onRepeatCallback) {
+              this._onRepeatCallback(this._object);
+            }
+            this._onEveryStartCallbackFired = false;
+            return true;
+          } else {
+            if (this._onCompleteCallback) {
+              this._onCompleteCallback(this._object);
+            }
+            for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
+              this._chainedTweens[i].start(this._startTime + this._duration, false);
+            }
+            this._isPlaying = false;
+            return false;
+          }
+        }
+        return true;
+      };
+      Tween2.prototype._updateProperties = function(_object, _valuesStart, _valuesEnd, value) {
+        for (var property in _valuesEnd) {
+          if (_valuesStart[property] === void 0) {
+            continue;
+          }
+          var start = _valuesStart[property] || 0;
+          var end = _valuesEnd[property];
+          var startIsArray = Array.isArray(_object[property]);
+          var endIsArray = Array.isArray(end);
+          var isInterpolationList = !startIsArray && endIsArray;
+          if (isInterpolationList) {
+            _object[property] = this._interpolationFunction(end, value);
+          } else if (typeof end === "object" && end) {
+            this._updateProperties(_object[property], start, end, value);
+          } else {
+            end = this._handleRelativeValue(start, end);
+            if (typeof end === "number") {
+              _object[property] = start + (end - start) * value;
+            }
+          }
+        }
+      };
+      Tween2.prototype._handleRelativeValue = function(start, end) {
+        if (typeof end !== "string") {
+          return end;
+        }
+        if (end.charAt(0) === "+" || end.charAt(0) === "-") {
+          return start + parseFloat(end);
+        }
+        return parseFloat(end);
+      };
+      Tween2.prototype._swapEndStartRepeatValues = function(property) {
+        var tmp = this._valuesStartRepeat[property];
+        var endValue = this._valuesEnd[property];
+        if (typeof endValue === "string") {
+          this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(endValue);
+        } else {
+          this._valuesStartRepeat[property] = this._valuesEnd[property];
+        }
+        this._valuesEnd[property] = tmp;
+      };
+      return Tween2;
+    }()
+  );
+  var nextId = Sequence.nextId;
+  var TWEEN = mainGroup;
+  var getAll = TWEEN.getAll.bind(TWEEN);
+  var removeAll = TWEEN.removeAll.bind(TWEEN);
+  var add = TWEEN.add.bind(TWEEN);
+  var remove = TWEEN.remove.bind(TWEEN);
+  var update = TWEEN.update.bind(TWEEN);
+
   // node_modules/two.js/build/two.module.js
   var __defProp2 = Object.defineProperty;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -30293,9 +31095,9 @@
       return this;
     }
   };
-  var Group = _Group;
-  __publicField(Group, "Children", Children);
-  __publicField(Group, "Properties", [
+  var Group2 = _Group;
+  __publicField(Group2, "Children", Children);
+  __publicField(Group2, "Properties", [
     "fill",
     "stroke",
     "linewidth",
@@ -30486,9 +31288,9 @@
         return this._children;
       },
       set: function(children) {
-        const insertChildren = Group.InsertChildren.bind(this);
-        const removeChildren = Group.RemoveChildren.bind(this);
-        const orderChildren = Group.OrderChildren.bind(this);
+        const insertChildren = Group2.InsertChildren.bind(this);
+        const removeChildren = Group2.RemoveChildren.bind(this);
+        const orderChildren = Group2.OrderChildren.bind(this);
         if (this._children) {
           this._children.unbind();
           if (this._children.length > 0) {
@@ -30522,7 +31324,7 @@
     const parent = child.parent;
     let index;
     if (parent === newParent) {
-      add();
+      add2();
       return;
     }
     if (parent && parent.children.ids[child.id]) {
@@ -30531,7 +31333,7 @@
       splice();
     }
     if (newParent) {
-      add();
+      add2();
       return;
     }
     splice();
@@ -30542,7 +31344,7 @@
       parent._flagSubtractions = false;
     }
     delete child.parent;
-    function add() {
+    function add2() {
       if (newParent.subtractions.length > 0) {
         index = Array.prototype.indexOf.call(newParent.subtractions, child);
         if (index >= 0) {
@@ -31299,7 +32101,7 @@
       if (typeof this.ctx.imageSmoothingEnabled !== "undefined") {
         this.ctx.imageSmoothingEnabled = smoothing;
       }
-      this.scene = new Group();
+      this.scene = new Group2();
       this.scene.parent = this;
     }
     setSize(width, height, ratio) {
@@ -34525,35 +35327,35 @@
           }
           break;
         case "visible":
-          if (elem instanceof Group) {
+          if (elem instanceof Group2) {
             elem._visible = value;
             break;
           }
           elem.visible = value;
           break;
         case "stroke-linecap":
-          if (elem instanceof Group) {
+          if (elem instanceof Group2) {
             elem._cap = value;
             break;
           }
           elem.cap = value;
           break;
         case "stroke-linejoin":
-          if (elem instanceof Group) {
+          if (elem instanceof Group2) {
             elem._join = value;
             break;
           }
           elem.join = value;
           break;
         case "stroke-miterlimit":
-          if (elem instanceof Group) {
+          if (elem instanceof Group2) {
             elem._miter = value;
             break;
           }
           elem.miter = value;
           break;
         case "stroke-width":
-          if (elem instanceof Group) {
+          if (elem instanceof Group2) {
             elem._linewidth = parseFloat(value);
             break;
           }
@@ -34562,7 +35364,7 @@
         case "opacity":
         case "stroke-opacity":
         case "fill-opacity":
-          if (elem instanceof Group) {
+          if (elem instanceof Group2) {
             elem._opacity = parseFloat(value);
             break;
           }
@@ -34590,7 +35392,7 @@
           break;
         case "fill":
         case "stroke":
-          prop = (elem instanceof Group ? "_" : "") + key;
+          prop = (elem instanceof Group2 ? "_" : "") + key;
           if (regex2.cssBackgroundImage.test(value)) {
             id = value.replace(regex2.cssBackgroundImage, "$1");
             if (read.defs.current && read.defs.current.contains(id)) {
@@ -34756,7 +35558,7 @@
       return read[tagName].call(this, fullNode, styles);
     },
     g: function(node, parentStyles) {
-      const group = new Group();
+      const group = new Group2();
       applySvgAttributes.call(this, node, group, parentStyles);
       this.add(group);
       const styles = getSvgStyles.call(this, node);
@@ -37115,7 +37917,7 @@
     constructor(params) {
       super();
       this.domElement = params.domElement || svg.createElement("svg");
-      this.scene = new Group();
+      this.scene = new Group2();
       this.scene.parent = this;
       this.defs = svg.createElement("defs");
       this.defs._flagUpdate = false;
@@ -38304,7 +39106,7 @@
         webgl.canvas = params.offscreenElement;
         webgl.ctx = webgl.canvas.getContext("2d");
       }
-      this.scene = new Group();
+      this.scene = new Group2();
       this.scene.parent = this;
       this._renderer = {
         type: "renderer",
@@ -38582,11 +39384,11 @@
     }
     update() {
       const animated = !!this._lastFrame;
-      const now = _.performance.now();
+      const now2 = _.performance.now();
       if (animated) {
-        this.timeDelta = parseFloat((now - this._lastFrame).toFixed(3));
+        this.timeDelta = parseFloat((now2 - this._lastFrame).toFixed(3));
       }
-      this._lastFrame = now;
+      this._lastFrame = now2;
       if (this.fit && this.fit.domElement && !this.fit.attached) {
         dom.bind(this.fit.domElement, "resize", this.fit);
         this.fit.attached = true;
@@ -38806,27 +39608,27 @@
       if (!(objects instanceof Array)) {
         objects = Array.prototype.slice.call(arguments);
       }
-      const group = new Group();
+      const group = new Group2();
       this.scene.add(group);
       group.add(objects);
       return group;
     }
-    interpret(svg2, shallow, add) {
+    interpret(svg2, shallow, add2) {
       const tag = svg2.tagName.toLowerCase();
-      add = typeof add !== "undefined" ? add : true;
+      add2 = typeof add2 !== "undefined" ? add2 : true;
       if (!(tag in read)) {
         return null;
       }
       const node = read[tag].call(this, svg2);
-      if (add) {
-        this.add(shallow && node instanceof Group ? node.children : node);
+      if (add2) {
+        this.add(shallow && node instanceof Group2 ? node.children : node);
       } else if (node.parent) {
         node.remove();
       }
       return node;
     }
     load(pathOrSVGContent, callback) {
-      const group = new Group();
+      const group = new Group2();
       let elem, i, child;
       const attach = function(data) {
         dom.temp.innerHTML = data;
@@ -38863,7 +39665,7 @@
   __publicField(Two, "Anchor", Anchor);
   __publicField(Two, "Collection", Collection);
   __publicField(Two, "Events", Events);
-  __publicField(Two, "Group", Group);
+  __publicField(Two, "Group", Group2);
   __publicField(Two, "Matrix", Matrix2);
   __publicField(Two, "Path", Path);
   __publicField(Two, "Registry", Registry);
@@ -38931,13 +39733,1800 @@
 
   // src/papers.js
   var import_matter_js = __toESM(require_matter());
+
+  // node_modules/lil-gui/dist/lil-gui.esm.js
+  var Controller = class _Controller {
+    constructor(parent, object, property, className, elementType = "div") {
+      this.parent = parent;
+      this.object = object;
+      this.property = property;
+      this._disabled = false;
+      this._hidden = false;
+      this.initialValue = this.getValue();
+      this.domElement = document.createElement(elementType);
+      this.domElement.classList.add("controller");
+      this.domElement.classList.add(className);
+      this.$name = document.createElement("div");
+      this.$name.classList.add("name");
+      _Controller.nextNameID = _Controller.nextNameID || 0;
+      this.$name.id = `lil-gui-name-${++_Controller.nextNameID}`;
+      this.$widget = document.createElement("div");
+      this.$widget.classList.add("widget");
+      this.$disable = this.$widget;
+      this.domElement.appendChild(this.$name);
+      this.domElement.appendChild(this.$widget);
+      this.domElement.addEventListener("keydown", (e) => e.stopPropagation());
+      this.domElement.addEventListener("keyup", (e) => e.stopPropagation());
+      this.parent.children.push(this);
+      this.parent.controllers.push(this);
+      this.parent.$children.appendChild(this.domElement);
+      this._listenCallback = this._listenCallback.bind(this);
+      this.name(property);
+    }
+    /**
+     * Sets the name of the controller and its label in the GUI.
+     * @param {string} name
+     * @returns {this}
+     */
+    name(name) {
+      this._name = name;
+      this.$name.innerHTML = name;
+      return this;
+    }
+    /**
+     * Pass a function to be called whenever the value is modified by this controller.
+     * The function receives the new value as its first parameter. The value of `this` will be the
+     * controller.
+     *
+     * For function controllers, the `onChange` callback will be fired on click, after the function
+     * executes.
+     * @param {Function} callback
+     * @returns {this}
+     * @example
+     * const controller = gui.add( object, 'property' );
+     *
+     * controller.onChange( function( v ) {
+     * 	console.log( 'The value is now ' + v );
+     * 	console.assert( this === controller );
+     * } );
+     */
+    onChange(callback) {
+      this._onChange = callback;
+      return this;
+    }
+    /**
+     * Calls the onChange methods of this controller and its parent GUI.
+     * @protected
+     */
+    _callOnChange() {
+      this.parent._callOnChange(this);
+      if (this._onChange !== void 0) {
+        this._onChange.call(this, this.getValue());
+      }
+      this._changed = true;
+    }
+    /**
+     * Pass a function to be called after this controller has been modified and loses focus.
+     * @param {Function} callback
+     * @returns {this}
+     * @example
+     * const controller = gui.add( object, 'property' );
+     *
+     * controller.onFinishChange( function( v ) {
+     * 	console.log( 'Changes complete: ' + v );
+     * 	console.assert( this === controller );
+     * } );
+     */
+    onFinishChange(callback) {
+      this._onFinishChange = callback;
+      return this;
+    }
+    /**
+     * Should be called by Controller when its widgets lose focus.
+     * @protected
+     */
+    _callOnFinishChange() {
+      if (this._changed) {
+        this.parent._callOnFinishChange(this);
+        if (this._onFinishChange !== void 0) {
+          this._onFinishChange.call(this, this.getValue());
+        }
+      }
+      this._changed = false;
+    }
+    /**
+     * Sets the controller back to its initial value.
+     * @returns {this}
+     */
+    reset() {
+      this.setValue(this.initialValue);
+      this._callOnFinishChange();
+      return this;
+    }
+    /**
+     * Enables this controller.
+     * @param {boolean} enabled
+     * @returns {this}
+     * @example
+     * controller.enable();
+     * controller.enable( false ); // disable
+     * controller.enable( controller._disabled ); // toggle
+     */
+    enable(enabled = true) {
+      return this.disable(!enabled);
+    }
+    /**
+     * Disables this controller.
+     * @param {boolean} disabled
+     * @returns {this}
+     * @example
+     * controller.disable();
+     * controller.disable( false ); // enable
+     * controller.disable( !controller._disabled ); // toggle
+     */
+    disable(disabled = true) {
+      if (disabled === this._disabled)
+        return this;
+      this._disabled = disabled;
+      this.domElement.classList.toggle("disabled", disabled);
+      this.$disable.toggleAttribute("disabled", disabled);
+      return this;
+    }
+    /**
+     * Shows the Controller after it's been hidden.
+     * @param {boolean} show
+     * @returns {this}
+     * @example
+     * controller.show();
+     * controller.show( false ); // hide
+     * controller.show( controller._hidden ); // toggle
+     */
+    show(show = true) {
+      this._hidden = !show;
+      this.domElement.style.display = this._hidden ? "none" : "";
+      return this;
+    }
+    /**
+     * Hides the Controller.
+     * @returns {this}
+     */
+    hide() {
+      return this.show(false);
+    }
+    /**
+     * Changes this controller into a dropdown of options.
+     *
+     * Calling this method on an option controller will simply update the options. However, if this
+     * controller was not already an option controller, old references to this controller are
+     * destroyed, and a new controller is added to the end of the GUI.
+     * @example
+     * // safe usage
+     *
+     * gui.add( obj, 'prop1' ).options( [ 'a', 'b', 'c' ] );
+     * gui.add( obj, 'prop2' ).options( { Big: 10, Small: 1 } );
+     * gui.add( obj, 'prop3' );
+     *
+     * // danger
+     *
+     * const ctrl1 = gui.add( obj, 'prop1' );
+     * gui.add( obj, 'prop2' );
+     *
+     * // calling options out of order adds a new controller to the end...
+     * const ctrl2 = ctrl1.options( [ 'a', 'b', 'c' ] );
+     *
+     * // ...and ctrl1 now references a controller that doesn't exist
+     * assert( ctrl2 !== ctrl1 )
+     * @param {object|Array} options
+     * @returns {Controller}
+     */
+    options(options) {
+      const controller = this.parent.add(this.object, this.property, options);
+      controller.name(this._name);
+      this.destroy();
+      return controller;
+    }
+    /**
+     * Sets the minimum value. Only works on number controllers.
+     * @param {number} min
+     * @returns {this}
+     */
+    min(min5) {
+      return this;
+    }
+    /**
+     * Sets the maximum value. Only works on number controllers.
+     * @param {number} max
+     * @returns {this}
+     */
+    max(max5) {
+      return this;
+    }
+    /**
+     * Values set by this controller will be rounded to multiples of `step`. Only works on number
+     * controllers.
+     * @param {number} step
+     * @returns {this}
+     */
+    step(step) {
+      return this;
+    }
+    /**
+     * Rounds the displayed value to a fixed number of decimals, without affecting the actual value
+     * like `step()`. Only works on number controllers.
+     * @example
+     * gui.add( object, 'property' ).listen().decimals( 4 );
+     * @param {number} decimals
+     * @returns {this}
+     */
+    decimals(decimals) {
+      return this;
+    }
+    /**
+     * Calls `updateDisplay()` every animation frame. Pass `false` to stop listening.
+     * @param {boolean} listen
+     * @returns {this}
+     */
+    listen(listen = true) {
+      this._listening = listen;
+      if (this._listenCallbackID !== void 0) {
+        cancelAnimationFrame(this._listenCallbackID);
+        this._listenCallbackID = void 0;
+      }
+      if (this._listening) {
+        this._listenCallback();
+      }
+      return this;
+    }
+    _listenCallback() {
+      this._listenCallbackID = requestAnimationFrame(this._listenCallback);
+      const curValue = this.save();
+      if (curValue !== this._listenPrevValue) {
+        this.updateDisplay();
+      }
+      this._listenPrevValue = curValue;
+    }
+    /**
+     * Returns `object[ property ]`.
+     * @returns {any}
+     */
+    getValue() {
+      return this.object[this.property];
+    }
+    /**
+     * Sets the value of `object[ property ]`, invokes any `onChange` handlers and updates the display.
+     * @param {any} value
+     * @returns {this}
+     */
+    setValue(value) {
+      this.object[this.property] = value;
+      this._callOnChange();
+      this.updateDisplay();
+      return this;
+    }
+    /**
+     * Updates the display to keep it in sync with the current value. Useful for updating your
+     * controllers when their values have been modified outside of the GUI.
+     * @returns {this}
+     */
+    updateDisplay() {
+      return this;
+    }
+    load(value) {
+      this.setValue(value);
+      this._callOnFinishChange();
+      return this;
+    }
+    save() {
+      return this.getValue();
+    }
+    /**
+     * Destroys this controller and removes it from the parent GUI.
+     */
+    destroy() {
+      this.listen(false);
+      this.parent.children.splice(this.parent.children.indexOf(this), 1);
+      this.parent.controllers.splice(this.parent.controllers.indexOf(this), 1);
+      this.parent.$children.removeChild(this.domElement);
+    }
+  };
+  var BooleanController = class extends Controller {
+    constructor(parent, object, property) {
+      super(parent, object, property, "boolean", "label");
+      this.$input = document.createElement("input");
+      this.$input.setAttribute("type", "checkbox");
+      this.$input.setAttribute("aria-labelledby", this.$name.id);
+      this.$widget.appendChild(this.$input);
+      this.$input.addEventListener("change", () => {
+        this.setValue(this.$input.checked);
+        this._callOnFinishChange();
+      });
+      this.$disable = this.$input;
+      this.updateDisplay();
+    }
+    updateDisplay() {
+      this.$input.checked = this.getValue();
+      return this;
+    }
+  };
+  function normalizeColorString(string) {
+    let match, result;
+    if (match = string.match(/(#|0x)?([a-f0-9]{6})/i)) {
+      result = match[2];
+    } else if (match = string.match(/rgb\(\s*(\d*)\s*,\s*(\d*)\s*,\s*(\d*)\s*\)/)) {
+      result = parseInt(match[1]).toString(16).padStart(2, 0) + parseInt(match[2]).toString(16).padStart(2, 0) + parseInt(match[3]).toString(16).padStart(2, 0);
+    } else if (match = string.match(/^#?([a-f0-9])([a-f0-9])([a-f0-9])$/i)) {
+      result = match[1] + match[1] + match[2] + match[2] + match[3] + match[3];
+    }
+    if (result) {
+      return "#" + result;
+    }
+    return false;
+  }
+  var STRING = {
+    isPrimitive: true,
+    match: (v) => typeof v === "string",
+    fromHexString: normalizeColorString,
+    toHexString: normalizeColorString
+  };
+  var INT = {
+    isPrimitive: true,
+    match: (v) => typeof v === "number",
+    fromHexString: (string) => parseInt(string.substring(1), 16),
+    toHexString: (value) => "#" + value.toString(16).padStart(6, 0)
+  };
+  var ARRAY = {
+    isPrimitive: false,
+    // The arrow function is here to appease tree shakers like esbuild or webpack.
+    // See https://esbuild.github.io/api/#tree-shaking
+    match: (v) => Array.isArray(v),
+    fromHexString(string, target, rgbScale = 1) {
+      const int = INT.fromHexString(string);
+      target[0] = (int >> 16 & 255) / 255 * rgbScale;
+      target[1] = (int >> 8 & 255) / 255 * rgbScale;
+      target[2] = (int & 255) / 255 * rgbScale;
+    },
+    toHexString([r, g, b], rgbScale = 1) {
+      rgbScale = 255 / rgbScale;
+      const int = r * rgbScale << 16 ^ g * rgbScale << 8 ^ b * rgbScale << 0;
+      return INT.toHexString(int);
+    }
+  };
+  var OBJECT = {
+    isPrimitive: false,
+    match: (v) => Object(v) === v,
+    fromHexString(string, target, rgbScale = 1) {
+      const int = INT.fromHexString(string);
+      target.r = (int >> 16 & 255) / 255 * rgbScale;
+      target.g = (int >> 8 & 255) / 255 * rgbScale;
+      target.b = (int & 255) / 255 * rgbScale;
+    },
+    toHexString({ r, g, b }, rgbScale = 1) {
+      rgbScale = 255 / rgbScale;
+      const int = r * rgbScale << 16 ^ g * rgbScale << 8 ^ b * rgbScale << 0;
+      return INT.toHexString(int);
+    }
+  };
+  var FORMATS = [STRING, INT, ARRAY, OBJECT];
+  function getColorFormat(value) {
+    return FORMATS.find((format) => format.match(value));
+  }
+  var ColorController = class extends Controller {
+    constructor(parent, object, property, rgbScale) {
+      super(parent, object, property, "color");
+      this.$input = document.createElement("input");
+      this.$input.setAttribute("type", "color");
+      this.$input.setAttribute("tabindex", -1);
+      this.$input.setAttribute("aria-labelledby", this.$name.id);
+      this.$text = document.createElement("input");
+      this.$text.setAttribute("type", "text");
+      this.$text.setAttribute("spellcheck", "false");
+      this.$text.setAttribute("aria-labelledby", this.$name.id);
+      this.$display = document.createElement("div");
+      this.$display.classList.add("display");
+      this.$display.appendChild(this.$input);
+      this.$widget.appendChild(this.$display);
+      this.$widget.appendChild(this.$text);
+      this._format = getColorFormat(this.initialValue);
+      this._rgbScale = rgbScale;
+      this._initialValueHexString = this.save();
+      this._textFocused = false;
+      this.$input.addEventListener("input", () => {
+        this._setValueFromHexString(this.$input.value);
+      });
+      this.$input.addEventListener("blur", () => {
+        this._callOnFinishChange();
+      });
+      this.$text.addEventListener("input", () => {
+        const tryParse = normalizeColorString(this.$text.value);
+        if (tryParse) {
+          this._setValueFromHexString(tryParse);
+        }
+      });
+      this.$text.addEventListener("focus", () => {
+        this._textFocused = true;
+        this.$text.select();
+      });
+      this.$text.addEventListener("blur", () => {
+        this._textFocused = false;
+        this.updateDisplay();
+        this._callOnFinishChange();
+      });
+      this.$disable = this.$text;
+      this.updateDisplay();
+    }
+    reset() {
+      this._setValueFromHexString(this._initialValueHexString);
+      return this;
+    }
+    _setValueFromHexString(value) {
+      if (this._format.isPrimitive) {
+        const newValue = this._format.fromHexString(value);
+        this.setValue(newValue);
+      } else {
+        this._format.fromHexString(value, this.getValue(), this._rgbScale);
+        this._callOnChange();
+        this.updateDisplay();
+      }
+    }
+    save() {
+      return this._format.toHexString(this.getValue(), this._rgbScale);
+    }
+    load(value) {
+      this._setValueFromHexString(value);
+      this._callOnFinishChange();
+      return this;
+    }
+    updateDisplay() {
+      this.$input.value = this._format.toHexString(this.getValue(), this._rgbScale);
+      if (!this._textFocused) {
+        this.$text.value = this.$input.value.substring(1);
+      }
+      this.$display.style.backgroundColor = this.$input.value;
+      return this;
+    }
+  };
+  var FunctionController = class extends Controller {
+    constructor(parent, object, property) {
+      super(parent, object, property, "function");
+      this.$button = document.createElement("button");
+      this.$button.appendChild(this.$name);
+      this.$widget.appendChild(this.$button);
+      this.$button.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.getValue().call(this.object);
+        this._callOnChange();
+      });
+      this.$button.addEventListener("touchstart", () => {
+      }, { passive: true });
+      this.$disable = this.$button;
+    }
+  };
+  var NumberController = class extends Controller {
+    constructor(parent, object, property, min5, max5, step) {
+      super(parent, object, property, "number");
+      this._initInput();
+      this.min(min5);
+      this.max(max5);
+      const stepExplicit = step !== void 0;
+      this.step(stepExplicit ? step : this._getImplicitStep(), stepExplicit);
+      this.updateDisplay();
+    }
+    decimals(decimals) {
+      this._decimals = decimals;
+      this.updateDisplay();
+      return this;
+    }
+    min(min5) {
+      this._min = min5;
+      this._onUpdateMinMax();
+      return this;
+    }
+    max(max5) {
+      this._max = max5;
+      this._onUpdateMinMax();
+      return this;
+    }
+    step(step, explicit = true) {
+      this._step = step;
+      this._stepExplicit = explicit;
+      return this;
+    }
+    updateDisplay() {
+      const value = this.getValue();
+      if (this._hasSlider) {
+        let percent = (value - this._min) / (this._max - this._min);
+        percent = Math.max(0, Math.min(percent, 1));
+        this.$fill.style.width = percent * 100 + "%";
+      }
+      if (!this._inputFocused) {
+        this.$input.value = this._decimals === void 0 ? value : value.toFixed(this._decimals);
+      }
+      return this;
+    }
+    _initInput() {
+      this.$input = document.createElement("input");
+      this.$input.setAttribute("type", "text");
+      this.$input.setAttribute("aria-labelledby", this.$name.id);
+      const isTouch = window.matchMedia("(pointer: coarse)").matches;
+      if (isTouch) {
+        this.$input.setAttribute("type", "number");
+        this.$input.setAttribute("step", "any");
+      }
+      this.$widget.appendChild(this.$input);
+      this.$disable = this.$input;
+      const onInput = () => {
+        let value = parseFloat(this.$input.value);
+        if (isNaN(value))
+          return;
+        if (this._stepExplicit) {
+          value = this._snap(value);
+        }
+        this.setValue(this._clamp(value));
+      };
+      const increment = (delta) => {
+        const value = parseFloat(this.$input.value);
+        if (isNaN(value))
+          return;
+        this._snapClampSetValue(value + delta);
+        this.$input.value = this.getValue();
+      };
+      const onKeyDown = (e) => {
+        if (e.key === "Enter") {
+          this.$input.blur();
+        }
+        if (e.code === "ArrowUp") {
+          e.preventDefault();
+          increment(this._step * this._arrowKeyMultiplier(e));
+        }
+        if (e.code === "ArrowDown") {
+          e.preventDefault();
+          increment(this._step * this._arrowKeyMultiplier(e) * -1);
+        }
+      };
+      const onWheel = (e) => {
+        if (this._inputFocused) {
+          e.preventDefault();
+          increment(this._step * this._normalizeMouseWheel(e));
+        }
+      };
+      let testingForVerticalDrag = false, initClientX, initClientY, prevClientY, initValue, dragDelta;
+      const DRAG_THRESH = 5;
+      const onMouseDown = (e) => {
+        initClientX = e.clientX;
+        initClientY = prevClientY = e.clientY;
+        testingForVerticalDrag = true;
+        initValue = this.getValue();
+        dragDelta = 0;
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+      };
+      const onMouseMove = (e) => {
+        if (testingForVerticalDrag) {
+          const dx = e.clientX - initClientX;
+          const dy = e.clientY - initClientY;
+          if (Math.abs(dy) > DRAG_THRESH) {
+            e.preventDefault();
+            this.$input.blur();
+            testingForVerticalDrag = false;
+            this._setDraggingStyle(true, "vertical");
+          } else if (Math.abs(dx) > DRAG_THRESH) {
+            onMouseUp();
+          }
+        }
+        if (!testingForVerticalDrag) {
+          const dy = e.clientY - prevClientY;
+          dragDelta -= dy * this._step * this._arrowKeyMultiplier(e);
+          if (initValue + dragDelta > this._max) {
+            dragDelta = this._max - initValue;
+          } else if (initValue + dragDelta < this._min) {
+            dragDelta = this._min - initValue;
+          }
+          this._snapClampSetValue(initValue + dragDelta);
+        }
+        prevClientY = e.clientY;
+      };
+      const onMouseUp = () => {
+        this._setDraggingStyle(false, "vertical");
+        this._callOnFinishChange();
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+      };
+      const onFocus = () => {
+        this._inputFocused = true;
+      };
+      const onBlur = () => {
+        this._inputFocused = false;
+        this.updateDisplay();
+        this._callOnFinishChange();
+      };
+      this.$input.addEventListener("input", onInput);
+      this.$input.addEventListener("keydown", onKeyDown);
+      this.$input.addEventListener("wheel", onWheel, { passive: false });
+      this.$input.addEventListener("mousedown", onMouseDown);
+      this.$input.addEventListener("focus", onFocus);
+      this.$input.addEventListener("blur", onBlur);
+    }
+    _initSlider() {
+      this._hasSlider = true;
+      this.$slider = document.createElement("div");
+      this.$slider.classList.add("slider");
+      this.$fill = document.createElement("div");
+      this.$fill.classList.add("fill");
+      this.$slider.appendChild(this.$fill);
+      this.$widget.insertBefore(this.$slider, this.$input);
+      this.domElement.classList.add("hasSlider");
+      const map = (v, a, b, c, d) => {
+        return (v - a) / (b - a) * (d - c) + c;
+      };
+      const setValueFromX = (clientX) => {
+        const rect = this.$slider.getBoundingClientRect();
+        let value = map(clientX, rect.left, rect.right, this._min, this._max);
+        this._snapClampSetValue(value);
+      };
+      const mouseDown = (e) => {
+        this._setDraggingStyle(true);
+        setValueFromX(e.clientX);
+        window.addEventListener("mousemove", mouseMove);
+        window.addEventListener("mouseup", mouseUp);
+      };
+      const mouseMove = (e) => {
+        setValueFromX(e.clientX);
+      };
+      const mouseUp = () => {
+        this._callOnFinishChange();
+        this._setDraggingStyle(false);
+        window.removeEventListener("mousemove", mouseMove);
+        window.removeEventListener("mouseup", mouseUp);
+      };
+      let testingForScroll = false, prevClientX, prevClientY;
+      const beginTouchDrag = (e) => {
+        e.preventDefault();
+        this._setDraggingStyle(true);
+        setValueFromX(e.touches[0].clientX);
+        testingForScroll = false;
+      };
+      const onTouchStart = (e) => {
+        if (e.touches.length > 1)
+          return;
+        if (this._hasScrollBar) {
+          prevClientX = e.touches[0].clientX;
+          prevClientY = e.touches[0].clientY;
+          testingForScroll = true;
+        } else {
+          beginTouchDrag(e);
+        }
+        window.addEventListener("touchmove", onTouchMove, { passive: false });
+        window.addEventListener("touchend", onTouchEnd);
+      };
+      const onTouchMove = (e) => {
+        if (testingForScroll) {
+          const dx = e.touches[0].clientX - prevClientX;
+          const dy = e.touches[0].clientY - prevClientY;
+          if (Math.abs(dx) > Math.abs(dy)) {
+            beginTouchDrag(e);
+          } else {
+            window.removeEventListener("touchmove", onTouchMove);
+            window.removeEventListener("touchend", onTouchEnd);
+          }
+        } else {
+          e.preventDefault();
+          setValueFromX(e.touches[0].clientX);
+        }
+      };
+      const onTouchEnd = () => {
+        this._callOnFinishChange();
+        this._setDraggingStyle(false);
+        window.removeEventListener("touchmove", onTouchMove);
+        window.removeEventListener("touchend", onTouchEnd);
+      };
+      const callOnFinishChange = this._callOnFinishChange.bind(this);
+      const WHEEL_DEBOUNCE_TIME = 400;
+      let wheelFinishChangeTimeout;
+      const onWheel = (e) => {
+        const isVertical = Math.abs(e.deltaX) < Math.abs(e.deltaY);
+        if (isVertical && this._hasScrollBar)
+          return;
+        e.preventDefault();
+        const delta = this._normalizeMouseWheel(e) * this._step;
+        this._snapClampSetValue(this.getValue() + delta);
+        this.$input.value = this.getValue();
+        clearTimeout(wheelFinishChangeTimeout);
+        wheelFinishChangeTimeout = setTimeout(callOnFinishChange, WHEEL_DEBOUNCE_TIME);
+      };
+      this.$slider.addEventListener("mousedown", mouseDown);
+      this.$slider.addEventListener("touchstart", onTouchStart, { passive: false });
+      this.$slider.addEventListener("wheel", onWheel, { passive: false });
+    }
+    _setDraggingStyle(active, axis = "horizontal") {
+      if (this.$slider) {
+        this.$slider.classList.toggle("active", active);
+      }
+      document.body.classList.toggle("lil-gui-dragging", active);
+      document.body.classList.toggle(`lil-gui-${axis}`, active);
+    }
+    _getImplicitStep() {
+      if (this._hasMin && this._hasMax) {
+        return (this._max - this._min) / 1e3;
+      }
+      return 0.1;
+    }
+    _onUpdateMinMax() {
+      if (!this._hasSlider && this._hasMin && this._hasMax) {
+        if (!this._stepExplicit) {
+          this.step(this._getImplicitStep(), false);
+        }
+        this._initSlider();
+        this.updateDisplay();
+      }
+    }
+    _normalizeMouseWheel(e) {
+      let { deltaX, deltaY } = e;
+      if (Math.floor(e.deltaY) !== e.deltaY && e.wheelDelta) {
+        deltaX = 0;
+        deltaY = -e.wheelDelta / 120;
+        deltaY *= this._stepExplicit ? 1 : 10;
+      }
+      const wheel = deltaX + -deltaY;
+      return wheel;
+    }
+    _arrowKeyMultiplier(e) {
+      let mult = this._stepExplicit ? 1 : 10;
+      if (e.shiftKey) {
+        mult *= 10;
+      } else if (e.altKey) {
+        mult /= 10;
+      }
+      return mult;
+    }
+    _snap(value) {
+      const r = Math.round(value / this._step) * this._step;
+      return parseFloat(r.toPrecision(15));
+    }
+    _clamp(value) {
+      if (value < this._min)
+        value = this._min;
+      if (value > this._max)
+        value = this._max;
+      return value;
+    }
+    _snapClampSetValue(value) {
+      this.setValue(this._clamp(this._snap(value)));
+    }
+    get _hasScrollBar() {
+      const root3 = this.parent.root.$children;
+      return root3.scrollHeight > root3.clientHeight;
+    }
+    get _hasMin() {
+      return this._min !== void 0;
+    }
+    get _hasMax() {
+      return this._max !== void 0;
+    }
+  };
+  var OptionController = class extends Controller {
+    constructor(parent, object, property, options) {
+      super(parent, object, property, "option");
+      this.$select = document.createElement("select");
+      this.$select.setAttribute("aria-labelledby", this.$name.id);
+      this.$display = document.createElement("div");
+      this.$display.classList.add("display");
+      this.$select.addEventListener("change", () => {
+        this.setValue(this._values[this.$select.selectedIndex]);
+        this._callOnFinishChange();
+      });
+      this.$select.addEventListener("focus", () => {
+        this.$display.classList.add("focus");
+      });
+      this.$select.addEventListener("blur", () => {
+        this.$display.classList.remove("focus");
+      });
+      this.$widget.appendChild(this.$select);
+      this.$widget.appendChild(this.$display);
+      this.$disable = this.$select;
+      this.options(options);
+    }
+    options(options) {
+      this._values = Array.isArray(options) ? options : Object.values(options);
+      this._names = Array.isArray(options) ? options : Object.keys(options);
+      this.$select.replaceChildren();
+      this._names.forEach((name) => {
+        const $option = document.createElement("option");
+        $option.innerHTML = name;
+        this.$select.appendChild($option);
+      });
+      this.updateDisplay();
+      return this;
+    }
+    updateDisplay() {
+      const value = this.getValue();
+      const index = this._values.indexOf(value);
+      this.$select.selectedIndex = index;
+      this.$display.innerHTML = index === -1 ? value : this._names[index];
+      return this;
+    }
+  };
+  var StringController = class extends Controller {
+    constructor(parent, object, property) {
+      super(parent, object, property, "string");
+      this.$input = document.createElement("input");
+      this.$input.setAttribute("type", "text");
+      this.$input.setAttribute("aria-labelledby", this.$name.id);
+      this.$input.addEventListener("input", () => {
+        this.setValue(this.$input.value);
+      });
+      this.$input.addEventListener("keydown", (e) => {
+        if (e.code === "Enter") {
+          this.$input.blur();
+        }
+      });
+      this.$input.addEventListener("blur", () => {
+        this._callOnFinishChange();
+      });
+      this.$widget.appendChild(this.$input);
+      this.$disable = this.$input;
+      this.updateDisplay();
+    }
+    updateDisplay() {
+      this.$input.value = this.getValue();
+      return this;
+    }
+  };
+  var stylesheet = `.lil-gui {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: 1;
+  font-weight: normal;
+  font-style: normal;
+  text-align: left;
+  color: var(--text-color);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  --background-color: #1f1f1f;
+  --text-color: #ebebeb;
+  --title-background-color: #111111;
+  --title-text-color: #ebebeb;
+  --widget-color: #424242;
+  --hover-color: #4f4f4f;
+  --focus-color: #595959;
+  --number-color: #2cc9ff;
+  --string-color: #a2db3c;
+  --font-size: 11px;
+  --input-font-size: 11px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-family-mono: Menlo, Monaco, Consolas, "Droid Sans Mono", monospace;
+  --padding: 4px;
+  --spacing: 4px;
+  --widget-height: 20px;
+  --title-height: calc(var(--widget-height) + var(--spacing) * 1.25);
+  --name-width: 45%;
+  --slider-knob-width: 2px;
+  --slider-input-width: 27%;
+  --color-input-width: 27%;
+  --slider-input-min-width: 45px;
+  --color-input-min-width: 45px;
+  --folder-indent: 7px;
+  --widget-padding: 0 0 0 3px;
+  --widget-border-radius: 2px;
+  --checkbox-size: calc(0.75 * var(--widget-height));
+  --scrollbar-width: 5px;
+}
+.lil-gui, .lil-gui * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+.lil-gui.root {
+  width: var(--width, 245px);
+  display: flex;
+  flex-direction: column;
+  background: var(--background-color);
+}
+.lil-gui.root > .title {
+  background: var(--title-background-color);
+  color: var(--title-text-color);
+}
+.lil-gui.root > .children {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.lil-gui.root > .children::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-width);
+  background: var(--background-color);
+}
+.lil-gui.root > .children::-webkit-scrollbar-thumb {
+  border-radius: var(--scrollbar-width);
+  background: var(--focus-color);
+}
+@media (pointer: coarse) {
+  .lil-gui.allow-touch-styles, .lil-gui.allow-touch-styles .lil-gui {
+    --widget-height: 28px;
+    --padding: 6px;
+    --spacing: 6px;
+    --font-size: 13px;
+    --input-font-size: 16px;
+    --folder-indent: 10px;
+    --scrollbar-width: 7px;
+    --slider-input-min-width: 50px;
+    --color-input-min-width: 65px;
+  }
+}
+.lil-gui.force-touch-styles, .lil-gui.force-touch-styles .lil-gui {
+  --widget-height: 28px;
+  --padding: 6px;
+  --spacing: 6px;
+  --font-size: 13px;
+  --input-font-size: 16px;
+  --folder-indent: 10px;
+  --scrollbar-width: 7px;
+  --slider-input-min-width: 50px;
+  --color-input-min-width: 65px;
+}
+.lil-gui.autoPlace {
+  max-height: 100%;
+  position: fixed;
+  top: 0;
+  right: 15px;
+  z-index: 1001;
+}
+
+.lil-gui .controller {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--padding);
+  margin: var(--spacing) 0;
+}
+.lil-gui .controller.disabled {
+  opacity: 0.5;
+}
+.lil-gui .controller.disabled, .lil-gui .controller.disabled * {
+  pointer-events: none !important;
+}
+.lil-gui .controller > .name {
+  min-width: var(--name-width);
+  flex-shrink: 0;
+  white-space: pre;
+  padding-right: var(--spacing);
+  line-height: var(--widget-height);
+}
+.lil-gui .controller .widget {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--widget-height);
+}
+.lil-gui .controller.string input {
+  color: var(--string-color);
+}
+.lil-gui .controller.boolean {
+  cursor: pointer;
+}
+.lil-gui .controller.color .display {
+  width: 100%;
+  height: var(--widget-height);
+  border-radius: var(--widget-border-radius);
+  position: relative;
+}
+@media (hover: hover) {
+  .lil-gui .controller.color .display:hover:before {
+    content: " ";
+    display: block;
+    position: absolute;
+    border-radius: var(--widget-border-radius);
+    border: 1px solid #fff9;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+}
+.lil-gui .controller.color input[type=color] {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.lil-gui .controller.color input[type=text] {
+  margin-left: var(--spacing);
+  font-family: var(--font-family-mono);
+  min-width: var(--color-input-min-width);
+  width: var(--color-input-width);
+  flex-shrink: 0;
+}
+.lil-gui .controller.option select {
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  max-width: 100%;
+}
+.lil-gui .controller.option .display {
+  position: relative;
+  pointer-events: none;
+  border-radius: var(--widget-border-radius);
+  height: var(--widget-height);
+  line-height: var(--widget-height);
+  max-width: 100%;
+  overflow: hidden;
+  word-break: break-all;
+  padding-left: 0.55em;
+  padding-right: 1.75em;
+  background: var(--widget-color);
+}
+@media (hover: hover) {
+  .lil-gui .controller.option .display.focus {
+    background: var(--focus-color);
+  }
+}
+.lil-gui .controller.option .display.active {
+  background: var(--focus-color);
+}
+.lil-gui .controller.option .display:after {
+  font-family: "lil-gui";
+  content: "\u2195";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  padding-right: 0.375em;
+}
+.lil-gui .controller.option .widget,
+.lil-gui .controller.option select {
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .lil-gui .controller.option .widget:hover .display {
+    background: var(--hover-color);
+  }
+}
+.lil-gui .controller.number input {
+  color: var(--number-color);
+}
+.lil-gui .controller.number.hasSlider input {
+  margin-left: var(--spacing);
+  width: var(--slider-input-width);
+  min-width: var(--slider-input-min-width);
+  flex-shrink: 0;
+}
+.lil-gui .controller.number .slider {
+  width: 100%;
+  height: var(--widget-height);
+  background: var(--widget-color);
+  border-radius: var(--widget-border-radius);
+  padding-right: var(--slider-knob-width);
+  overflow: hidden;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+@media (hover: hover) {
+  .lil-gui .controller.number .slider:hover {
+    background: var(--hover-color);
+  }
+}
+.lil-gui .controller.number .slider.active {
+  background: var(--focus-color);
+}
+.lil-gui .controller.number .slider.active .fill {
+  opacity: 0.95;
+}
+.lil-gui .controller.number .fill {
+  height: 100%;
+  border-right: var(--slider-knob-width) solid var(--number-color);
+  box-sizing: content-box;
+}
+
+.lil-gui-dragging .lil-gui {
+  --hover-color: var(--widget-color);
+}
+.lil-gui-dragging * {
+  cursor: ew-resize !important;
+}
+
+.lil-gui-dragging.lil-gui-vertical * {
+  cursor: ns-resize !important;
+}
+
+.lil-gui .title {
+  height: var(--title-height);
+  line-height: calc(var(--title-height) - 4px);
+  font-weight: 600;
+  padding: 0 var(--padding);
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  outline: none;
+  text-decoration-skip: objects;
+}
+.lil-gui .title:before {
+  font-family: "lil-gui";
+  content: "\u25BE";
+  padding-right: 2px;
+  display: inline-block;
+}
+.lil-gui .title:active {
+  background: var(--title-background-color);
+  opacity: 0.75;
+}
+@media (hover: hover) {
+  body:not(.lil-gui-dragging) .lil-gui .title:hover {
+    background: var(--title-background-color);
+    opacity: 0.85;
+  }
+  .lil-gui .title:focus {
+    text-decoration: underline var(--focus-color);
+  }
+}
+.lil-gui.root > .title:focus {
+  text-decoration: none !important;
+}
+.lil-gui.closed > .title:before {
+  content: "\u25B8";
+}
+.lil-gui.closed > .children {
+  transform: translateY(-7px);
+  opacity: 0;
+}
+.lil-gui.closed:not(.transition) > .children {
+  display: none;
+}
+.lil-gui.transition > .children {
+  transition-duration: 300ms;
+  transition-property: height, opacity, transform;
+  transition-timing-function: cubic-bezier(0.2, 0.6, 0.35, 1);
+  overflow: hidden;
+  pointer-events: none;
+}
+.lil-gui .children:empty:before {
+  content: "Empty";
+  padding: 0 var(--padding);
+  margin: var(--spacing) 0;
+  display: block;
+  height: var(--widget-height);
+  font-style: italic;
+  line-height: var(--widget-height);
+  opacity: 0.5;
+}
+.lil-gui.root > .children > .lil-gui > .title {
+  border: 0 solid var(--widget-color);
+  border-width: 1px 0;
+  transition: border-color 300ms;
+}
+.lil-gui.root > .children > .lil-gui.closed > .title {
+  border-bottom-color: transparent;
+}
+.lil-gui + .controller {
+  border-top: 1px solid var(--widget-color);
+  margin-top: 0;
+  padding-top: var(--spacing);
+}
+.lil-gui .lil-gui .lil-gui > .title {
+  border: none;
+}
+.lil-gui .lil-gui .lil-gui > .children {
+  border: none;
+  margin-left: var(--folder-indent);
+  border-left: 2px solid var(--widget-color);
+}
+.lil-gui .lil-gui .controller {
+  border: none;
+}
+
+.lil-gui label, .lil-gui input, .lil-gui button {
+  -webkit-tap-highlight-color: transparent;
+}
+.lil-gui input {
+  border: 0;
+  outline: none;
+  font-family: var(--font-family);
+  font-size: var(--input-font-size);
+  border-radius: var(--widget-border-radius);
+  height: var(--widget-height);
+  background: var(--widget-color);
+  color: var(--text-color);
+  width: 100%;
+}
+@media (hover: hover) {
+  .lil-gui input:hover {
+    background: var(--hover-color);
+  }
+  .lil-gui input:active {
+    background: var(--focus-color);
+  }
+}
+.lil-gui input:disabled {
+  opacity: 1;
+}
+.lil-gui input[type=text],
+.lil-gui input[type=number] {
+  padding: var(--widget-padding);
+  -moz-appearance: textfield;
+}
+.lil-gui input[type=text]:focus,
+.lil-gui input[type=number]:focus {
+  background: var(--focus-color);
+}
+.lil-gui input[type=checkbox] {
+  appearance: none;
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  border-radius: var(--widget-border-radius);
+  text-align: center;
+  cursor: pointer;
+}
+.lil-gui input[type=checkbox]:checked:before {
+  font-family: "lil-gui";
+  content: "\u2713";
+  font-size: var(--checkbox-size);
+  line-height: var(--checkbox-size);
+}
+@media (hover: hover) {
+  .lil-gui input[type=checkbox]:focus {
+    box-shadow: inset 0 0 0 1px var(--focus-color);
+  }
+}
+.lil-gui button {
+  outline: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  color: var(--text-color);
+  width: 100%;
+  height: var(--widget-height);
+  text-transform: none;
+  background: var(--widget-color);
+  border-radius: var(--widget-border-radius);
+  border: none;
+}
+@media (hover: hover) {
+  .lil-gui button:hover {
+    background: var(--hover-color);
+  }
+  .lil-gui button:focus {
+    box-shadow: inset 0 0 0 1px var(--focus-color);
+  }
+}
+.lil-gui button:active {
+  background: var(--focus-color);
+}
+
+@font-face {
+  font-family: "lil-gui";
+  src: url("data:application/font-woff;charset=utf-8;base64,d09GRgABAAAAAAUsAAsAAAAACJwAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABHU1VCAAABCAAAAH4AAADAImwmYE9TLzIAAAGIAAAAPwAAAGBKqH5SY21hcAAAAcgAAAD0AAACrukyyJBnbHlmAAACvAAAAF8AAACEIZpWH2hlYWQAAAMcAAAAJwAAADZfcj2zaGhlYQAAA0QAAAAYAAAAJAC5AHhobXR4AAADXAAAABAAAABMAZAAAGxvY2EAAANsAAAAFAAAACgCEgIybWF4cAAAA4AAAAAeAAAAIAEfABJuYW1lAAADoAAAASIAAAIK9SUU/XBvc3QAAATEAAAAZgAAAJCTcMc2eJxVjbEOgjAURU+hFRBK1dGRL+ALnAiToyMLEzFpnPz/eAshwSa97517c/MwwJmeB9kwPl+0cf5+uGPZXsqPu4nvZabcSZldZ6kfyWnomFY/eScKqZNWupKJO6kXN3K9uCVoL7iInPr1X5baXs3tjuMqCtzEuagm/AAlzQgPAAB4nGNgYRBlnMDAysDAYM/gBiT5oLQBAwuDJAMDEwMrMwNWEJDmmsJwgCFeXZghBcjlZMgFCzOiKOIFAB71Bb8AeJy1kjFuwkAQRZ+DwRAwBtNQRUGKQ8OdKCAWUhAgKLhIuAsVSpWz5Bbkj3dEgYiUIszqWdpZe+Z7/wB1oCYmIoboiwiLT2WjKl/jscrHfGg/pKdMkyklC5Zs2LEfHYpjcRoPzme9MWWmk3dWbK9ObkWkikOetJ554fWyoEsmdSlt+uR0pCJR34b6t/TVg1SY3sYvdf8vuiKrpyaDXDISiegp17p7579Gp3p++y7HPAiY9pmTibljrr85qSidtlg4+l25GLCaS8e6rRxNBmsnERunKbaOObRz7N72ju5vdAjYpBXHgJylOAVsMseDAPEP8LYoUHicY2BiAAEfhiAGJgZWBgZ7RnFRdnVJELCQlBSRlATJMoLV2DK4glSYs6ubq5vbKrJLSbGrgEmovDuDJVhe3VzcXFwNLCOILB/C4IuQ1xTn5FPilBTj5FPmBAB4WwoqAHicY2BkYGAA4sk1sR/j+W2+MnAzpDBgAyEMQUCSg4EJxAEAwUgFHgB4nGNgZGBgSGFggJMhDIwMqEAYAByHATJ4nGNgAIIUNEwmAABl3AGReJxjYAACIQYlBiMGJ3wQAEcQBEV4nGNgZGBgEGZgY2BiAAEQyQWEDAz/wXwGAAsPATIAAHicXdBNSsNAHAXwl35iA0UQXYnMShfS9GPZA7T7LgIu03SSpkwzYTIt1BN4Ak/gKTyAeCxfw39jZkjymzcvAwmAW/wgwHUEGDb36+jQQ3GXGot79L24jxCP4gHzF/EIr4jEIe7wxhOC3g2TMYy4Q7+Lu/SHuEd/ivt4wJd4wPxbPEKMX3GI5+DJFGaSn4qNzk8mcbKSR6xdXdhSzaOZJGtdapd4vVPbi6rP+cL7TGXOHtXKll4bY1Xl7EGnPtp7Xy2n00zyKLVHfkHBa4IcJ2oD3cgggWvt/V/FbDrUlEUJhTn/0azVWbNTNr0Ens8de1tceK9xZmfB1CPjOmPH4kitmvOubcNpmVTN3oFJyjzCvnmrwhJTzqzVj9jiSX911FjeAAB4nG3HMRKCMBBA0f0giiKi4DU8k0V2GWbIZDOh4PoWWvq6J5V8If9NVNQcaDhyouXMhY4rPTcG7jwYmXhKq8Wz+p762aNaeYXom2n3m2dLTVgsrCgFJ7OTmIkYbwIbC6vIB7WmFfAAAA==") format("woff");
+}`;
+  function _injectStyles(cssContent) {
+    const injected = document.createElement("style");
+    injected.innerHTML = cssContent;
+    const before = document.querySelector("head link[rel=stylesheet], head style");
+    if (before) {
+      document.head.insertBefore(injected, before);
+    } else {
+      document.head.appendChild(injected);
+    }
+  }
+  var stylesInjected = false;
+  var GUI = class _GUI {
+    /**
+     * Creates a panel that holds controllers.
+     * @example
+     * new GUI();
+     * new GUI( { container: document.getElementById( 'custom' ) } );
+     *
+     * @param {object} [options]
+     * @param {boolean} [options.autoPlace=true]
+     * Adds the GUI to `document.body` and fixes it to the top right of the page.
+     *
+     * @param {HTMLElement} [options.container]
+     * Adds the GUI to this DOM element. Overrides `autoPlace`.
+     *
+     * @param {number} [options.width=245]
+     * Width of the GUI in pixels, usually set when name labels become too long. Note that you can make
+     * name labels wider in CSS with `.lil‑gui { ‑‑name‑width: 55% }`.
+     *
+     * @param {string} [options.title=Controls]
+     * Name to display in the title bar.
+     *
+     * @param {boolean} [options.closeFolders=false]
+     * Pass `true` to close all folders in this GUI by default.
+     *
+     * @param {boolean} [options.injectStyles=true]
+     * Injects the default stylesheet into the page if this is the first GUI.
+     * Pass `false` to use your own stylesheet.
+     *
+     * @param {number} [options.touchStyles=true]
+     * Makes controllers larger on touch devices. Pass `false` to disable touch styles.
+     *
+     * @param {GUI} [options.parent]
+     * Adds this GUI as a child in another GUI. Usually this is done for you by `addFolder()`.
+     *
+     */
+    constructor({
+      parent,
+      autoPlace = parent === void 0,
+      container,
+      width,
+      title = "Controls",
+      closeFolders = false,
+      injectStyles = true,
+      touchStyles = true
+    } = {}) {
+      this.parent = parent;
+      this.root = parent ? parent.root : this;
+      this.children = [];
+      this.controllers = [];
+      this.folders = [];
+      this._closed = false;
+      this._hidden = false;
+      this.domElement = document.createElement("div");
+      this.domElement.classList.add("lil-gui");
+      this.$title = document.createElement("div");
+      this.$title.classList.add("title");
+      this.$title.setAttribute("role", "button");
+      this.$title.setAttribute("aria-expanded", true);
+      this.$title.setAttribute("tabindex", 0);
+      this.$title.addEventListener("click", () => this.openAnimated(this._closed));
+      this.$title.addEventListener("keydown", (e) => {
+        if (e.code === "Enter" || e.code === "Space") {
+          e.preventDefault();
+          this.$title.click();
+        }
+      });
+      this.$title.addEventListener("touchstart", () => {
+      }, { passive: true });
+      this.$children = document.createElement("div");
+      this.$children.classList.add("children");
+      this.domElement.appendChild(this.$title);
+      this.domElement.appendChild(this.$children);
+      this.title(title);
+      if (this.parent) {
+        this.parent.children.push(this);
+        this.parent.folders.push(this);
+        this.parent.$children.appendChild(this.domElement);
+        return;
+      }
+      this.domElement.classList.add("root");
+      if (touchStyles) {
+        this.domElement.classList.add("allow-touch-styles");
+      }
+      if (!stylesInjected && injectStyles) {
+        _injectStyles(stylesheet);
+        stylesInjected = true;
+      }
+      if (container) {
+        container.appendChild(this.domElement);
+      } else if (autoPlace) {
+        this.domElement.classList.add("autoPlace");
+        document.body.appendChild(this.domElement);
+      }
+      if (width) {
+        this.domElement.style.setProperty("--width", width + "px");
+      }
+      this._closeFolders = closeFolders;
+    }
+    /**
+     * Adds a controller to the GUI, inferring controller type using the `typeof` operator.
+     * @example
+     * gui.add( object, 'property' );
+     * gui.add( object, 'number', 0, 100, 1 );
+     * gui.add( object, 'options', [ 1, 2, 3 ] );
+     *
+     * @param {object} object The object the controller will modify.
+     * @param {string} property Name of the property to control.
+     * @param {number|object|Array} [$1] Minimum value for number controllers, or the set of
+     * selectable values for a dropdown.
+     * @param {number} [max] Maximum value for number controllers.
+     * @param {number} [step] Step value for number controllers.
+     * @returns {Controller}
+     */
+    add(object, property, $1, max5, step) {
+      if (Object($1) === $1) {
+        return new OptionController(this, object, property, $1);
+      }
+      const initialValue = object[property];
+      switch (typeof initialValue) {
+        case "number":
+          return new NumberController(this, object, property, $1, max5, step);
+        case "boolean":
+          return new BooleanController(this, object, property);
+        case "string":
+          return new StringController(this, object, property);
+        case "function":
+          return new FunctionController(this, object, property);
+      }
+      console.error(`gui.add failed
+	property:`, property, `
+	object:`, object, `
+	value:`, initialValue);
+    }
+    /**
+     * Adds a color controller to the GUI.
+     * @example
+     * params = {
+     * 	cssColor: '#ff00ff',
+     * 	rgbColor: { r: 0, g: 0.2, b: 0.4 },
+     * 	customRange: [ 0, 127, 255 ],
+     * };
+     *
+     * gui.addColor( params, 'cssColor' );
+     * gui.addColor( params, 'rgbColor' );
+     * gui.addColor( params, 'customRange', 255 );
+     *
+     * @param {object} object The object the controller will modify.
+     * @param {string} property Name of the property to control.
+     * @param {number} rgbScale Maximum value for a color channel when using an RGB color. You may
+     * need to set this to 255 if your colors are too bright.
+     * @returns {Controller}
+     */
+    addColor(object, property, rgbScale = 1) {
+      return new ColorController(this, object, property, rgbScale);
+    }
+    /**
+     * Adds a folder to the GUI, which is just another GUI. This method returns
+     * the nested GUI so you can add controllers to it.
+     * @example
+     * const folder = gui.addFolder( 'Position' );
+     * folder.add( position, 'x' );
+     * folder.add( position, 'y' );
+     * folder.add( position, 'z' );
+     *
+     * @param {string} title Name to display in the folder's title bar.
+     * @returns {GUI}
+     */
+    addFolder(title) {
+      const folder = new _GUI({ parent: this, title });
+      if (this.root._closeFolders)
+        folder.close();
+      return folder;
+    }
+    /**
+     * Recalls values that were saved with `gui.save()`.
+     * @param {object} obj
+     * @param {boolean} recursive Pass false to exclude folders descending from this GUI.
+     * @returns {this}
+     */
+    load(obj, recursive = true) {
+      if (obj.controllers) {
+        this.controllers.forEach((c) => {
+          if (c instanceof FunctionController)
+            return;
+          if (c._name in obj.controllers) {
+            c.load(obj.controllers[c._name]);
+          }
+        });
+      }
+      if (recursive && obj.folders) {
+        this.folders.forEach((f) => {
+          if (f._title in obj.folders) {
+            f.load(obj.folders[f._title]);
+          }
+        });
+      }
+      return this;
+    }
+    /**
+     * Returns an object mapping controller names to values. The object can be passed to `gui.load()` to
+     * recall these values.
+     * @example
+     * {
+     * 	controllers: {
+     * 		prop1: 1,
+     * 		prop2: 'value',
+     * 		...
+     * 	},
+     * 	folders: {
+     * 		folderName1: { controllers, folders },
+     * 		folderName2: { controllers, folders }
+     * 		...
+     * 	}
+     * }
+     *
+     * @param {boolean} recursive Pass false to exclude folders descending from this GUI.
+     * @returns {object}
+     */
+    save(recursive = true) {
+      const obj = {
+        controllers: {},
+        folders: {}
+      };
+      this.controllers.forEach((c) => {
+        if (c instanceof FunctionController)
+          return;
+        if (c._name in obj.controllers) {
+          throw new Error(`Cannot save GUI with duplicate property "${c._name}"`);
+        }
+        obj.controllers[c._name] = c.save();
+      });
+      if (recursive) {
+        this.folders.forEach((f) => {
+          if (f._title in obj.folders) {
+            throw new Error(`Cannot save GUI with duplicate folder "${f._title}"`);
+          }
+          obj.folders[f._title] = f.save();
+        });
+      }
+      return obj;
+    }
+    /**
+     * Opens a GUI or folder. GUI and folders are open by default.
+     * @param {boolean} open Pass false to close.
+     * @returns {this}
+     * @example
+     * gui.open(); // open
+     * gui.open( false ); // close
+     * gui.open( gui._closed ); // toggle
+     */
+    open(open = true) {
+      this._setClosed(!open);
+      this.$title.setAttribute("aria-expanded", !this._closed);
+      this.domElement.classList.toggle("closed", this._closed);
+      return this;
+    }
+    /**
+     * Closes the GUI.
+     * @returns {this}
+     */
+    close() {
+      return this.open(false);
+    }
+    _setClosed(closed2) {
+      if (this._closed === closed2)
+        return;
+      this._closed = closed2;
+      this._callOnOpenClose(this);
+    }
+    /**
+     * Shows the GUI after it's been hidden.
+     * @param {boolean} show
+     * @returns {this}
+     * @example
+     * gui.show();
+     * gui.show( false ); // hide
+     * gui.show( gui._hidden ); // toggle
+     */
+    show(show = true) {
+      this._hidden = !show;
+      this.domElement.style.display = this._hidden ? "none" : "";
+      return this;
+    }
+    /**
+     * Hides the GUI.
+     * @returns {this}
+     */
+    hide() {
+      return this.show(false);
+    }
+    openAnimated(open = true) {
+      this._setClosed(!open);
+      this.$title.setAttribute("aria-expanded", !this._closed);
+      requestAnimationFrame(() => {
+        const initialHeight = this.$children.clientHeight;
+        this.$children.style.height = initialHeight + "px";
+        this.domElement.classList.add("transition");
+        const onTransitionEnd = (e) => {
+          if (e.target !== this.$children)
+            return;
+          this.$children.style.height = "";
+          this.domElement.classList.remove("transition");
+          this.$children.removeEventListener("transitionend", onTransitionEnd);
+        };
+        this.$children.addEventListener("transitionend", onTransitionEnd);
+        const targetHeight = !open ? 0 : this.$children.scrollHeight;
+        this.domElement.classList.toggle("closed", !open);
+        requestAnimationFrame(() => {
+          this.$children.style.height = targetHeight + "px";
+        });
+      });
+      return this;
+    }
+    /**
+     * Change the title of this GUI.
+     * @param {string} title
+     * @returns {this}
+     */
+    title(title) {
+      this._title = title;
+      this.$title.innerHTML = title;
+      return this;
+    }
+    /**
+     * Resets all controllers to their initial values.
+     * @param {boolean} recursive Pass false to exclude folders descending from this GUI.
+     * @returns {this}
+     */
+    reset(recursive = true) {
+      const controllers = recursive ? this.controllersRecursive() : this.controllers;
+      controllers.forEach((c) => c.reset());
+      return this;
+    }
+    /**
+     * Pass a function to be called whenever a controller in this GUI changes.
+     * @param {function({object:object, property:string, value:any, controller:Controller})} callback
+     * @returns {this}
+     * @example
+     * gui.onChange( event => {
+     * 	event.object     // object that was modified
+     * 	event.property   // string, name of property
+     * 	event.value      // new value of controller
+     * 	event.controller // controller that was modified
+     * } );
+     */
+    onChange(callback) {
+      this._onChange = callback;
+      return this;
+    }
+    _callOnChange(controller) {
+      if (this.parent) {
+        this.parent._callOnChange(controller);
+      }
+      if (this._onChange !== void 0) {
+        this._onChange.call(this, {
+          object: controller.object,
+          property: controller.property,
+          value: controller.getValue(),
+          controller
+        });
+      }
+    }
+    /**
+     * Pass a function to be called whenever a controller in this GUI has finished changing.
+     * @param {function({object:object, property:string, value:any, controller:Controller})} callback
+     * @returns {this}
+     * @example
+     * gui.onFinishChange( event => {
+     * 	event.object     // object that was modified
+     * 	event.property   // string, name of property
+     * 	event.value      // new value of controller
+     * 	event.controller // controller that was modified
+     * } );
+     */
+    onFinishChange(callback) {
+      this._onFinishChange = callback;
+      return this;
+    }
+    _callOnFinishChange(controller) {
+      if (this.parent) {
+        this.parent._callOnFinishChange(controller);
+      }
+      if (this._onFinishChange !== void 0) {
+        this._onFinishChange.call(this, {
+          object: controller.object,
+          property: controller.property,
+          value: controller.getValue(),
+          controller
+        });
+      }
+    }
+    /**
+     * Pass a function to be called when this GUI or its descendants are opened or closed.
+     * @param {function(GUI)} callback
+     * @returns {this}
+     * @example
+     * gui.onOpenClose( changedGUI => {
+     * 	console.log( changedGUI._closed );
+     * } );
+     */
+    onOpenClose(callback) {
+      this._onOpenClose = callback;
+      return this;
+    }
+    _callOnOpenClose(changedGUI) {
+      if (this.parent) {
+        this.parent._callOnOpenClose(changedGUI);
+      }
+      if (this._onOpenClose !== void 0) {
+        this._onOpenClose.call(this, changedGUI);
+      }
+    }
+    /**
+     * Destroys all DOM elements and event listeners associated with this GUI.
+     */
+    destroy() {
+      if (this.parent) {
+        this.parent.children.splice(this.parent.children.indexOf(this), 1);
+        this.parent.folders.splice(this.parent.folders.indexOf(this), 1);
+      }
+      if (this.domElement.parentElement) {
+        this.domElement.parentElement.removeChild(this.domElement);
+      }
+      Array.from(this.children).forEach((c) => c.destroy());
+    }
+    /**
+     * Returns an array of controllers contained by this GUI and its descendents.
+     * @returns {Controller[]}
+     */
+    controllersRecursive() {
+      let controllers = Array.from(this.controllers);
+      this.folders.forEach((f) => {
+        controllers = controllers.concat(f.controllersRecursive());
+      });
+      return controllers;
+    }
+    /**
+     * Returns an array of folders contained by this GUI and its descendents.
+     * @returns {GUI[]}
+     */
+    foldersRecursive() {
+      let folders = Array.from(this.folders);
+      this.folders.forEach((f) => {
+        folders = folders.concat(f.foldersRecursive());
+      });
+      return folders;
+    }
+  };
+  var lil_gui_esm_default = GUI;
+
+  // src/papers.js
+  var STARTED = false;
+  var ANIMATING = false;
+  var TWO_PI2 = Math.PI * 2;
   function Papers() {
     const domElement2 = (0, import_react.useRef)();
     const [pointer, setPointer] = (0, import_react.useState)({ x: -10, y: -10 });
     (0, import_react.useEffect)(mount, []);
     function mount() {
       const params = {
-        amount: 100
+        amount: {
+          value: 250,
+          min: 0,
+          max: 1e3,
+          setp: 5,
+          name: "Amount",
+          onChange: setup
+        },
+        radius: {
+          value: 10,
+          min: 1,
+          max: 100,
+          step: 1,
+          name: "Cursor Radius",
+          onChange: (size) => {
+            import_matter_js.Body.scale(cursor, 1 / cursor.circleRadius, 1 / cursor.circleRadius);
+            import_matter_js.Body.scale(cursor, size, size);
+          }
+        },
+        frictionAir: {
+          value: 0.01,
+          min: 0,
+          max: 1,
+          step: 0.01,
+          name: "Air Resistance",
+          onChange: (friction) => import_matter_js.Composite.allBodies(solver.world).forEach((body) => body.frictionAir = friction)
+        },
+        density: {
+          value: 1,
+          min: 0.1,
+          max: 1,
+          step: 0.1,
+          name: "Paper Density",
+          onChange: (density) => import_matter_js.Composite.allBodies(solver.world).forEach((body) => import_matter_js.Body.setDensity(body, density))
+        },
+        friction: {
+          value: 0.1,
+          min: 0,
+          max: 1,
+          step: 0.1,
+          name: "Paper Friction",
+          onChange: (friction) => import_matter_js.Composite.allBodies(solver.world).forEach((body) => body.friction = friction)
+        },
+        mass: {
+          value: 1,
+          min: 1,
+          max: 50,
+          step: 1,
+          name: "Paper Mass",
+          onChange: (mass) => import_matter_js.Composite.allBodies(solver.world).forEach((body) => import_matter_js.Body.setMass(body, mass))
+        },
+        scale: {
+          value: 0.33,
+          min: 0.01,
+          max: 1,
+          step: 0.01,
+          name: "Paper Size",
+          onChange: resize
+        },
+        reset: {
+          value: reset,
+          name: "Reset"
+        }
       };
       const $globe = document.body.querySelector("#globe");
       const two = new Two({
@@ -38948,51 +41537,102 @@
       const solver = import_matter_js.Engine.create();
       solver.world.gravity.x = 0;
       solver.world.gravity.y = 0;
-      import_matter_js.Mouse.create(domElement2.current);
       const mouse = import_matter_js.MouseConstraint.create(solver, {
-        mouse: import_matter_js.Mouse.create(two.renderer.domElement),
         constraint: {
-          stiffness: 0.1
+          stiffness: 0.33
         }
       });
-      setup();
-      import_matter_js.World.add(solver.world, mouse);
-      two.bind("resize", resize).bind("update", update);
+      if (window.location.search.includes("debug")) {
+        const gui = new lil_gui_esm_default();
+        for (let prop in params) {
+          const obj = params[prop];
+          const controller = gui.add(obj, "value");
+          if (typeof obj.min === "number") {
+            controller.min(obj.min);
+          }
+          if (typeof obj.max === "number") {
+            controller.max(obj.max);
+          }
+          if (typeof obj.step === "number") {
+            controller.step(obj.step);
+          }
+          if (typeof controller.onChange === "function") {
+            controller.onChange(obj.onChange);
+          }
+          controller.name(obj.name || prop);
+        }
+      }
+      const cursor = import_matter_js.Bodies.circle(0, 0, 1);
+      import_matter_js.Body.scale(cursor, params.radius.value, params.radius.value);
+      const texture = new Two.Texture("images/texture-unwrapped.png", setup);
+      texture.scale = params.scale.value;
+      import_matter_js.World.add(solver.world, [mouse, cursor]);
+      two.bind("resize", resize).bind("update", update2);
       $globe.addEventListener("click", reset);
-      document.body.style.opacity = 1;
+      window.addEventListener("pointermove", mousemove);
       return unmount;
       function unmount() {
         two.pause();
         if (domElement2.current) {
           domElement2.current.removeChild(two.renderer.domElement);
         }
-        $globe.addEventListener("click", reset);
+        $globe.removeEventListener("click", reset);
+        window.removeEventListener("pointermove", mousemove);
       }
       function setup() {
-        for (let i = 0; i < params.amount; i++) {
+        for (let i = 0; i < two.scene.children.length; i++) {
+          const child = two.scene.children[i];
+          child.remove();
+          import_matter_js.World.remove(solver.world, child.entity);
+        }
+        for (let i = 0; i < params.amount.value; i++) {
           const x = Math.random() * two.width;
           const y = Math.random() * two.height;
-          const path = new Two.Rectangle(x, y, 50, 50);
-          path.fill = "#00aeff";
+          const width = texture.image.width * texture.scale;
+          const height = texture.image.height * texture.scale;
+          const path = new Two.Rectangle(x, y, width, height);
+          path.rotation = Math.random() * TWO_PI2;
+          path.fill = texture;
           path.noStroke();
-          const entity = import_matter_js.Bodies.rectangle(x, y, 1, 1);
+          const entity = import_matter_js.Bodies.rectangle(x, y, 1, 1, {
+            density: params.density.value,
+            mass: params.mass.value,
+            friction: params.friction.value,
+            frictionAir: params.frictionAir.value,
+            collisionFilter: {
+              group: -1
+            }
+          });
           import_matter_js.Body.scale(entity, path.width, path.height);
+          import_matter_js.Body.setAngle(entity, path.rotation);
           path.entity = entity;
           two.add(path);
-          import_matter_js.World.add(solver.world, [entity]);
+          import_matter_js.World.add(solver.world, entity);
         }
+        document.body.style.opacity = 1;
       }
       function resize() {
+        const pw = texture.image.width * texture.scale;
+        const ph = texture.image.height * texture.scale;
+        texture.scale = params.scale.value;
+        const width = texture.image.width * texture.scale;
+        const height = texture.image.height * texture.scale;
+        for (let i = 0; i < two.scene.children.length; i++) {
+          const child = two.scene.children[i];
+          child.width = width;
+          child.height = height;
+          import_matter_js.Body.scale(child.entity, 1 / pw, 1 / ph);
+          import_matter_js.Body.scale(child.entity, width, height);
+        }
       }
-      function update() {
-        setPointer({
-          x: mouse.mouse.position.x,
-          y: mouse.mouse.position.y
-        });
-        const bodies = import_matter_js.Composite.allBodies(solver.world);
-        import_matter_js.MouseConstraint.update(mouse, bodies);
-        import_matter_js.MouseConstraint._triggerEvents(mouse);
-        import_matter_js.Engine.update(solver);
+      function update2() {
+        if (ANIMATING) {
+          update();
+        } else {
+          mouse.mouse.button = 0;
+          import_matter_js.MouseConstraint.update(mouse, import_matter_js.Composite.allBodies(solver.world));
+          import_matter_js.Engine.update(solver);
+        }
         for (let i = 0; i < two.scene.children.length; i++) {
           const child = two.scene.children[i];
           if (child.entity) {
@@ -39002,6 +41642,29 @@
         }
       }
       function reset() {
+        if (ANIMATING) {
+          return;
+        }
+        ANIMATING = true;
+        import_matter_js.Composite.allBodies(solver.world).forEach((body) => {
+          const position = { x: body.position.x, y: body.position.y };
+          const x = Math.random() * two.width;
+          const y = Math.random() * two.height;
+          const tween = new Tween(position).to({ x, y }, 500).easing(Easing.Sinusoidal.InOut).onUpdate(() => {
+            import_matter_js.Body.setVelocity(body, { x: 0, y: 0 });
+            import_matter_js.Body.setPosition(body, position);
+          }).onComplete(() => {
+            ANIMATING = false;
+          }).start();
+        });
+      }
+      function mousemove({ clientX, clientY }) {
+        const position = { x: clientX, y: clientY };
+        if (!STARTED) {
+          import_matter_js.Body.setPosition(cursor, position);
+          STARTED = true;
+        }
+        setPointer(position);
       }
     }
     return /* @__PURE__ */ import_react.default.createElement("div", { className: "interactive" }, /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 }), /* @__PURE__ */ import_react.default.createElement("div", { id: "contact" }, /* @__PURE__ */ import_react.default.createElement("a", { href: "mailto:buns@oneburger.com" }, "Contact \u2192 ", /* @__PURE__ */ import_react.default.createElement("span", { className: "mail" }))), /* @__PURE__ */ import_react.default.createElement("div", { id: "cursor", style: { top: pointer.y, left: pointer.x } }));
@@ -39089,6 +41752,15 @@ matter-js/build/matter.js:
    * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
    * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    * THE SOFTWARE.
+   *)
+
+lil-gui/dist/lil-gui.esm.js:
+  (**
+   * lil-gui
+   * https://lil-gui.georgealways.com
+   * @version 0.19.1
+   * @author George Michael Brower
+   * @license MIT
    *)
 */
 //# sourceMappingURL=index.js.map
