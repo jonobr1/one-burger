@@ -16,6 +16,7 @@ let STARTED = false;
 let ANIMATING = false;
 
 const TWO_PI = Math.PI * 2;
+const touch = { x: -10, y: -10 };
 
 export default function Papers() {
 
@@ -143,6 +144,8 @@ export default function Papers() {
        .bind('update', update);
 
     $globe.addEventListener('click', reset);
+    $globe.addEventListener('touchstart', touchglobe);
+    $globe.addEventListener('touchend', releaseglobe);
     window.addEventListener('pointermove', mousemove);
 
     return unmount;
@@ -153,6 +156,8 @@ export default function Papers() {
         domElement.current.removeChild(two.renderer.domElement);
       }
       $globe.removeEventListener('click', reset);
+      $globe.removeEventListener('touchstart', touchglobe);
+      $globe.removeEventListener('touchend', releaseglobe);
       window.removeEventListener('pointermove', mousemove);
     }
 
@@ -280,6 +285,23 @@ export default function Papers() {
         STARTED = true;
       }
       setPointer(position);
+    }
+
+    function touchglobe(e) {
+      if (e.touches.length > 0) {
+        touch.x = e.touches[0].clientX;
+        touch.y = e.touches[0].clientY;
+      }
+    }
+    function releaseglobe(e) {
+      if (e.changedTouches.length > 0) {
+        const dx = e.changedTouches[0].clientX - touch.x;
+        const dy = e.changedTouches[0].clientY - touch.y;
+        const dist = dx * dx + dy * dy;
+        if (dist < 90) {
+          $globe.click(e);
+        }
+      }
     }
 
   }

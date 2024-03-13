@@ -41458,6 +41458,7 @@
   var STARTED = false;
   var ANIMATING = false;
   var TWO_PI2 = Math.PI * 2;
+  var touch = { x: -10, y: -10 };
   function Papers() {
     const domElement2 = (0, import_react.useRef)();
     const [pointer, setPointer] = (0, import_react.useState)({ x: -10, y: -10 });
@@ -41569,6 +41570,8 @@
       import_matter_js.World.add(solver.world, [mouse, cursor]);
       two.bind("resize", resize).bind("update", update2);
       $globe.addEventListener("click", reset);
+      $globe.addEventListener("touchstart", touchglobe);
+      $globe.addEventListener("touchend", releaseglobe);
       window.addEventListener("pointermove", mousemove);
       return unmount;
       function unmount() {
@@ -41577,6 +41580,8 @@
           domElement2.current.removeChild(two.renderer.domElement);
         }
         $globe.removeEventListener("click", reset);
+        $globe.removeEventListener("touchstart", touchglobe);
+        $globe.removeEventListener("touchend", releaseglobe);
         window.removeEventListener("pointermove", mousemove);
       }
       function setup() {
@@ -41665,6 +41670,23 @@
           STARTED = true;
         }
         setPointer(position);
+      }
+      function touchglobe(e) {
+        if (e.touches.length > 0) {
+          touch.x = e.touches[0].clientX;
+          touch.y = e.touches[0].clientY;
+        }
+      }
+      function releaseglobe(e) {
+        if (e.changedTouches.length > 0) {
+          const dx = e.changedTouches[0].clientX - touch.x;
+          const dy = e.changedTouches[0].clientY - touch.y;
+          const dist = dx * dx + dy * dy;
+          console.log(dist);
+          if (dist < 90) {
+            $globe.click(e);
+          }
+        }
       }
     }
     return /* @__PURE__ */ import_react.default.createElement("div", { className: "interactive" }, /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 }), /* @__PURE__ */ import_react.default.createElement("div", { id: "contact" }, /* @__PURE__ */ import_react.default.createElement("a", { href: "mailto:buns@oneburger.com" }, "Contact \u2192 ", /* @__PURE__ */ import_react.default.createElement("span", { className: "mail" }))), /* @__PURE__ */ import_react.default.createElement("div", { id: "cursor", style: { top: pointer.y, left: pointer.x } }));
@@ -41763,3 +41785,4 @@ lil-gui/dist/lil-gui.esm.js:
    * @license MIT
    *)
 */
+//# sourceMappingURL=index.js.map
