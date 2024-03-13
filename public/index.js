@@ -41763,4 +41763,3 @@ lil-gui/dist/lil-gui.esm.js:
    * @license MIT
    *)
 */
-//# sourceMappingURL=index.js.map
