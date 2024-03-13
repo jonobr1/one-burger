@@ -16,6 +16,6 @@ There are two different entry points once running locally:
 Visitor tracking provided by [Google Analytics](https://analytics.google.com/)
 
 ### Notes
-This is a simple approach to building custom [Three.js](https://threejs.org/) scenes with the access of [react](https://react.dev/) and the accessibility of static HTML for SEO purposes.
+This is a simple approach to building custom [Two.js](https://two.js.org/) scenes with the access of [react](https://react.dev/) and the accessibility of static HTML for SEO purposes.
 
 Site design by [The New Company](https://www.thenewcompany.com/). Development and creative tech by [jonofyi](https://jono.fyi/)
