@@ -21,6 +21,7 @@ body {
 
   font-family: "Helvetica Neue Condensed Bold", sans-serif;
   transition: opacity 0.35s ease-in-out;
+  cursor: none;
 
   div.seo {
 
@@ -66,12 +67,7 @@ body {
       display: block;
       top: 0;
       left: 0;
-      cursor: none !important;
-    }
-    &.empty {
-      canvas {
-        pointer-events: none;
-      }
+      pointer-events: none;
     }
   }
 
@@ -126,6 +122,10 @@ body {
     div#cursor {
       display: none;
     }
+  }
+
+  div.lil-gui {
+    cursor: default;
   }
 }
 
