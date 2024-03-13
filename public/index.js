@@ -41530,7 +41530,7 @@
       };
       const $globe = document.body.querySelector("#globe");
       const two = new Two({
-        type: Two.Types.canvas,
+        type: Two.Types.webgl,
         fullscreen: true,
         autostart: true
       }).appendTo(domElement2.current);
