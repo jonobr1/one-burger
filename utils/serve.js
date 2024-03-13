@@ -1,7 +1,7 @@
 const es = require('esbuild');
 
 es.context({
-  entryPoints: ['src/index.js', 'src/prototype.js'],
+  entryPoints: ['src/index.js'],
   outdir: 'public',
   bundle: true,
   loader: { '.js': 'jsx' },
