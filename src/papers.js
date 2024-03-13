@@ -29,7 +29,7 @@ export default function Papers() {
 
     const params = {
       amount: {
-        value: 250,
+        value: navigator.maxTouchPoints > 0 ? 50 : 250,
         min: 0,
         max: 1000,
         setp: 5,
