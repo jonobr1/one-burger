@@ -25868,11 +25868,11 @@
             /* 14 */
             /***/
             function(module2, exports2, __webpack_require__) {
-              var Mouse2 = {};
-              module2.exports = Mouse2;
+              var Mouse = {};
+              module2.exports = Mouse;
               var Common = __webpack_require__(0);
               (function() {
-                Mouse2.create = function(element) {
+                Mouse.create = function(element) {
                   var mouse = {};
                   if (!element) {
                     Common.log("Mouse.create: element was undefined, defaulting to document.body", "warn");
@@ -25894,7 +25894,7 @@
                     mousewheel: null
                   };
                   mouse.mousemove = function(event) {
-                    var position = Mouse2._getRelativeMousePosition(event, mouse.element, mouse.pixelRatio), touches = event.changedTouches;
+                    var position = Mouse._getRelativeMousePosition(event, mouse.element, mouse.pixelRatio), touches = event.changedTouches;
                     if (touches) {
                       mouse.button = 0;
                       event.preventDefault();
@@ -25906,7 +25906,7 @@
                     mouse.sourceEvents.mousemove = event;
                   };
                   mouse.mousedown = function(event) {
-                    var position = Mouse2._getRelativeMousePosition(event, mouse.element, mouse.pixelRatio), touches = event.changedTouches;
+                    var position = Mouse._getRelativeMousePosition(event, mouse.element, mouse.pixelRatio), touches = event.changedTouches;
                     if (touches) {
                       mouse.button = 0;
                       event.preventDefault();
@@ -25922,7 +25922,7 @@
                     mouse.sourceEvents.mousedown = event;
                   };
                   mouse.mouseup = function(event) {
-                    var position = Mouse2._getRelativeMousePosition(event, mouse.element, mouse.pixelRatio), touches = event.changedTouches;
+                    var position = Mouse._getRelativeMousePosition(event, mouse.element, mouse.pixelRatio), touches = event.changedTouches;
                     if (touches) {
                       event.preventDefault();
                     }
@@ -25939,10 +25939,10 @@
                     mouse.wheelDelta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail));
                     event.preventDefault();
                   };
-                  Mouse2.setElement(mouse, mouse.element);
+                  Mouse.setElement(mouse, mouse.element);
                   return mouse;
                 };
-                Mouse2.setElement = function(mouse, element) {
+                Mouse.setElement = function(mouse, element) {
                   mouse.element = element;
                   element.addEventListener("mousemove", mouse.mousemove);
                   element.addEventListener("mousedown", mouse.mousedown);
@@ -25953,26 +25953,26 @@
                   element.addEventListener("touchstart", mouse.mousedown);
                   element.addEventListener("touchend", mouse.mouseup);
                 };
-                Mouse2.clearSourceEvents = function(mouse) {
+                Mouse.clearSourceEvents = function(mouse) {
                   mouse.sourceEvents.mousemove = null;
                   mouse.sourceEvents.mousedown = null;
                   mouse.sourceEvents.mouseup = null;
                   mouse.sourceEvents.mousewheel = null;
                   mouse.wheelDelta = 0;
                 };
-                Mouse2.setOffset = function(mouse, offset) {
+                Mouse.setOffset = function(mouse, offset) {
                   mouse.offset.x = offset.x;
                   mouse.offset.y = offset.y;
                   mouse.position.x = mouse.absolute.x * mouse.scale.x + mouse.offset.x;
                   mouse.position.y = mouse.absolute.y * mouse.scale.y + mouse.offset.y;
                 };
-                Mouse2.setScale = function(mouse, scale) {
+                Mouse.setScale = function(mouse, scale) {
                   mouse.scale.x = scale.x;
                   mouse.scale.y = scale.y;
                   mouse.position.x = mouse.absolute.x * mouse.scale.x + mouse.offset.x;
                   mouse.position.y = mouse.absolute.y * mouse.scale.y + mouse.offset.y;
                 };
-                Mouse2._getRelativeMousePosition = function(event, element, pixelRatio) {
+                Mouse._getRelativeMousePosition = function(event, element, pixelRatio) {
                   var elementBounds = element.getBoundingClientRect(), rootNode = document.documentElement || document.body.parentNode || document.body, scrollX = window.pageXOffset !== void 0 ? window.pageXOffset : rootNode.scrollLeft, scrollY = window.pageYOffset !== void 0 ? window.pageYOffset : rootNode.scrollTop, touches = event.changedTouches, x, y;
                   if (touches) {
                     x = touches[0].pageX - elementBounds.left - scrollX;
@@ -26978,7 +26978,7 @@
               module2.exports = MouseConstraint2;
               var Vertices = __webpack_require__(3);
               var Sleeping = __webpack_require__(7);
-              var Mouse2 = __webpack_require__(14);
+              var Mouse = __webpack_require__(14);
               var Events2 = __webpack_require__(5);
               var Detector = __webpack_require__(13);
               var Constraint = __webpack_require__(10);
@@ -26990,11 +26990,11 @@
                   var mouse = (engine ? engine.mouse : null) || (options ? options.mouse : null);
                   if (!mouse) {
                     if (engine && engine.render && engine.render.canvas) {
-                      mouse = Mouse2.create(engine.render.canvas);
+                      mouse = Mouse.create(engine.render.canvas);
                     } else if (options && options.element) {
-                      mouse = Mouse2.create(options.element);
+                      mouse = Mouse.create(options.element);
                     } else {
-                      mouse = Mouse2.create();
+                      mouse = Mouse.create();
                       Common.warn("MouseConstraint.create: options.mouse was undefined, options.element was undefined, may not function as expected");
                     }
                   }
@@ -27070,7 +27070,7 @@
                     Events2.trigger(mouseConstraint, "mousedown", { mouse });
                   if (mouseEvents.mouseup)
                     Events2.trigger(mouseConstraint, "mouseup", { mouse });
-                  Mouse2.clearSourceEvents(mouse);
+                  Mouse.clearSourceEvents(mouse);
                 };
               })();
             },
@@ -27151,7 +27151,7 @@
               var Bounds = __webpack_require__(1);
               var Events2 = __webpack_require__(5);
               var Vector2 = __webpack_require__(2);
-              var Mouse2 = __webpack_require__(14);
+              var Mouse = __webpack_require__(14);
               (function() {
                 var _requestAnimationFrame, _cancelAnimationFrame;
                 if (typeof window !== "undefined") {
@@ -27315,11 +27315,11 @@
                   render.bounds.min.y -= padding.y;
                   render.bounds.max.y -= padding.y;
                   if (render.mouse) {
-                    Mouse2.setScale(render.mouse, {
+                    Mouse.setScale(render.mouse, {
                       x: (render.bounds.max.x - render.bounds.min.x) / render.canvas.width,
                       y: (render.bounds.max.y - render.bounds.min.y) / render.canvas.height
                     });
-                    Mouse2.setOffset(render.mouse, render.bounds.min);
+                    Mouse.setOffset(render.mouse, render.bounds.min);
                   }
                 };
                 Render.startViewTransform = function(render) {
@@ -27369,11 +27369,11 @@
                     }
                     Render.startViewTransform(render);
                     if (render.mouse) {
-                      Mouse2.setScale(render.mouse, {
+                      Mouse.setScale(render.mouse, {
                         x: (render.bounds.max.x - render.bounds.min.x) / render.options.width,
                         y: (render.bounds.max.y - render.bounds.min.y) / render.options.height
                       });
-                      Mouse2.setOffset(render.mouse, render.bounds.min);
+                      Mouse.setOffset(render.mouse, render.bounds.min);
                     }
                   } else {
                     constraints = allConstraints;
@@ -41462,6 +41462,7 @@
   function Papers() {
     const domElement2 = (0, import_react.useRef)();
     const [pointer, setPointer] = (0, import_react.useState)({ x: -10, y: -10 });
+    const [isMobile, setIsMobile] = (0, import_react.useState)(navigator.maxTouchPoints > 0);
     (0, import_react.useEffect)(mount, []);
     function mount() {
       const params = {
@@ -41469,7 +41470,7 @@
           value: navigator.maxTouchPoints > 0 ? 50 : 250,
           min: 0,
           max: 1e3,
-          setp: 5,
+          step: 5,
           name: "Amount",
           onChange: setup
         },
@@ -41524,6 +41525,14 @@
           name: "Paper Size",
           onChange: resize
         },
+        stiffness: {
+          value: 0.025,
+          min: 0,
+          max: 1,
+          step: 1e-3,
+          name: "Mouse Stiffness",
+          onChange: (stiffness) => mouse.constraint.stiffness = stiffness
+        },
         reset: {
           value: reset,
           name: "Reset"
@@ -41540,7 +41549,7 @@
       solver.world.gravity.y = 0;
       const mouse = import_matter_js.MouseConstraint.create(solver, {
         constraint: {
-          stiffness: 0.33
+          stiffness: 0.01
         }
       });
       if (window.location.search.includes("debug")) {
@@ -41567,7 +41576,7 @@
       import_matter_js.Body.scale(cursor, params.radius.value, params.radius.value);
       const texture = new Two.Texture("images/texture-unwrapped.png", setup);
       texture.scale = params.scale.value;
-      import_matter_js.World.add(solver.world, [mouse, cursor]);
+      import_matter_js.World.add(solver.world, cursor);
       two.bind("resize", resize).bind("update", update2);
       $globe.addEventListener("click", reset);
       $globe.addEventListener("touchstart", touchglobe);
@@ -41617,6 +41626,13 @@
         document.body.style.opacity = 1;
       }
       function resize() {
+        setIsMobile(() => {
+          const isMobile2 = navigator.maxTouchPoints > 0;
+          ;
+          params.value = isMobile2 ? 50 : 250;
+          requestAnimationFrame(setup);
+          return isMobile2;
+        });
         const pw = texture.image.width * texture.scale;
         const ph = texture.image.height * texture.scale;
         texture.scale = params.scale.value;
@@ -41651,22 +41667,40 @@
           return;
         }
         ANIMATING = true;
+        STARTED = false;
+        import_matter_js.World.remove(solver.world, mouse);
+        const velocity = { x: 0, y: 0 };
         import_matter_js.Composite.allBodies(solver.world).forEach((body) => {
-          const position = { x: body.position.x, y: body.position.y };
-          const x = Math.random() * two.width;
-          const y = Math.random() * two.height;
-          const tween = new Tween(position).to({ x, y }, 500).easing(Easing.Sinusoidal.InOut).onUpdate(() => {
-            import_matter_js.Body.setVelocity(body, { x: 0, y: 0 });
-            import_matter_js.Body.setPosition(body, position);
-          }).onComplete(() => {
-            ANIMATING = false;
-          }).start();
+          let position = {
+            x: body.position.x,
+            y: body.position.y
+          };
+          switch (body.label) {
+            case "Circle Label":
+              position.x = -1e3;
+              position.y = -1e3;
+              import_matter_js.Body.setPosition(body, position);
+              import_matter_js.Body.setVelocity(body, velocity);
+              break;
+            case "Rectangle Label":
+            default:
+              const x = Math.random() * two.width;
+              const y = Math.random() * two.height;
+              new Tween(position).to({ x, y }, 500).easing(Easing.Sinusoidal.InOut).onUpdate(() => {
+                import_matter_js.Body.setPosition(body, position);
+                import_matter_js.Body.setVelocity(body, velocity);
+              }).onComplete(() => {
+                ANIMATING = false;
+              }).start();
+          }
         });
       }
       function mousemove({ clientX, clientY }) {
         const position = { x: clientX, y: clientY };
         if (!STARTED) {
           import_matter_js.Body.setPosition(cursor, position);
+          import_matter_js.Body.setVelocity(cursor, { x: 0, y: 0 });
+          import_matter_js.World.add(solver.world, mouse);
           STARTED = true;
         }
         setPointer(position);
@@ -41682,14 +41716,13 @@
           const dx = e.changedTouches[0].clientX - touch.x;
           const dy = e.changedTouches[0].clientY - touch.y;
           const dist = dx * dx + dy * dy;
-          console.log(dist);
           if (dist < 90) {
             $globe.click(e);
           }
         }
       }
     }
-    return /* @__PURE__ */ import_react.default.createElement("div", { className: "interactive" }, /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 }), /* @__PURE__ */ import_react.default.createElement("div", { id: "contact" }, /* @__PURE__ */ import_react.default.createElement("a", { href: "mailto:buns@oneburger.com" }, "Contact \u2192 ", /* @__PURE__ */ import_react.default.createElement("span", { className: "mail" }))), /* @__PURE__ */ import_react.default.createElement("div", { id: "cursor", style: { top: pointer.y, left: pointer.x } }));
+    return /* @__PURE__ */ import_react.default.createElement("div", { className: "interactive" }, /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 }), /* @__PURE__ */ import_react.default.createElement("div", { id: "contact" }, /* @__PURE__ */ import_react.default.createElement("a", { href: "mailto:buns@oneburger.com" }, "Contact \u2192 ", /* @__PURE__ */ import_react.default.createElement("span", { className: "mail" }))), /* @__PURE__ */ import_react.default.createElement("div", { id: "cursor", style: { top: pointer.y, left: pointer.x, display: isMobile ? "none" : "block" } }));
   }
 
   // src/index.js
@@ -41785,4 +41818,3 @@ lil-gui/dist/lil-gui.esm.js:
    * @license MIT
    *)
 */
-//# sourceMappingURL=index.js.map
