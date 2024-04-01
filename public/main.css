@@ -104,6 +104,23 @@ body.mobile div#cursor {
 body div.lil-gui {
   cursor: default;
 }
+@media screen and (max-width: 900px) {
+  body div.seo {
+    font-size: 2.5vw;
+    letter-spacing: -2px;
+  }
+  body div.seo h1 {
+    width: 15.71428571vw;
+    height: 2.2vw;
+    margin: 0 auto 0.5vh;
+  }
+  body div.seo span.globe {
+    width: 3.75vw;
+    height: 3vw;
+    margin-left: 0.25vw;
+    margin-right: -0.75vw;
+  }
+}
 @media screen and (max-width: 450px) {
   body div.seo {
     font-size: 2.5vh;

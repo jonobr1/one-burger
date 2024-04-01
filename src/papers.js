@@ -6,7 +6,6 @@ import {
   Bodies,
   Composite,
   Engine,
-  Mouse,
   MouseConstraint,
   World
 } from "matter-js";
@@ -23,6 +22,7 @@ export default function Papers() {
   const domElement = useRef();
 
   const [pointer, setPointer] = useState({ x: - 10, y: - 10 });
+  const [isMobile, setIsMobile] = useState(navigator.maxTouchPoints > 0);
 
   useEffect(mount, []);
 
@@ -88,6 +88,14 @@ export default function Papers() {
         name: 'Paper Size',
         onChange: resize
       },
+      stiffness: {
+        value: 0.025,
+        min: 0,
+        max: 1,
+        step: 0.001,
+        name: 'Mouse Stiffness',
+        onChange: (stiffness) => (mouse.constraint.stiffness = stiffness)
+      },
       reset: {
         value: reset,
         name: 'Reset'
@@ -107,7 +115,7 @@ export default function Papers() {
 
     const mouse = MouseConstraint.create(solver, {
       constraint: {
-        stiffness: 0.33
+        stiffness: 0.01
       }
     });
 
@@ -138,7 +146,7 @@ export default function Papers() {
     const texture = new Two.Texture('images/texture-unwrapped.png', setup);
     texture.scale = params.scale.value;
 
-    World.add(solver.world, [mouse, cursor]);
+    World.add(solver.world, cursor);
 
     two.bind('resize', resize)
        .bind('update', update);
@@ -206,6 +214,13 @@ export default function Papers() {
 
     function resize() {
 
+      setIsMobile(() => {
+        const isMobile = navigator.maxTouchPoints > 0;;
+        params.value = isMobile ? 50 : 250;
+        requestAnimationFrame(setup);
+        return isMobile
+      });
+
       const pw = texture.image.width * texture.scale;
       const ph = texture.image.height * texture.scale;
 
@@ -255,24 +270,44 @@ export default function Papers() {
       }
 
       ANIMATING = true;
+      STARTED = false;
 
+      World.remove(solver.world, mouse);
+
+      const velocity = { x: 0, y: 0 };
       Composite.allBodies(solver.world).forEach((body) => {
 
-        const position = { x: body.position.x, y: body.position.y };
-        const x = Math.random() * two.width;
-        const y = Math.random() * two.height;
+        let position = {
+          x: body.position.x,
+          y: body.position.y
+        };
 
-        const tween = new TWEEN.Tween(position)
-          .to({ x, y }, 500)
-          .easing(TWEEN.Easing.Sinusoidal.InOut)
-          .onUpdate(() => {
-            Body.setVelocity(body, { x: 0, y: 0 });
+        switch (body.label) {
+          case 'Circle Label':
+            // This is the mouse
+            position.x = -1000;
+            position.y = -1000;
             Body.setPosition(body, position);
-          })
-          .onComplete(() => {
-            ANIMATING = false;
-          })
-          .start();
+            Body.setVelocity(body, velocity);
+            break;
+          case 'Rectangle Label':
+          default:
+            // These are the rigid body stickers
+            const x = Math.random() * two.width;
+            const y = Math.random() * two.height;
+    
+            new TWEEN.Tween(position)
+              .to({ x, y }, 500)
+              .easing(TWEEN.Easing.Sinusoidal.InOut)
+              .onUpdate(() => {
+                Body.setPosition(body, position);
+                Body.setVelocity(body, velocity);
+              })
+              .onComplete(() => {
+                ANIMATING = false;
+              })
+              .start();
+        }
 
       });
 
@@ -282,6 +317,8 @@ export default function Papers() {
       const position = { x: clientX, y: clientY };
       if (!STARTED) {
         Body.setPosition(cursor, position);
+        Body.setVelocity(cursor, { x: 0, y: 0 });
+        World.add(solver.world, mouse);
         STARTED = true;
       }
       setPointer(position);
@@ -314,7 +351,7 @@ export default function Papers() {
           Contact → <span className="mail" />
         </a>
       </div>
-      <div id="cursor" style={ { top: pointer.y, left: pointer.x } } />
+      <div id="cursor" style={ { top: pointer.y, left: pointer.x, display: isMobile ? 'none' : 'block' } } />
     </div>
   );
 }
