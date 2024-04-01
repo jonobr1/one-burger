@@ -33,7 +33,7 @@ export default function Papers() {
         value: navigator.maxTouchPoints > 0 ? 50 : 250,
         min: 0,
         max: 1000,
-        setp: 5,
+        step: 5,
         name: 'Amount',
         onChange: setup
       },
