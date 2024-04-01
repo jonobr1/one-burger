@@ -41496,8 +41496,8 @@
         density: {
           value: 1,
           min: 0.1,
-          max: 1,
-          step: 0.1,
+          max: 5,
+          step: 0.01,
           name: "Paper Density",
           onChange: (density) => import_matter_js.Composite.allBodies(solver.world).forEach((body) => import_matter_js.Body.setDensity(body, density))
         },
@@ -41511,9 +41511,9 @@
         },
         mass: {
           value: 1,
-          min: 1,
-          max: 50,
-          step: 1,
+          min: 0,
+          max: 5,
+          step: 1e-3,
           name: "Paper Mass",
           onChange: (mass) => import_matter_js.Composite.allBodies(solver.world).forEach((body) => import_matter_js.Body.setMass(body, mass))
         },
@@ -41526,7 +41526,7 @@
           onChange: resize
         },
         stiffness: {
-          value: 0.025,
+          value: 0.33,
           min: 0,
           max: 1,
           step: 1e-3,
@@ -41549,7 +41549,7 @@
       solver.world.gravity.y = 0;
       const mouse = import_matter_js.MouseConstraint.create(solver, {
         constraint: {
-          stiffness: 0.01
+          stiffness: params.stiffness.value
         }
       });
       if (window.location.search.includes("debug")) {

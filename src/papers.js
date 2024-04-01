@@ -59,8 +59,8 @@ export default function Papers() {
       density: {
         value: 1,
         min: 0.1,
-        max: 1,
-        step: 0.1,
+        max: 5,
+        step: 0.01,
         name: 'Paper Density',
         onChange: (density) => Composite.allBodies(solver.world).forEach((body) => Body.setDensity(body, density))
       },
@@ -74,9 +74,9 @@ export default function Papers() {
       },
       mass: {
         value: 1,
-        min: 1,
-        max: 50,
-        step: 1,
+        min: 0,
+        max: 5,
+        step: 0.001,
         name: 'Paper Mass',
         onChange: (mass) => Composite.allBodies(solver.world).forEach((body) => Body.setMass(body, mass))
       },
@@ -89,7 +89,7 @@ export default function Papers() {
         onChange: resize
       },
       stiffness: {
-        value: 0.025,
+        value: 0.33,
         min: 0,
         max: 1,
         step: 0.001,
@@ -115,7 +115,7 @@ export default function Papers() {
 
     const mouse = MouseConstraint.create(solver, {
       constraint: {
-        stiffness: 0.01
+        stiffness: params.stiffness.value
       }
     });
 
