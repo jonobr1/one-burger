@@ -46,6 +46,7 @@ export default function Papers() {
         onChange: (size) => {
           Body.scale(cursor, 1 / cursor.circleRadius, 1 / cursor.circleRadius);
           Body.scale(cursor, size, size);
+          Body.setMass(cursor, 1);
         }
       },
       frictionAir: {
@@ -54,15 +55,23 @@ export default function Papers() {
         max: 1,
         step: 0.01,
         name: 'Air Resistance',
-        onChange: (friction) => Composite.allBodies(solver.world).forEach((body) => (body.frictionAir = friction))
+        onChange: (friction) => {
+          Composite.allBodies(solver.world).forEach((body) => {
+            body.frictionAir = friction;
+          });
+        }
       },
       density: {
         value: 1,
         min: 0.1,
-        max: 5,
+        max: 2,
         step: 0.01,
         name: 'Paper Density',
-        onChange: (density) => Composite.allBodies(solver.world).forEach((body) => Body.setDensity(body, density))
+        onChange: (density) => {
+          Composite.allBodies(solver.world).forEach((body) => {
+            Body.setDensity(body, density);
+          });
+        }
       },
       friction: {
         value: 0.1,
@@ -70,15 +79,25 @@ export default function Papers() {
         max: 1,
         step: 0.1,
         name: 'Paper Friction',
-        onChange: (friction) => Composite.allBodies(solver.world).forEach((body) => (body.friction = friction))
+        onChange: (friction) => {
+          Composite.allBodies(solver.world).forEach((body) => {
+            body.friction = friction;
+          });
+        }
       },
       mass: {
         value: 1,
-        min: 0,
-        max: 5,
-        step: 0.001,
+        min: 0.0001,
+        max: 1,
+        step: 0.0001,
         name: 'Paper Mass',
-        onChange: (mass) => Composite.allBodies(solver.world).forEach((body) => Body.setMass(body, mass))
+        onChange: (mass) => {
+          Composite.allBodies(solver.world).forEach((body) => {
+            if (body.label.includes('Rectangle')) {
+              Body.setMass(body, Math.pow(mass, 8) * body.userData.mass);
+            }
+          });
+        }
       },
       scale: {
         value: 0.33,
@@ -141,7 +160,9 @@ export default function Papers() {
     }
 
     const cursor = Bodies.circle(0, 0, 1);
-    Body.scale(cursor, params.radius.value, params.radius.value)
+    Body.scale(cursor, params.radius.value, params.radius.value);
+    Body.setMass(cursor, 1);
+    cursor.userData = { mass: cursor.mass };
 
     const texture = new Two.Texture('images/texture-unwrapped.png', setup);
     texture.scale = params.scale.value;
@@ -202,6 +223,9 @@ export default function Papers() {
         Body.setAngle(entity, path.rotation);
 
         path.entity = entity;
+        path.entity.userData = {
+          mass: entity.mass
+        };
 
         two.add(path);
         World.add(solver.world, entity);
@@ -231,10 +255,12 @@ export default function Papers() {
 
       for (let i = 0; i < two.scene.children.length; i++) {
         const child = two.scene.children[i];
+        const mass = child.entity.userData.mass * params.mass.value;
         child.width = width;
         child.height = height;
         Body.scale(child.entity, 1 / pw, 1 / ph);
         Body.scale(child.entity, width, height);
+        Body.setMass(child.entity, mass);
       }
     }
 
@@ -255,7 +281,7 @@ export default function Papers() {
 
       for (let i = 0; i < two.scene.children.length; i++) {
         const child = two.scene.children[i];
-        if (child.entity) {
+        if (child.entity) { 
           child.position.copy(child.entity.position);
           child.rotation = child.entity.angle;
         }

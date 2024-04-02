@@ -41483,6 +41483,7 @@
           onChange: (size) => {
             import_matter_js.Body.scale(cursor, 1 / cursor.circleRadius, 1 / cursor.circleRadius);
             import_matter_js.Body.scale(cursor, size, size);
+            import_matter_js.Body.setMass(cursor, 1);
           }
         },
         frictionAir: {
@@ -41491,15 +41492,23 @@
           max: 1,
           step: 0.01,
           name: "Air Resistance",
-          onChange: (friction) => import_matter_js.Composite.allBodies(solver.world).forEach((body) => body.frictionAir = friction)
+          onChange: (friction) => {
+            import_matter_js.Composite.allBodies(solver.world).forEach((body) => {
+              body.frictionAir = friction;
+            });
+          }
         },
         density: {
           value: 1,
           min: 0.1,
-          max: 5,
+          max: 2,
           step: 0.01,
           name: "Paper Density",
-          onChange: (density) => import_matter_js.Composite.allBodies(solver.world).forEach((body) => import_matter_js.Body.setDensity(body, density))
+          onChange: (density) => {
+            import_matter_js.Composite.allBodies(solver.world).forEach((body) => {
+              import_matter_js.Body.setDensity(body, density);
+            });
+          }
         },
         friction: {
           value: 0.1,
@@ -41507,15 +41516,25 @@
           max: 1,
           step: 0.1,
           name: "Paper Friction",
-          onChange: (friction) => import_matter_js.Composite.allBodies(solver.world).forEach((body) => body.friction = friction)
+          onChange: (friction) => {
+            import_matter_js.Composite.allBodies(solver.world).forEach((body) => {
+              body.friction = friction;
+            });
+          }
         },
         mass: {
           value: 1,
-          min: 0,
-          max: 5,
-          step: 1e-3,
+          min: 1e-4,
+          max: 1,
+          step: 1e-4,
           name: "Paper Mass",
-          onChange: (mass) => import_matter_js.Composite.allBodies(solver.world).forEach((body) => import_matter_js.Body.setMass(body, mass))
+          onChange: (mass) => {
+            import_matter_js.Composite.allBodies(solver.world).forEach((body) => {
+              if (body.label.includes("Rectangle")) {
+                import_matter_js.Body.setMass(body, Math.pow(mass, 8) * body.userData.mass);
+              }
+            });
+          }
         },
         scale: {
           value: 0.33,
@@ -41574,6 +41593,8 @@
       }
       const cursor = import_matter_js.Bodies.circle(0, 0, 1);
       import_matter_js.Body.scale(cursor, params.radius.value, params.radius.value);
+      import_matter_js.Body.setMass(cursor, 1);
+      cursor.userData = { mass: cursor.mass };
       const texture = new Two.Texture("images/texture-unwrapped.png", setup);
       texture.scale = params.scale.value;
       import_matter_js.World.add(solver.world, cursor);
@@ -41620,6 +41641,9 @@
           import_matter_js.Body.scale(entity, path.width, path.height);
           import_matter_js.Body.setAngle(entity, path.rotation);
           path.entity = entity;
+          path.entity.userData = {
+            mass: entity.mass
+          };
           two.add(path);
           import_matter_js.World.add(solver.world, entity);
         }
@@ -41640,10 +41664,12 @@
         const height = texture.image.height * texture.scale;
         for (let i = 0; i < two.scene.children.length; i++) {
           const child = two.scene.children[i];
+          const mass = child.entity.userData.mass * params.mass.value;
           child.width = width;
           child.height = height;
           import_matter_js.Body.scale(child.entity, 1 / pw, 1 / ph);
           import_matter_js.Body.scale(child.entity, width, height);
+          import_matter_js.Body.setMass(child.entity, mass);
         }
       }
       function update2() {
@@ -41818,3 +41844,4 @@ lil-gui/dist/lil-gui.esm.js:
    * @license MIT
    *)
 */
+//# sourceMappingURL=index.js.map
