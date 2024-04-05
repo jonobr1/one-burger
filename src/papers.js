@@ -1,15 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
-import * as TWEEN from "@tweenjs/tween.js";
-import Two from "two.js";
+import React, { useEffect, useRef, useState } from 'react';
+import * as TWEEN from '@tweenjs/tween.js';
+import Two from 'two.js';
 import {
   Body,
   Bodies,
   Composite,
   Engine,
   MouseConstraint,
-  World
-} from "matter-js";
-import GUI from "lil-gui";
+  World,
+} from 'matter-js';
+import GUI from 'lil-gui';
 
 let STARTED = false;
 let ANIMATING = false;
@@ -18,16 +18,14 @@ const TWO_PI = Math.PI * 2;
 const touch = { x: -10, y: -10 };
 
 export default function Papers() {
-
   const domElement = useRef();
 
-  const [pointer, setPointer] = useState({ x: - 10, y: - 10 });
+  const [pointer, setPointer] = useState({ x: -10, y: -10 });
   const [isMobile, setIsMobile] = useState(navigator.maxTouchPoints > 0);
 
   useEffect(mount, []);
 
   function mount() {
-
     const params = {
       amount: {
         value: navigator.maxTouchPoints > 0 ? 50 : 250,
@@ -35,7 +33,7 @@ export default function Papers() {
         max: 1000,
         step: 5,
         name: 'Amount',
-        onChange: setup
+        onChange: setup,
       },
       radius: {
         value: 10,
@@ -47,7 +45,7 @@ export default function Papers() {
           Body.scale(cursor, 1 / cursor.circleRadius, 1 / cursor.circleRadius);
           Body.scale(cursor, size, size);
           Body.setMass(cursor, 1);
-        }
+        },
       },
       frictionAir: {
         value: 0.01,
@@ -59,7 +57,7 @@ export default function Papers() {
           Composite.allBodies(solver.world).forEach((body) => {
             body.frictionAir = friction;
           });
-        }
+        },
       },
       density: {
         value: 1,
@@ -71,7 +69,7 @@ export default function Papers() {
           Composite.allBodies(solver.world).forEach((body) => {
             Body.setDensity(body, density);
           });
-        }
+        },
       },
       friction: {
         value: 0.1,
@@ -83,10 +81,10 @@ export default function Papers() {
           Composite.allBodies(solver.world).forEach((body) => {
             body.friction = friction;
           });
-        }
+        },
       },
       mass: {
-        value: 1,
+        value: 0.35,
         min: 0.0001,
         max: 1,
         step: 0.0001,
@@ -97,7 +95,7 @@ export default function Papers() {
               Body.setMass(body, Math.pow(mass, 8) * body.userData.mass);
             }
           });
-        }
+        },
       },
       scale: {
         value: 0.33,
@@ -105,7 +103,7 @@ export default function Papers() {
         max: 1,
         step: 0.01,
         name: 'Paper Size',
-        onChange: resize
+        onChange: resize,
       },
       stiffness: {
         value: 0.33,
@@ -113,19 +111,19 @@ export default function Papers() {
         max: 1,
         step: 0.001,
         name: 'Mouse Stiffness',
-        onChange: (stiffness) => (mouse.constraint.stiffness = stiffness)
+        onChange: (stiffness) => (mouse.constraint.stiffness = stiffness),
       },
       reset: {
         value: reset,
-        name: 'Reset'
-      }
+        name: 'Reset',
+      },
     };
 
     const $globe = document.body.querySelector('#globe');
     const two = new Two({
       type: Two.Types.webgl,
       fullscreen: true,
-      autostart: true
+      autostart: true,
     }).appendTo(domElement.current);
 
     const solver = Engine.create();
@@ -134,15 +132,15 @@ export default function Papers() {
 
     const mouse = MouseConstraint.create(solver, {
       constraint: {
-        stiffness: params.stiffness.value
-      }
+        stiffness: params.stiffness.value,
+      },
     });
 
-    if (window.location.search.includes("debug")) {
+    if (window.location.search.includes('debug')) {
       const gui = new GUI();
       for (let prop in params) {
         const obj = params[prop];
-        const controller = gui.add(obj, 'value')
+        const controller = gui.add(obj, 'value');
         if (typeof obj.min === 'number') {
           controller.min(obj.min);
         }
@@ -169,8 +167,7 @@ export default function Papers() {
 
     World.add(solver.world, cursor);
 
-    two.bind('resize', resize)
-       .bind('update', update);
+    two.bind('resize', resize).bind('update', update);
 
     $globe.addEventListener('click', reset);
     $globe.addEventListener('touchstart', touchglobe);
@@ -191,7 +188,6 @@ export default function Papers() {
     }
 
     function setup() {
-
       for (let i = 0; i < two.scene.children.length; i++) {
         const child = two.scene.children[i];
         child.remove();
@@ -199,7 +195,6 @@ export default function Papers() {
       }
 
       for (let i = 0; i < params.amount.value; i++) {
-
         const x = Math.random() * two.width;
         const y = Math.random() * two.height;
         const width = texture.image.width * texture.scale;
@@ -216,33 +211,30 @@ export default function Papers() {
           friction: params.friction.value,
           frictionAir: params.frictionAir.value,
           collisionFilter: {
-            group: -1
-          }
+            group: -1,
+          },
         });
         Body.scale(entity, path.width, path.height);
         Body.setAngle(entity, path.rotation);
 
         path.entity = entity;
         path.entity.userData = {
-          mass: entity.mass
+          mass: entity.mass,
         };
 
         two.add(path);
         World.add(solver.world, entity);
-
       }
 
       document.body.style.opacity = 1;
-
     }
 
     function resize() {
-
       setIsMobile(() => {
-        const isMobile = navigator.maxTouchPoints > 0;;
+        const isMobile = navigator.maxTouchPoints > 0;
         params.value = isMobile ? 50 : 250;
         requestAnimationFrame(setup);
-        return isMobile
+        return isMobile;
       });
 
       const pw = texture.image.width * texture.scale;
@@ -265,32 +257,25 @@ export default function Papers() {
     }
 
     function update() {
-
       if (ANIMATING) {
-
         TWEEN.update();
-
       } else {
-
         mouse.mouse.button = 0;
         MouseConstraint.update(mouse, Composite.allBodies(solver.world));
 
         Engine.update(solver);
-
       }
 
       for (let i = 0; i < two.scene.children.length; i++) {
         const child = two.scene.children[i];
-        if (child.entity) { 
+        if (child.entity) {
           child.position.copy(child.entity.position);
           child.rotation = child.entity.angle;
         }
       }
-
     }
 
     function reset() {
-
       if (ANIMATING) {
         return;
       }
@@ -302,10 +287,9 @@ export default function Papers() {
 
       const velocity = { x: 0, y: 0 };
       Composite.allBodies(solver.world).forEach((body) => {
-
         let position = {
           x: body.position.x,
-          y: body.position.y
+          y: body.position.y,
         };
 
         switch (body.label) {
@@ -321,7 +305,7 @@ export default function Papers() {
             // These are the rigid body stickers
             const x = Math.random() * two.width;
             const y = Math.random() * two.height;
-    
+
             new TWEEN.Tween(position)
               .to({ x, y }, 500)
               .easing(TWEEN.Easing.Sinusoidal.InOut)
@@ -334,9 +318,7 @@ export default function Papers() {
               })
               .start();
         }
-
       });
-
     }
 
     function mousemove({ clientX, clientY }) {
@@ -366,18 +348,24 @@ export default function Papers() {
         }
       }
     }
-
   }
 
   return (
     <div className="interactive">
-      <div ref={ domElement } />
+      <div ref={domElement} />
       <div id="contact">
         <a href="mailto:buns@oneburger.com">
           Contact → <span className="mail" />
         </a>
       </div>
-      <div id="cursor" style={ { top: pointer.y, left: pointer.x, display: isMobile ? 'none' : 'block' } } />
+      <div
+        id="cursor"
+        style={{
+          top: pointer.y,
+          left: pointer.x,
+          display: isMobile ? 'none' : 'block',
+        }}
+      />
     </div>
   );
 }
