@@ -41523,7 +41523,7 @@
           }
         },
         mass: {
-          value: 1,
+          value: 0.35,
           min: 1e-4,
           max: 1,
           step: 1e-4,
@@ -41652,7 +41652,6 @@
       function resize() {
         setIsMobile(() => {
           const isMobile2 = navigator.maxTouchPoints > 0;
-          ;
           params.value = isMobile2 ? 50 : 250;
           requestAnimationFrame(setup);
           return isMobile2;
@@ -41748,7 +41747,17 @@
         }
       }
     }
-    return /* @__PURE__ */ import_react.default.createElement("div", { className: "interactive" }, /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 }), /* @__PURE__ */ import_react.default.createElement("div", { id: "contact" }, /* @__PURE__ */ import_react.default.createElement("a", { href: "mailto:buns@oneburger.com" }, "Contact \u2192 ", /* @__PURE__ */ import_react.default.createElement("span", { className: "mail" }))), /* @__PURE__ */ import_react.default.createElement("div", { id: "cursor", style: { top: pointer.y, left: pointer.x, display: isMobile ? "none" : "block" } }));
+    return /* @__PURE__ */ import_react.default.createElement("div", { className: "interactive" }, /* @__PURE__ */ import_react.default.createElement("div", { ref: domElement2 }), /* @__PURE__ */ import_react.default.createElement("div", { id: "contact" }, /* @__PURE__ */ import_react.default.createElement("a", { href: "mailto:buns@oneburger.com" }, "Contact \u2192 ", /* @__PURE__ */ import_react.default.createElement("span", { className: "mail" }))), /* @__PURE__ */ import_react.default.createElement(
+      "div",
+      {
+        id: "cursor",
+        style: {
+          top: pointer.y,
+          left: pointer.x,
+          display: isMobile ? "none" : "block"
+        }
+      }
+    ));
   }
 
   // src/index.js
@@ -41844,4 +41853,3 @@ lil-gui/dist/lil-gui.esm.js:
    * @license MIT
    *)
 */
-//# sourceMappingURL=index.js.map
