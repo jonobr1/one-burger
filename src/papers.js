@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as TWEEN from '@tweenjs/tween.js';
 import Two from 'two.js';
+// import GUI from 'lil-gui';
 import {
   Body,
   Bodies,
@@ -9,7 +10,6 @@ import {
   MouseConstraint,
   World,
 } from 'matter-js';
-import GUI from 'lil-gui';
 
 let STARTED = false;
 let ANIMATING = false;
@@ -131,11 +131,13 @@ export default function Papers() {
     solver.world.gravity.y = 0;
 
     const mouse = MouseConstraint.create(solver, {
+      element: document.body,
       constraint: {
         stiffness: params.stiffness.value,
       },
     });
 
+    /*
     if (window.location.search.includes('debug')) {
       const gui = new GUI();
       for (let prop in params) {
@@ -156,6 +158,7 @@ export default function Papers() {
         controller.name(obj.name || prop);
       }
     }
+    */
 
     const cursor = Bodies.circle(0, 0, 1);
     Body.scale(cursor, params.radius.value, params.radius.value);
@@ -257,12 +260,12 @@ export default function Papers() {
     }
 
     function update() {
+      mouse.mouse.button = 0;
+
       if (ANIMATING) {
         TWEEN.update();
       } else {
-        mouse.mouse.button = 0;
         MouseConstraint.update(mouse, Composite.allBodies(solver.world));
-
         Engine.update(solver);
       }
 

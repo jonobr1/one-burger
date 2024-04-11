@@ -113,6 +113,9 @@ body.mobile div#cursor {
 body div.lil-gui {
   cursor: default;
 }
+body a {
+  cursor: none;
+}
 @media screen and (max-width: 900px) {
   body div.seo {
     font-size: 2.5vw;
