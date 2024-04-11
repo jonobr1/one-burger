@@ -172,10 +172,7 @@ export default function Papers() {
     $globe.addEventListener('click', reset);
     $globe.addEventListener('touchstart', touchglobe);
     $globe.addEventListener('touchend', releaseglobe);
-    two.renderer.domElement.addEventListener('touchstart', touchstart, {
-      passive: false,
-    });
-    window.addEventListener('pointermove', mousemove);
+    document.body.addEventListener('pointermove', mousemove);
 
     return unmount;
 
@@ -187,10 +184,7 @@ export default function Papers() {
       $globe.removeEventListener('click', reset);
       $globe.removeEventListener('touchstart', touchglobe);
       $globe.removeEventListener('touchend', releaseglobe);
-      two.renderer.domElement.removeEventListener('touchstart', touchstart, {
-        passive: false,
-      });
-      window.removeEventListener('pointermove', mousemove);
+      document.body.removeEventListener('pointermove', mousemove);
     }
 
     function setup() {
@@ -325,12 +319,6 @@ export default function Papers() {
               .start();
         }
       });
-    }
-
-    function touchstart(e) {
-      if (e.touches.length > 0) {
-        mousemove(e.touches[0]);
-      }
     }
 
     function mousemove({ clientX, clientY }) {
