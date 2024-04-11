@@ -20,7 +20,7 @@ const touch = { x: -10, y: -10 };
 export default function Papers() {
   const domElement = useRef();
 
-  const [pointer, setPointer] = useState({ x: -10, y: -10 });
+  const [pointer, setPointer] = useState({ x: -1000, y: -1000 });
   const [isMobile, setIsMobile] = useState(navigator.maxTouchPoints > 0);
 
   useEffect(mount, []);
