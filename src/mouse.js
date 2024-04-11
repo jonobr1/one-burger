@@ -393,39 +393,29 @@ Mouse.create = function (element) {
 Mouse.setElement = function (mouse, element) {
   mouse.element = element;
 
-  element.removeEventListener('pointermove', mouse.mousemove, {
-    passive: true,
-  });
-  element.removeEventListener('pointerdown', mouse.mousedown, {
-    passive: true,
-  });
-  element.removeEventListener('pointerup', mouse.mouseup, { passive: true });
-  element.removeEventListener('touchmove', mouse.mousemove, {
-    passive: false,
-  });
-  element.removeEventListener('touchstart', mouse.mousedown, {
-    passive: false,
-  });
-  element.removeEventListener('touchend', mouse.mouseup, { passive: false });
+  const passive = { passive: true };
+  const active = { passive: false };
 
-  element.removeEventListener('mousewheel', mouse.mousewheel, {
-    passive: false,
-  });
-  element.removeEventListener('DOMMouseScroll', mouse.mousewheel, {
-    passive: false,
-  });
+  element.removeEventListener('pointermove', mouse.mousemove, passive);
+  element.removeEventListener('pointerdown', mouse.mousedown, passive);
+  element.removeEventListener('pointerup', mouse.mouseup, passive);
+  element.removeEventListener('touchmove', mouse.mousemove, active);
+  element.removeEventListener('touchstart', mouse.mousedown, active);
+  element.removeEventListener('touchend', mouse.mouseup, active);
+  element.removeEventListener('mousewheel', mouse.mousewheel, active);
+  element.removeEventListener('DOMMouseScroll', mouse.mousewheel, active);
 
   if (navigator.maxTouchPoints <= 0) {
-    element.addEventListener('pointermove', mouse.mousemove, { passive: true });
-    element.addEventListener('pointerdown', mouse.mousedown, { passive: true });
-    element.addEventListener('pointerup', mouse.mouseup, { passive: true });
+    element.addEventListener('pointermove', mouse.mousemove, passive);
+    element.addEventListener('pointerdown', mouse.mousedown, passive);
+    element.addEventListener('pointerup', mouse.mouseup, passive);
   } else {
-    element.addEventListener('touchmove', mouse.mousemove, { passive: false });
-    element.addEventListener('touchstart', mouse.mousedown, { passive: false });
-    element.addEventListener('touchend', mouse.mouseup, { passive: false });
+    element.addEventListener('touchmove', mouse.mousemove, active);
+    // element.addEventListener('touchstart', mouse.mousedown, active);
+    // element.addEventListener('touchend', mouse.mouseup, active);
   }
 
-  element.addEventListener('mousewheel', mouse.mousewheel, { passive: false });
+  element.addEventListener('mousewheel', mouse.mousewheel, active);
   element.addEventListener('DOMMouseScroll', mouse.mousewheel, {
     passive: false,
   });
