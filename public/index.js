@@ -39926,16 +39926,14 @@
   };
   Mouse.setElement = function(mouse, element) {
     mouse.element = element;
-    element.addEventListener("mousemove", mouse.mousemove, { passive: false });
-    element.addEventListener("mousedown", mouse.mousedown, { passive: false });
-    element.addEventListener("mouseup", mouse.mouseup, { passive: false });
+    element.addEventListener("pointermove", mouse.mousemove, { passive: true });
+    element.addEventListener("pointerdown", mouse.mousedown, { passive: true });
+    element.addEventListener("pointerup", mouse.mouseup, { passive: true });
+    element.addEventListener("touchmove", mouse.mousemove, { passive: false });
     element.addEventListener("mousewheel", mouse.mousewheel, { passive: false });
     element.addEventListener("DOMMouseScroll", mouse.mousewheel, {
       passive: false
     });
-    element.addEventListener("touchmove", mouse.mousemove, { passive: false });
-    element.addEventListener("touchstart", mouse.mousedown, { passive: false });
-    element.addEventListener("touchend", mouse.mouseup, { passive: false });
   };
   Mouse.clearSourceEvents = function(mouse) {
     mouse.sourceEvents.mousemove = null;
