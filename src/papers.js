@@ -7,6 +7,7 @@ import {
   Bodies,
   Composite,
   Engine,
+  Events,
   MouseConstraint,
   World,
 } from 'matter-js';
@@ -136,6 +137,8 @@ export default function Papers() {
         stiffness: params.stiffness.value,
       },
     });
+
+    Events.on(mouse, 'enddrag', () => (mouse.body = null));
 
     /*
     if (window.location.search.includes('debug')) {
