@@ -3,7 +3,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import Two from 'two.js';
 // import GUI from 'lil-gui';
 import { Body, Bodies, Composite, Engine, World } from 'matter-js';
-import { MouseConstraint } from './mouse.js';
+import { Mouse, MouseConstraint } from './mouse.js';
 
 let STARTED = false;
 let ANIMATING = false;
@@ -233,6 +233,7 @@ export default function Papers() {
       setIsMobile(() => {
         const isMobile = navigator.maxTouchPoints > 0;
         params.amount.value = isMobile ? 50 : 250;
+        Mouse.setElement(mouse.mouse, document.body);
         requestAnimationFrame(setup);
         return isMobile;
       });

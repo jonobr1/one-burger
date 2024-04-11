@@ -39926,10 +39926,35 @@
   };
   Mouse.setElement = function(mouse, element) {
     mouse.element = element;
-    element.addEventListener("pointermove", mouse.mousemove, { passive: true });
-    element.addEventListener("pointerdown", mouse.mousedown, { passive: true });
-    element.addEventListener("pointerup", mouse.mouseup, { passive: true });
-    element.addEventListener("touchmove", mouse.mousemove, { passive: false });
+    element.removeEventListener("pointermove", mouse.mousemove, {
+      passive: true
+    });
+    element.removeEventListener("pointerdown", mouse.mousedown, {
+      passive: true
+    });
+    element.removeEventListener("pointerup", mouse.mouseup, { passive: true });
+    element.removeEventListener("touchmove", mouse.mousemove, {
+      passive: false
+    });
+    element.removeEventListener("touchstart", mouse.mousedown, {
+      passive: false
+    });
+    element.removeEventListener("touchend", mouse.mouseup, { passive: false });
+    element.removeEventListener("mousewheel", mouse.mousewheel, {
+      passive: false
+    });
+    element.removeEventListener("DOMMouseScroll", mouse.mousewheel, {
+      passive: false
+    });
+    if (navigator.maxTouchPoints <= 0) {
+      element.addEventListener("pointermove", mouse.mousemove, { passive: true });
+      element.addEventListener("pointerdown", mouse.mousedown, { passive: true });
+      element.addEventListener("pointerup", mouse.mouseup, { passive: true });
+    } else {
+      element.addEventListener("touchmove", mouse.mousemove, { passive: false });
+      element.addEventListener("touchstart", mouse.mousedown, { passive: false });
+      element.addEventListener("touchend", mouse.mouseup, { passive: false });
+    }
     element.addEventListener("mousewheel", mouse.mousewheel, { passive: false });
     element.addEventListener("DOMMouseScroll", mouse.mousewheel, {
       passive: false
@@ -40152,6 +40177,7 @@
         setIsMobile(() => {
           const isMobile2 = navigator.maxTouchPoints > 0;
           params.amount.value = isMobile2 ? 50 : 250;
+          Mouse.setElement(mouse.mouse, document.body);
           requestAnimationFrame(setup);
           return isMobile2;
         });
