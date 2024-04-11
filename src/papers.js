@@ -2,14 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as TWEEN from '@tweenjs/tween.js';
 import Two from 'two.js';
 // import GUI from 'lil-gui';
-import {
-  Body,
-  Bodies,
-  Composite,
-  Engine,
-  MouseConstraint,
-  World,
-} from 'matter-js';
+import { Body, Bodies, Composite, Engine, World } from 'matter-js';
+import { MouseConstraint } from './mouse.js';
 
 let STARTED = false;
 let ANIMATING = false;
@@ -238,7 +232,7 @@ export default function Papers() {
     function resize() {
       setIsMobile(() => {
         const isMobile = navigator.maxTouchPoints > 0;
-        params.value = isMobile ? 50 : 250;
+        params.amount.value = isMobile ? 50 : 250;
         requestAnimationFrame(setup);
         return isMobile;
       });
@@ -263,11 +257,10 @@ export default function Papers() {
     }
 
     function update() {
-      mouse.mouse.button = 0;
-
       if (ANIMATING) {
         TWEEN.update();
       } else {
+        mouse.mouse.button = 0;
         MouseConstraint.update(mouse, Composite.allBodies(solver.world));
         Engine.update(solver);
       }
