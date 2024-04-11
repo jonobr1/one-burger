@@ -7,7 +7,6 @@ import {
   Bodies,
   Composite,
   Engine,
-  Events,
   MouseConstraint,
   World,
 } from 'matter-js';
@@ -37,13 +36,14 @@ export default function Papers() {
         onChange: setup,
       },
       radius: {
-        value: 10,
+        value: 5,
         min: 1,
         max: 100,
         step: 1,
         name: 'Cursor Radius',
-        onChange: (size) => {
-          Body.scale(cursor, 1 / cursor.circleRadius, 1 / cursor.circleRadius);
+        onChange: (radius) => {
+          const size = radius * 2;
+          Body.scale(cursor, 1 / cursor.scale, 1 / cursor.scale);
           Body.scale(cursor, size, size);
           Body.setMass(cursor, 1);
         },
@@ -90,13 +90,15 @@ export default function Papers() {
         max: 1,
         step: 0.0001,
         name: 'Paper Mass',
-        onChange: (mass) => {
+        onChange: () => {
+          const mass = params.mass.get();
           Composite.allBodies(solver.world).forEach((body) => {
             if (body.label.includes('Rectangle')) {
-              Body.setMass(body, Math.pow(mass, 8) * body.userData.mass);
+              Body.setMass(body, mass * body.userData.mass);
             }
           });
         },
+        get: () => Math.pow(params.mass.value, 8),
       },
       scale: {
         value: 0.33,
@@ -138,8 +140,6 @@ export default function Papers() {
       },
     });
 
-    Events.on(mouse, 'enddrag', () => (mouse.body = null));
-
     /*
     if (window.location.search.includes('debug')) {
       const gui = new GUI();
@@ -164,7 +164,7 @@ export default function Papers() {
     */
 
     const cursor = Bodies.circle(0, 0, 1);
-    Body.scale(cursor, params.radius.value, params.radius.value);
+    Body.scale(cursor, params.radius.value * 2, params.radius.value * 2);
     Body.setMass(cursor, 1);
     cursor.userData = { mass: cursor.mass };
 
@@ -213,7 +213,7 @@ export default function Papers() {
 
         const entity = Bodies.rectangle(x, y, 1, 1, {
           density: params.density.value,
-          mass: params.mass.value,
+          mass: params.mass.get(),
           friction: params.friction.value,
           frictionAir: params.frictionAir.value,
           collisionFilter: {
@@ -225,7 +225,7 @@ export default function Papers() {
 
         path.entity = entity;
         path.entity.userData = {
-          mass: entity.mass,
+          mass: params.mass.value,
         };
 
         two.add(path);
@@ -253,7 +253,7 @@ export default function Papers() {
 
       for (let i = 0; i < two.scene.children.length; i++) {
         const child = two.scene.children[i];
-        const mass = child.entity.userData.mass * params.mass.value;
+        const mass = child.entity.userData.mass * params.mass.get();
         child.width = width;
         child.height = height;
         Body.scale(child.entity, 1 / pw, 1 / ph);
