@@ -66,8 +66,6 @@ MouseConstraint.create = function (engine, options) {
 
   var mouseConstraint = Common.extend(defaults, options);
 
-  Events.on(mouse, 'dragstart', () => (mouseConstraint.bodyB = null));
-
   Events.on(engine, 'beforeUpdate', function () {
     var allBodies = Composite.allBodies(engine.world);
     MouseConstraint.update(mouseConstraint, allBodies);
@@ -88,57 +86,23 @@ MouseConstraint.update = function (mouseConstraint, bodies) {
   var mouse = mouseConstraint.mouse,
     constraint = mouseConstraint.constraint,
     body = mouseConstraint.body;
-
-  if (mouse.button === 0) {
-    if (!constraint.bodyB) {
-      for (var i = 0; i < bodies.length; i++) {
-        body = bodies[i];
-        if (
-          Bounds.contains(body.bounds, mouse.position) &&
-          Detector.canCollide(
-            body.collisionFilter,
-            mouseConstraint.collisionFilter
-          )
-        ) {
-          for (
-            var j = body.parts.length > 1 ? 1 : 0;
-            j < body.parts.length;
-            j++
-          ) {
-            var part = body.parts[j];
-            if (Vertices.contains(part.vertices, mouse.position)) {
-              constraint.pointA = mouse.position;
-              constraint.bodyB = mouseConstraint.body = body;
-              constraint.pointB = {
-                x: mouse.position.x - body.position.x,
-                y: mouse.position.y - body.position.y,
-              };
-              constraint.angleB = body.angle;
-
-              Sleeping.set(body, false);
-              Events.trigger(mouseConstraint, 'startdrag', {
-                mouse: mouse,
-                body: body,
-              });
-
-              break;
-            }
-          }
-        }
-      }
-    } else {
-      Sleeping.set(constraint.bodyB, false);
-      constraint.pointA = mouse.position;
-    }
+  if (!constraint.bodyB) {
+    body = bodies[0];
+    constraint.pointA = mouse.position;
+    constraint.bodyB = mouseConstraint.body = body;
+    constraint.pointB = {
+      x: 0,
+      y: 0,
+    };
+    constraint.angleB = body.angle;
+    Sleeping.set(body, false);
+    Events.trigger(mouseConstraint, 'startdrag', {
+      mouse: mouse,
+      body: body,
+    });
   } else {
-    constraint.bodyB = mouseConstraint.body = null;
-    constraint.pointB = null;
-
-    if (body)
-      Events.trigger(mouseConstraint, 'enddrag', {
-        mouse: mouse,
-        body: body,
-      });
+    Sleeping.set(constraint.bodyB, false);
+    constraint.pointA = mouse.position;
   }
 };
 
@@ -325,6 +289,7 @@ Mouse.create = function (element) {
     mouse.position.x = mouse.absolute.x * mouse.scale.x + mouse.offset.x;
     mouse.position.y = mouse.absolute.y * mouse.scale.y + mouse.offset.y;
     mouse.sourceEvents.mousemove = event;
+    Events.trigger(mouse, 'mousemove');
   };
 
   mouse.mousedown = function (event) {
@@ -349,6 +314,7 @@ Mouse.create = function (element) {
     mouse.mousedownPosition.x = mouse.position.x;
     mouse.mousedownPosition.y = mouse.position.y;
     mouse.sourceEvents.mousedown = event;
+    Events.trigger(mouse, 'mousedown');
   };
 
   mouse.mouseup = function (event) {
@@ -371,6 +337,7 @@ Mouse.create = function (element) {
     mouse.mouseupPosition.x = mouse.position.x;
     mouse.mouseupPosition.y = mouse.position.y;
     mouse.sourceEvents.mouseup = event;
+    Events.trigger(mouse, 'mouseup');
   };
 
   mouse.mousewheel = function (event) {
@@ -418,9 +385,7 @@ Mouse.setElement = function (mouse, element) {
   }
 
   element.addEventListener('mousewheel', mouse.mousewheel, active);
-  element.addEventListener('DOMMouseScroll', mouse.mousewheel, {
-    passive: false,
-  });
+  element.addEventListener('DOMMouseScroll', mouse.mousewheel, active);
 };
 
 /**

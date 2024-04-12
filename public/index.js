@@ -39777,7 +39777,6 @@
       }
     };
     var mouseConstraint = import_matter_js.Common.extend(defaults, options);
-    import_matter_js.Events.on(mouse, "dragstart", () => mouseConstraint.bodyB = null);
     import_matter_js.Events.on(engine, "beforeUpdate", function() {
       var allBodies = import_matter_js.Composite.allBodies(engine.world);
       MouseConstraint.update(mouseConstraint, allBodies);
@@ -39787,46 +39786,23 @@
   };
   MouseConstraint.update = function(mouseConstraint, bodies) {
     var mouse = mouseConstraint.mouse, constraint = mouseConstraint.constraint, body = mouseConstraint.body;
-    if (mouse.button === 0) {
-      if (!constraint.bodyB) {
-        for (var i = 0; i < bodies.length; i++) {
-          body = bodies[i];
-          if (import_matter_js.Bounds.contains(body.bounds, mouse.position) && import_matter_js.Detector.canCollide(
-            body.collisionFilter,
-            mouseConstraint.collisionFilter
-          )) {
-            for (var j = body.parts.length > 1 ? 1 : 0; j < body.parts.length; j++) {
-              var part = body.parts[j];
-              if (import_matter_js.Vertices.contains(part.vertices, mouse.position)) {
-                constraint.pointA = mouse.position;
-                constraint.bodyB = mouseConstraint.body = body;
-                constraint.pointB = {
-                  x: mouse.position.x - body.position.x,
-                  y: mouse.position.y - body.position.y
-                };
-                constraint.angleB = body.angle;
-                import_matter_js.Sleeping.set(body, false);
-                import_matter_js.Events.trigger(mouseConstraint, "startdrag", {
-                  mouse,
-                  body
-                });
-                break;
-              }
-            }
-          }
-        }
-      } else {
-        import_matter_js.Sleeping.set(constraint.bodyB, false);
-        constraint.pointA = mouse.position;
-      }
+    if (!constraint.bodyB) {
+      body = bodies[0];
+      constraint.pointA = mouse.position;
+      constraint.bodyB = mouseConstraint.body = body;
+      constraint.pointB = {
+        x: 0,
+        y: 0
+      };
+      constraint.angleB = body.angle;
+      import_matter_js.Sleeping.set(body, false);
+      import_matter_js.Events.trigger(mouseConstraint, "startdrag", {
+        mouse,
+        body
+      });
     } else {
-      constraint.bodyB = mouseConstraint.body = null;
-      constraint.pointB = null;
-      if (body)
-        import_matter_js.Events.trigger(mouseConstraint, "enddrag", {
-          mouse,
-          body
-        });
+      import_matter_js.Sleeping.set(constraint.bodyB, false);
+      constraint.pointA = mouse.position;
     }
   };
   MouseConstraint._triggerEvents = function(mouseConstraint) {
@@ -39878,6 +39854,7 @@
       mouse.position.x = mouse.absolute.x * mouse.scale.x + mouse.offset.x;
       mouse.position.y = mouse.absolute.y * mouse.scale.y + mouse.offset.y;
       mouse.sourceEvents.mousemove = event;
+      import_matter_js.Events.trigger(mouse, "mousemove");
     };
     mouse.mousedown = function(event) {
       var position = Mouse._getRelativeMousePosition(
@@ -39897,6 +39874,7 @@
       mouse.mousedownPosition.x = mouse.position.x;
       mouse.mousedownPosition.y = mouse.position.y;
       mouse.sourceEvents.mousedown = event;
+      import_matter_js.Events.trigger(mouse, "mousedown");
     };
     mouse.mouseup = function(event) {
       var position = Mouse._getRelativeMousePosition(
@@ -39914,6 +39892,7 @@
       mouse.mouseupPosition.x = mouse.position.x;
       mouse.mouseupPosition.y = mouse.position.y;
       mouse.sourceEvents.mouseup = event;
+      import_matter_js.Events.trigger(mouse, "mouseup");
     };
     mouse.mousewheel = function(event) {
       mouse.wheelDelta = Math.max(
@@ -39947,9 +39926,7 @@
       element.addEventListener("touchend", mouse.mouseup, active);
     }
     element.addEventListener("mousewheel", mouse.mousewheel, active);
-    element.addEventListener("DOMMouseScroll", mouse.mousewheel, {
-      passive: false
-    });
+    element.addEventListener("DOMMouseScroll", mouse.mousewheel, active);
   };
   Mouse.clearSourceEvents = function(mouse) {
     mouse.sourceEvents.mousemove = null;
@@ -40106,7 +40083,7 @@
           stiffness: params.stiffness.value
         }
       });
-      mouse.constraint.length = 10;
+      mouse.constraint.length = 0;
       const bodies = [];
       const cursor = import_matter_js2.Bodies.circle(0, 0, 1);
       import_matter_js2.Body.scale(cursor, params.radius.value * 2, params.radius.value * 2);
@@ -40195,7 +40172,6 @@
         if (ANIMATING) {
           update();
         } else {
-          mouse.mouse.button = 0;
           import_matter_js2.Engine.update(solver);
         }
         for (let i = 0; i < two.scene.children.length; i++) {

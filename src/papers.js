@@ -133,7 +133,7 @@ export default function Papers() {
         stiffness: params.stiffness.value,
       },
     });
-    mouse.constraint.length = 10;
+    mouse.constraint.length = 0;
 
     const bodies = [];
 
@@ -267,7 +267,7 @@ export default function Papers() {
       if (ANIMATING) {
         TWEEN.update();
       } else {
-        mouse.mouse.button = 0;
+        // mouse.mouse.button = 0;
         // MouseConstraint.update(mouse, bodies);
         Engine.update(solver);
       }
