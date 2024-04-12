@@ -40105,7 +40105,7 @@
           stiffness: params.stiffness.value
         }
       });
-      mouse.constraint.length = 0.5;
+      mouse.constraint.length = 10;
       const bodies = [];
       const cursor = import_matter_js2.Bodies.circle(0, 0, 1);
       import_matter_js2.Body.scale(cursor, params.radius.value * 2, params.radius.value * 2);

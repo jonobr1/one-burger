@@ -133,7 +133,7 @@ export default function Papers() {
         stiffness: params.stiffness.value,
       },
     });
-    mouse.constraint.length = 0.5;
+    mouse.constraint.length = 10;
 
     const bodies = [];
 
