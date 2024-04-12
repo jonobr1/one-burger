@@ -134,6 +134,8 @@ export default function Papers() {
       },
     });
 
+    const bodies = [];
+
     /*
     if (window.location.search.includes('debug')) {
       const gui = new GUI();
@@ -194,6 +196,8 @@ export default function Papers() {
         World.remove(solver.world, child.entity);
       }
 
+      bodies.length = 0;
+
       for (let i = 0; i < params.amount.value; i++) {
         const x = Math.random() * two.width;
         const y = Math.random() * two.height;
@@ -216,6 +220,7 @@ export default function Papers() {
         });
         Body.scale(entity, path.width, path.height);
         Body.setAngle(entity, path.rotation);
+        bodies.push(entity);
 
         path.entity = entity;
         path.entity.userData = {
@@ -262,7 +267,7 @@ export default function Papers() {
         TWEEN.update();
       } else {
         mouse.mouse.button = 0;
-        MouseConstraint.update(mouse, Composite.allBodies(solver.world));
+        MouseConstraint.update(mouse, Composite.allBodies(bodies));
         Engine.update(solver);
       }
 
