@@ -95,7 +95,7 @@ export default function Papers() {
         get: () => Math.pow(params.mass.value, 8),
       },
       scale: {
-        value: 0.33,
+        value: navigator.maxTouchPoints > 0 ? 0.28 : 0.33,
         min: 0.01,
         max: 1,
         step: 0.01,
@@ -239,6 +239,7 @@ export default function Papers() {
       setIsMobile(() => {
         const isMobile = navigator.maxTouchPoints > 0;
         params.amount.value = isMobile ? 50 : 250;
+        params.scale.value = isMobile ? 0.28 : 0.33;
         Mouse.setElement(mouse.mouse, document.body);
         requestAnimationFrame(setup);
         return isMobile;
