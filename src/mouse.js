@@ -119,7 +119,7 @@ MouseConstraint.update = function (mouseConstraint, bodies) {
                 body: body,
               });
 
-              // break;
+              break;
             }
           }
         }
@@ -306,7 +306,6 @@ Mouse.create = function (element) {
   };
 
   mouse.mousemove = function (event) {
-    console.log('mousemove');
     var position = Mouse._getRelativeMousePosition(
         event,
         mouse.element,

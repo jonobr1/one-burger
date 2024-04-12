@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as TWEEN from '@tweenjs/tween.js';
 import Two from 'two.js';
 // import GUI from 'lil-gui';
-import { Body, Bodies, Composite, Engine, World } from 'matter-js';
+import { Body, Bodies, Composite, Engine, Sleeping, World } from 'matter-js';
 import { Mouse, MouseConstraint } from './mouse.js';
 
 let STARTED = false;
@@ -133,6 +133,7 @@ export default function Papers() {
         stiffness: params.stiffness.value,
       },
     });
+    mouse.constraint.length = 0.5;
 
     const bodies = [];
 
@@ -267,7 +268,7 @@ export default function Papers() {
         TWEEN.update();
       } else {
         mouse.mouse.button = 0;
-        MouseConstraint.update(mouse, Composite.allBodies(bodies));
+        MouseConstraint.update(mouse, bodies);
         Engine.update(solver);
       }
 

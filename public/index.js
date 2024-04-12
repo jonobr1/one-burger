@@ -24242,7 +24242,7 @@
               module2.exports = Body2;
               var Vertices2 = __webpack_require__(3);
               var Vector2 = __webpack_require__(2);
-              var Sleeping2 = __webpack_require__(7);
+              var Sleeping3 = __webpack_require__(7);
               var Common2 = __webpack_require__(0);
               var Bounds2 = __webpack_require__(1);
               var Axes = __webpack_require__(11);
@@ -24373,7 +24373,7 @@
                         Body2.setStatic(body, value);
                         break;
                       case "isSleeping":
-                        Sleeping2.set(body, value);
+                        Sleeping3.set(body, value);
                         break;
                       case "mass":
                         Body2.setMass(body, value);
@@ -25077,37 +25077,37 @@
             /* 7 */
             /***/
             function(module2, exports2, __webpack_require__) {
-              var Sleeping2 = {};
-              module2.exports = Sleeping2;
+              var Sleeping3 = {};
+              module2.exports = Sleeping3;
               var Body2 = __webpack_require__(4);
               var Events3 = __webpack_require__(5);
               var Common2 = __webpack_require__(0);
               (function() {
-                Sleeping2._motionWakeThreshold = 0.18;
-                Sleeping2._motionSleepThreshold = 0.08;
-                Sleeping2._minBias = 0.9;
-                Sleeping2.update = function(bodies, delta) {
-                  var timeScale = delta / Common2._baseDelta, motionSleepThreshold = Sleeping2._motionSleepThreshold;
+                Sleeping3._motionWakeThreshold = 0.18;
+                Sleeping3._motionSleepThreshold = 0.08;
+                Sleeping3._minBias = 0.9;
+                Sleeping3.update = function(bodies, delta) {
+                  var timeScale = delta / Common2._baseDelta, motionSleepThreshold = Sleeping3._motionSleepThreshold;
                   for (var i = 0; i < bodies.length; i++) {
                     var body = bodies[i], speed = Body2.getSpeed(body), angularSpeed = Body2.getAngularSpeed(body), motion = speed * speed + angularSpeed * angularSpeed;
                     if (body.force.x !== 0 || body.force.y !== 0) {
-                      Sleeping2.set(body, false);
+                      Sleeping3.set(body, false);
                       continue;
                     }
                     var minMotion = Math.min(body.motion, motion), maxMotion = Math.max(body.motion, motion);
-                    body.motion = Sleeping2._minBias * minMotion + (1 - Sleeping2._minBias) * maxMotion;
+                    body.motion = Sleeping3._minBias * minMotion + (1 - Sleeping3._minBias) * maxMotion;
                     if (body.sleepThreshold > 0 && body.motion < motionSleepThreshold) {
                       body.sleepCounter += 1;
                       if (body.sleepCounter >= body.sleepThreshold / timeScale) {
-                        Sleeping2.set(body, true);
+                        Sleeping3.set(body, true);
                       }
                     } else if (body.sleepCounter > 0) {
                       body.sleepCounter -= 1;
                     }
                   }
                 };
-                Sleeping2.afterCollisions = function(pairs) {
-                  var motionSleepThreshold = Sleeping2._motionSleepThreshold;
+                Sleeping3.afterCollisions = function(pairs) {
+                  var motionSleepThreshold = Sleeping3._motionSleepThreshold;
                   for (var i = 0; i < pairs.length; i++) {
                     var pair = pairs[i];
                     if (!pair.isActive)
@@ -25118,12 +25118,12 @@
                     if (bodyA.isSleeping || bodyB.isSleeping) {
                       var sleepingBody = bodyA.isSleeping && !bodyA.isStatic ? bodyA : bodyB, movingBody = sleepingBody === bodyA ? bodyB : bodyA;
                       if (!sleepingBody.isStatic && movingBody.motion > motionSleepThreshold) {
-                        Sleeping2.set(sleepingBody, false);
+                        Sleeping3.set(sleepingBody, false);
                       }
                     }
                   }
                 };
-                Sleeping2.set = function(body, isSleeping) {
+                Sleeping3.set = function(body, isSleeping) {
                   var wasSleeping = body.isSleeping;
                   if (isSleeping) {
                     body.isSleeping = true;
@@ -25393,7 +25393,7 @@
               module2.exports = Constraint2;
               var Vertices2 = __webpack_require__(3);
               var Vector2 = __webpack_require__(2);
-              var Sleeping2 = __webpack_require__(7);
+              var Sleeping3 = __webpack_require__(7);
               var Bounds2 = __webpack_require__(1);
               var Axes = __webpack_require__(11);
               var Common2 = __webpack_require__(0);
@@ -25530,7 +25530,7 @@
                     if (body.isStatic || impulse.x === 0 && impulse.y === 0 && impulse.angle === 0) {
                       continue;
                     }
-                    Sleeping2.set(body, false);
+                    Sleeping3.set(body, false);
                     for (var j = 0; j < body.parts.length; j++) {
                       var part = body.parts[j];
                       Vertices2.translate(part.vertices, impulse);
@@ -26200,7 +26200,7 @@
             function(module2, exports2, __webpack_require__) {
               var Engine2 = {};
               module2.exports = Engine2;
-              var Sleeping2 = __webpack_require__(7);
+              var Sleeping3 = __webpack_require__(7);
               var Resolver = __webpack_require__(18);
               var Detector2 = __webpack_require__(13);
               var Pairs = __webpack_require__(19);
@@ -26259,7 +26259,7 @@
                     Composite3.setModified(world, false, false, true);
                   }
                   if (engine.enableSleeping)
-                    Sleeping2.update(allBodies, delta);
+                    Sleeping3.update(allBodies, delta);
                   Engine2._bodiesApplyGravity(allBodies, engine.gravity);
                   if (delta > 0) {
                     Engine2._bodiesUpdate(allBodies, delta);
@@ -26273,7 +26273,7 @@
                   var collisions = Detector2.collisions(detector);
                   Pairs.update(pairs, collisions, timestamp);
                   if (engine.enableSleeping)
-                    Sleeping2.afterCollisions(pairs.list);
+                    Sleeping3.afterCollisions(pairs.list);
                   if (pairs.collisionStart.length > 0)
                     Events3.trigger(engine, "collisionStart", { pairs: pairs.collisionStart });
                   var positionDamping = Common2.clamp(20 / engine.positionIterations, 0, 1);
@@ -26309,7 +26309,7 @@
                     var bodies = Composite3.allBodies(engineA.world);
                     for (var i = 0; i < bodies.length; i++) {
                       var body = bodies[i];
-                      Sleeping2.set(body, false);
+                      Sleeping3.set(body, false);
                       body.id = Common2.nextId();
                     }
                   }
@@ -26977,7 +26977,7 @@
               var MouseConstraint2 = {};
               module2.exports = MouseConstraint2;
               var Vertices2 = __webpack_require__(3);
-              var Sleeping2 = __webpack_require__(7);
+              var Sleeping3 = __webpack_require__(7);
               var Mouse2 = __webpack_require__(14);
               var Events3 = __webpack_require__(5);
               var Detector2 = __webpack_require__(13);
@@ -27044,7 +27044,7 @@
                               constraint.bodyB = mouseConstraint.body = body;
                               constraint.pointB = { x: mouse.position.x - body.position.x, y: mouse.position.y - body.position.y };
                               constraint.angleB = body.angle;
-                              Sleeping2.set(body, false);
+                              Sleeping3.set(body, false);
                               Events3.trigger(mouseConstraint, "startdrag", { mouse, body });
                               break;
                             }
@@ -27052,7 +27052,7 @@
                         }
                       }
                     } else {
-                      Sleeping2.set(constraint.bodyB, false);
+                      Sleeping3.set(constraint.bodyB, false);
                       constraint.pointA = mouse.position;
                     }
                   } else {
@@ -39863,7 +39863,6 @@
       mousewheel: null
     };
     mouse.mousemove = function(event) {
-      console.log("mousemove");
       var position = Mouse._getRelativeMousePosition(
         event,
         mouse.element,
@@ -40106,6 +40105,8 @@
           stiffness: params.stiffness.value
         }
       });
+      mouse.constraint.length = 0.5;
+      const bodies = [];
       const cursor = import_matter_js2.Bodies.circle(0, 0, 1);
       import_matter_js2.Body.scale(cursor, params.radius.value * 2, params.radius.value * 2);
       import_matter_js2.Body.setMass(cursor, 1);
@@ -40135,6 +40136,7 @@
           child.remove();
           import_matter_js2.World.remove(solver.world, child.entity);
         }
+        bodies.length = 0;
         for (let i = 0; i < params.amount.value; i++) {
           const x = Math.random() * two.width;
           const y = Math.random() * two.height;
@@ -40155,6 +40157,7 @@
           });
           import_matter_js2.Body.scale(entity, path.width, path.height);
           import_matter_js2.Body.setAngle(entity, path.rotation);
+          bodies.push(entity);
           path.entity = entity;
           path.entity.userData = {
             mass: params.mass.value
@@ -40192,7 +40195,7 @@
           update();
         } else {
           mouse.mouse.button = 0;
-          MouseConstraint.update(mouse, import_matter_js2.Composite.allBodies(solver.world));
+          MouseConstraint.update(mouse, bodies);
           import_matter_js2.Engine.update(solver);
         }
         for (let i = 0; i < two.scene.children.length; i++) {
