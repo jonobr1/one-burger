@@ -119,7 +119,7 @@ MouseConstraint.update = function (mouseConstraint, bodies) {
                 body: body,
               });
 
-              break;
+              // break;
             }
           }
         }
