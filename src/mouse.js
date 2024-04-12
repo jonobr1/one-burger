@@ -306,6 +306,7 @@ Mouse.create = function (element) {
   };
 
   mouse.mousemove = function (event) {
+    console.log('mousemove');
     var position = Mouse._getRelativeMousePosition(
         event,
         mouse.element,
@@ -411,8 +412,8 @@ Mouse.setElement = function (mouse, element) {
     element.addEventListener('pointerup', mouse.mouseup, passive);
   } else {
     element.addEventListener('touchmove', mouse.mousemove, active);
-    // element.addEventListener('touchstart', mouse.mousedown, active);
-    // element.addEventListener('touchend', mouse.mouseup, active);
+    element.addEventListener('touchstart', mouse.mousedown, active);
+    element.addEventListener('touchend', mouse.mouseup, active);
   }
 
   element.addEventListener('mousewheel', mouse.mousewheel, active);
