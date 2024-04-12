@@ -268,7 +268,7 @@ export default function Papers() {
         TWEEN.update();
       } else {
         mouse.mouse.button = 0;
-        MouseConstraint.update(mouse, bodies);
+        // MouseConstraint.update(mouse, bodies);
         Engine.update(solver);
       }
 

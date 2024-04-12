@@ -39777,6 +39777,7 @@
       }
     };
     var mouseConstraint = import_matter_js.Common.extend(defaults, options);
+    import_matter_js.Events.on(mouse, "dragstart", () => mouseConstraint.bodyB = null);
     import_matter_js.Events.on(engine, "beforeUpdate", function() {
       var allBodies = import_matter_js.Composite.allBodies(engine.world);
       MouseConstraint.update(mouseConstraint, allBodies);
@@ -40195,7 +40196,6 @@
           update();
         } else {
           mouse.mouse.button = 0;
-          MouseConstraint.update(mouse, bodies);
           import_matter_js2.Engine.update(solver);
         }
         for (let i = 0; i < two.scene.children.length; i++) {

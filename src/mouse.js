@@ -66,6 +66,8 @@ MouseConstraint.create = function (engine, options) {
 
   var mouseConstraint = Common.extend(defaults, options);
 
+  Events.on(mouse, 'dragstart', () => (mouseConstraint.bodyB = null));
+
   Events.on(engine, 'beforeUpdate', function () {
     var allBodies = Composite.allBodies(engine.world);
     MouseConstraint.update(mouseConstraint, allBodies);
