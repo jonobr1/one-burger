@@ -13,9 +13,11 @@ const touch = { x: -10, y: -10 };
 
 export default function Papers() {
   const domElement = useRef();
+  const audio = useRef();
 
   const [pointer, setPointer] = useState({ x: -1000, y: -1000 });
   const [isMobile, setIsMobile] = useState(navigator.maxTouchPoints > 0);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   useEffect(mount, []);
 
@@ -360,9 +362,27 @@ export default function Papers() {
   return (
     <div className="interactive">
       <div ref={domElement} />
+      <div
+        id="music"
+        className={isAudioPlaying ? 'playing' : ''}
+        onClick={() => {
+          audio.current.volume = 0.8;
+          if (audio.current.paused) {
+            audio.current.play();
+            setIsAudioPlaying(true);
+          } else {
+            audio.current.pause();
+            setIsAudioPlaying(false);
+          }
+        }}
+      >
+        <audio ref={audio} src="assets/track.mp3" loop={true}>
+          Your browser does not support audio
+        </audio>
+      </div>
       <div id="contact">
         <a href="mailto:buns@oneburger.com">
-          Contact → <span className="mail" />
+          Connect with us → <span className="mail" />
         </a>
       </div>
       <div

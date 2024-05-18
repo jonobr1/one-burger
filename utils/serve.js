@@ -5,13 +5,11 @@ es.context({
   outdir: 'public',
   bundle: true,
   loader: { '.js': 'jsx' },
-  external: ['./images/*', './fonts/*'],
-  sourcemap: true
+  external: ['./images/*', './fonts/*', './assets/*'],
+  sourcemap: true,
 }).then((ctx) => {
-
   ctx.serve({
     port: 8080,
-    servedir: 'public'
+    servedir: 'public',
   });
-
 });

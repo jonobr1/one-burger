@@ -100,6 +100,8 @@ body {
       letter-spacing: 1px;
       line-height: 40px;
       background: white;
+      padding-left: 20px;
+      padding-right: 20px;
       pointer-events: all;
       min-width: 200px;
     }
@@ -139,6 +141,37 @@ body {
 
   a {
     cursor: none;
+  }
+}
+
+div#music {
+  display: block;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  background: white url(images/music-note-off.svg) center center no-repeat;
+  background-size: 20px;
+  border: 1px solid black;
+  content: "";
+  &:after {
+    position: absolute;
+    display: block;
+    top: 50%;
+    left: 50%;
+    height: 140%;
+    width: 1px;
+    content: "";
+    background: black;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    pointer-events: none;
+  }
+  &.playing {
+    background-image: url(images/music-note.svg);
+    &:after {
+      display: none;
+    }
   }
 }
 
